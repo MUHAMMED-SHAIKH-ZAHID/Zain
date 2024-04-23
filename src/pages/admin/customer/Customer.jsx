@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearHeading, setHeading } from '../../../redux/features/HeadingSlice';
 import { CustomerColumns } from '../../../components/table/columns/CustomerColumns';
 import DataTable from '../../../components/table/DataTable';
 import DeleteCustomer from './DeleteCustomer';
+import { fetchAllCustomers } from '../../../redux/features/CustomerSlice';
 
 const Data = [
   {
@@ -265,13 +266,21 @@ const Customer = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setHeading("SalesExecutive"));
+    dispatch(setHeading("Customer"));
     
     // Optionally reset the heading when the component unmounts
     return () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
+
+  
+  useEffect(() => {
+    dispatch(fetchAllCustomers());
+  }, [dispatch]);
+  const { customers, loading, error } = useSelector(state => state?.customers?.customers);
+
+  console.log(customers,"checking customer from bakcend in customer.jsx")
 
   //   const [showEditModal, setShowEditModal] = useState(false);
 // const [editData, setEditData] = useState(null);
@@ -305,7 +314,7 @@ const columns = CustomerColumns(editClickHandler,deleteClickHandler);
   return (
     <div>
     <DataTable
-  data={Data}
+  data={customers}
   columns={columns}
   filterColumn="state"
   title={'Customer'}

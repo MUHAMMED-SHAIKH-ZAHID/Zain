@@ -2,35 +2,34 @@ import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
 const PurchaseColumns = (editActionClick, deleteActionClick) => [
-  { Header: "Id", accessor: 'purchaseId' },
+  { Header: "Id", accessor: 'id' },
   { Header: "Supplier Name", accessor: 'supplier' },
-  { Header: "Invoice Number", accessor: 'invoice' },
+  { Header: "Purchase Number", accessor: 'purchase_number' },
   {
     Header: 'Total Amount',
-    accessor: (row) => {
-      const paid = parseFloat(row.paidAmount || '0');
-      const balance = parseFloat(row.balanceAmount || '0');
-      return paid + balance;
-    },
-    Cell: ({ value }) => <span className="font-medium">{`$${value.toFixed(2)}`}</span>
+    accessor:'grand_total'
   },
   {
-    Header: "Status",
-    accessor: 'status',
-    Cell: ({ value }) => {
-      const statusToBadgeClass = {
-        Transit: "bg-yellow-100 text-yellow-800",
-        Placed: "bg-green-100 text-green-800",
-        Partial: "bg-orange-100 text-orange-800",  // Assuming statuses are one word; adjust as per your data
-        Hold: "bg-red-100 text-red-800",
-      };
-      return (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusToBadgeClass[value] || 'bg-gray-100 text-gray-800'}`}>
-          {value}
-        </span>
-      );
-    }
+    Header: 'Payment Balance',
+    accessor:'payment_balance'
   },
+  // {
+  //   Header: "Status",
+  //   accessor: 'status',
+  //   Cell: ({ value }) => {
+  //     const statusToBadgeClass = {
+  //       Transit: "bg-yellow-100 text-yellow-800",
+  //       Placed: "bg-green-100 text-green-800",
+  //       Partial: "bg-orange-100 text-orange-800",  // Assuming statuses are one word; adjust as per your data
+  //       Hold: "bg-red-100 text-red-800",
+  //     };
+  //     return (
+  //       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusToBadgeClass[value] || 'bg-gray-100 text-gray-800'}`}>
+  //         {value}
+  //       </span>
+  //     );
+  //   }
+  // },
   {
     Header: () => (
         <div className='text-center ml-32'>Actions</div> // Text is centered for consistency

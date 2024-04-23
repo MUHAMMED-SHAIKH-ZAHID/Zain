@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import DataTable from "../../../components/table/DataTable";
 import { suplierColumns } from "../../../components/table/columns/SupplierColumns";
@@ -7,6 +7,7 @@ import AddSupplier from "./AddSupplier";
 import Modal from "../../../components/commoncomponents/Modal";
 import EditSupplier from "./EditSupplier";
 import DeleteSupplier from "./DeleteSupplier";
+import { deleteSupplier, fetchAllSuppliers } from "../../../redux/features/SupplierSlice";
 
 
 
@@ -170,7 +171,7 @@ const deleteClickHandler = (rowData) => {
 
 const handleDelete = (id) => {
   console.log("Deleting item with id:", id);
-  // Perform your delete operation here
+  dispatch(deleteSupplier(id))
 };
 
 const handleCloseDeleteModal = () => {
@@ -188,11 +189,18 @@ const handleCloseDeleteModal = () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
+
+  const { suppliers, loading, error } = useSelector((state) => state?.supplier);
+
+    useEffect(() => {
+    // Dispatch the action to fetch dashboard data when the component mounts
+    dispatch(fetchAllSuppliers());
+  }, [dispatch]);
   return (
     <div>
    
       <DataTable
-        data={Data}
+        data={suppliers}
         columns={columns}
         filterColumn="location"
         title={'supplier'}

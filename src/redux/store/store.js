@@ -13,10 +13,28 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import HeadingSlice  from "../features/HeadingSlice";
+import AuthSlice from "../features/AuthSlice";
+import DashboardSlice from "../features/DashboardSlice";
+import SupplierSlice from "../features/SupplierSlice";
+import PurchaseSlice from "../features/PurchaseSlice";
+import SalesExecutiveSlice from "../features/SalesExecutiveSlice";
+import CustomerSlice from "../features/CustomerSlice";
+import CategorySlice from "../features/DataManageSlices/CategorySlice";
+import RoutesSlice from "../features/DataManageSlices/RoutesSlice";
+import BrandSlice from "../features/DataManageSlices/BrandSlice";
 
 
 const rootReducer = combineReducers({
     heading: HeadingSlice ,
+    auth:AuthSlice,
+    dashboard:DashboardSlice,
+    supplier:SupplierSlice,
+    purchases:PurchaseSlice,
+    salesExecutives:SalesExecutiveSlice,
+    customers:CustomerSlice,
+    categories:CategorySlice,
+    routes:RoutesSlice,
+    brands:BrandSlice,
 
 });
 

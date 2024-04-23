@@ -11,7 +11,7 @@ const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
   
     {
       Header: "Mobile",
-      accessor: 'mobile',
+      accessor: 'contact_one',
     },
     {
       Header: "Email",
@@ -19,7 +19,7 @@ const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
     },
     {
       Header:"Company",
-      accessor: 'company',
+      accessor: 'company_name',
     },
     {
       Header: "Location",

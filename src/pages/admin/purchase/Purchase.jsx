@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import DataTable from "../../../components/table/DataTable";
 import { PurchaseColumns } from "../../../components/table/columns/PurchaseColumns";
 import DeletePurchase from "./DeletePurchase";
+import { fetchAllPurchases } from "../../../redux/features/PurchaseSlice";
 
 const Data = [
   {
@@ -140,6 +141,12 @@ const Purchase = () => {
   const dispatch = useDispatch();
 
 
+  const { purchases, loading, error } = useSelector((state) => state?.purchases);
+
+  useEffect(() => {
+    dispatch(fetchAllPurchases());
+  }, [dispatch]);
+console.log(purchases,"data from backend purchase data")
 
   useEffect(() => {
     dispatch(setHeading("Purchase"));
@@ -149,6 +156,8 @@ const Purchase = () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
+
+
 
 
 //   const [showEditModal, setShowEditModal] = useState(false);
@@ -183,10 +192,10 @@ const handleCloseDeleteModal = () => {
   return (
     <div>
       <DataTable
-        data={Data}
+        data={purchases}
         columns={columns}
         filterColumn="supplier"
-        title={'supplier'}
+        title={'Purchases'}
       />
         <DeletePurchase
         show={showDeleteModal}

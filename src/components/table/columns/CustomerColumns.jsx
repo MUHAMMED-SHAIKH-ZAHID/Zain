@@ -12,7 +12,7 @@ const CustomerColumns = (editActionClick, deleteActionClick) => [
   },
   {
     Header: "Company",
-    accessor: 'companyName',
+    accessor: 'company_name',
   },
   {
     Header: "Location",

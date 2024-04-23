@@ -1,19 +1,19 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTable, usePagination } from 'react-table';
 import ModalManage from './ModalManage';
 
-const DataTable = ({ data, columns, filterColumn ,title }) => {
+const DataTable = ({ data, columns, filterColumn, title }) => {
   const [filterValue, setFilterValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
 
   const filteredData = useMemo(() => {
-    return data.filter((item) => {
+    return data?.filter((item) => {
       const searchMatch = Object.values(item)
         .join(' ')
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const filterMatch = filterValue === '' || item[filterColumn]?.toString().includes(filterValue);
+      const filterMatch = filterValue === '' || item[filterColumn]?.toString().toLowerCase().includes(filterValue.toLowerCase());
       return searchMatch && filterMatch;
     });
   }, [data, searchTerm, filterValue, filterColumn]);
@@ -51,94 +51,95 @@ const DataTable = ({ data, columns, filterColumn ,title }) => {
   }, [filteredData, gotoPage]);
 
   return (
-    <div className="container mx-auto mt-2 p-2 rounded-lg">
-      <div className="flex justify-between gap-2 mb-4">
-        <div className=" flex gap-2">
-
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 border border-gray-400 rounded-md"
-        />
-        <select
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-          className="px-4 py-2 font-semibold border text-[.8rem] border-gray-400 rounded uppercase"
-        >
-          <option value="">Filter by {filterColumn}</option>
-          {[...new Set(data.map(item => item[filterColumn]))].map(value => (
-            <option key={value} value={value}>{value}</option>
-          ))}
-        </select>
+    <div className="container mx-auto mt-4 p-4 bg-white rounded-lg shadow">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex gap-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          <select
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Filter by {filterColumn}</option>
+            {[...new Set(data?.map(item => item[filterColumn]))].map(value => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
         </div>
-        <div className="">
-            <ModalManage title={title} />
-        </div>
+        <ModalManage title={title} />
       </div>
-      <table {...getTableProps()} className="w-full table-auto">
-        <thead className="bg-[#e9ecef] text-gray-900 text-[.8rem] border-b border-gray-300 uppercase">
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()} className="px-4 py-3 font-normal text-left">
-                  {column.render('Header')}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row, rowIndex) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()} className={`text-[.9rem] ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f3f5f9]'} border-b`}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()} className="px-4 py-3">
-                    {cell.render('Cell')}
-                  </td>
+      <div className="overflow-x-auto">
+        <table {...getTableProps()} className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            {headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps()} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {column.render('Header')}
+                  </th>
                 ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className="flex justify-end mt-4">
-        <nav aria-label="Pagination">
-          <ul className="flex list-style-none">
-            <li>
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                className="px-3 py-1 rounded-l-md border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()} className="bg-white divide-y divide-gray-200">
+            {page.map((row, rowIndex) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()} className="hover:bg-gray-50">
+                  {row.cells.map(cell => (
+                    <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {cell.render('Cell')}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="py-3 flex items-center justify-between">
+        <div className="flex-1 flex justify-between sm:hidden">
+          <button onClick={() => previousPage()} disabled={!canPreviousPage} className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Previous
+          </button>
+          <button onClick={() => nextPage()} disabled={!canNextPage} className="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm text-gray-700">
+              Showing <span className="font-medium">{pageIndex * itemsPerPage + 1}</span> to <span className="font-medium">{Math.min((pageIndex + 1) * itemsPerPage, data.length)}</span> of <span className="font-medium">{data.length}</span> results
+            </p>
+          </div>
+          <div>
+            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button onClick={() => previousPage()} disabled={!canPreviousPage} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span className="sr-only">Previous</span>
+                {/* Icon for previous */}
               </button>
-            </li>
-            {pageOptions.map(option => (
-              <li key={option}>
+              {pageOptions.map(option => (
                 <button
+                  key={option}
                   onClick={() => gotoPage(option)}
-                  className={`px-3 py-1 border border-gray-300 bg-white hover:bg-gray-100 ${
-                    pageIndex === option ? 'bg-gray-200 pointer-events-none' : ''
-                  }`}
+                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pageIndex === option ? 'bg-gray-100 text-gray-500' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                 >
                   {option + 1}
                 </button>
-              </li>
-            ))}
-            <li>
-              <button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                className="px-3 py-1 rounded-r-md border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
+              ))}
+              <button onClick={() => nextPage()} disabled={!canNextPage} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span className="sr-only">Next</span>
+                {/* Icon for next */}
               </button>
-            </li>
-          </ul>
-        </nav>
+            </nav>
+          </div>
+        </div>
       </div>
     </div>
   );

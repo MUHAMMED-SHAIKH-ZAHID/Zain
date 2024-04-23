@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginAuth } from '../../../redux/features/AuthSlice';
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -17,32 +21,29 @@ const initialValues = {
   password: '',
 };
 
-const Data = [
-  { email: 'admin@demo.com', password: 'demo', role: "admin" },
-  { email: 'sales@demo.com', password: '1234', role: "sales" }
-];
+
 
 export function Login() {
-  const [loading, setLoading] = useState(false);
+  const { isAuthenticated} = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: loginSchema,
-    onSubmit: (values, { setStatus, setSubmitting }) => {
-      setLoading(true);
-      const user = Data.find(u => u.email === values.email && u.password === values.password);
-      if (user) {
-        console.log('User logged in:', user);
-        setLoading(false);
-      } else {
-        setStatus('Invalid login credentials');
-        setSubmitting(false);
-        setLoading(false);
-      }
+    onSubmit: (values) => {
+      dispatch(loginAuth(values));       
     },
   });
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/'); // Redirect to dashboard or another protected route
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
+
+
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100 px-6">
       <div className="w-full max-w-md">
         <form
@@ -83,7 +84,6 @@ export function Login() {
             <input
               id="password"
               type="password"
-              autoCapitalize='current-password'
               {...formik.getFieldProps('password')}
               className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
                 formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-gray-300'
@@ -106,18 +106,19 @@ export function Login() {
               className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               disabled={formik.isSubmitting || !formik.isValid}
             >
-              {loading ? 'Loading…' : 'Sign In'}
+              { 'Sign In'}
             </button>
           </div>
 
           <div className="text-center mt-6">
             Not a Member yet?{' '}
-            <Link to="/auth/registration" className="text-blue-500 hover:text-blue-800">
+            <div  className="text-blue-500 hover:text-blue-800">
               Sign up
-            </Link>
+            </div>
           </div>
         </form>
       </div>
     </div>
+      
   );
 }

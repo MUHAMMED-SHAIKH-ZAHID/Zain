@@ -1,42 +1,46 @@
 import { useFormik } from 'formik';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
+import { createSupplier } from '../../../redux/features/SupplierSlice';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('First name is required'),
   code: Yup.string(),
   email: Yup.string().email("Invalid email address").required('Email is required'),
-  mobile: Yup.string()
+  contact_one: Yup.string()
     .matches(/^\d{10}$/, 'Mobile must be exactly 10 digits')
     .required('Mobile number is required'),
-  mobile2: Yup.string()
+  contact_two: Yup.string()
     .matches(/^\d{10}$/, 'Mobile must be exactly 10 digits')
     .nullable(true),
-  address: Yup.string().required('Address is required'),
-  address2: Yup.string(),
-  company: Yup.string().required('Company name is required'),
-  gst: Yup.string().required('GST is mandatory'),
-  pannumber: Yup.string(),
+  address_one: Yup.string().required('Address is required'),
+  address_two: Yup.string(),
+  company_name: Yup.string().required('Company name is required'),
+  gst_number: Yup.string().required('GST is mandatory'),
+  pan_number: Yup.string(),
   location: Yup.string().required('Country is required'),
 });
 
 const AddSupplier = ({ handleClose }) => {
+  const dispatch = useDispatch()
   const formik = useFormik({
     initialValues: {
       name: '',
       code: '',
       email: '',
-      mobile: '',
-      mobile2: '',
-      address: '',
-      address2: '',
-      company: '',
-      gst: '',
-      pannumber: '',
+      contact_one: '',
+      contact_two: '',
+      address_one: '',
+      address_two: '',
+      company_name: '',
+      gst_number: '',
+      pan_number: '',
       location: '',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       console.log(values);
+      dispatch(createSupplier(values));
       handleClose();
     },
   });
@@ -90,36 +94,36 @@ const AddSupplier = ({ handleClose }) => {
             id="mobile"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Mobile"
-            {...formik.getFieldProps('mobile')}
+            {...formik.getFieldProps('contact_one')}
           />
-          {formik.touched.mobile && formik.errors.mobile && (
-            <p className="mt-2 text-sm text-red-600">{formik.errors.mobile}</p>
+          {formik.touched.contact_one && formik.errors.contact_one && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.contact_one}</p>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="mobile2" className="block text-sm font-medium text-gray-700">Mobile 2</label>
+          <label htmlFor="mobile2" className="block text-sm font-medium text-gray-700">Mobile Second</label>
           <input
             type="text"
             id="mobile2"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Mobile 2 (Optional)"
-            {...formik.getFieldProps('mobile2')}
+            {...formik.getFieldProps('contact_two')}
           />
         </div>
         <div>
           <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
           <input
             type="text"
-            id="address"
+            id="address_one"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Address"
-            {...formik.getFieldProps('address')}
+            {...formik.getFieldProps('address_one')}
           />
-          {formik.touched.address && formik.errors.address && (
-            <p className="mt-2 text-sm text-red-600">{formik.errors.address}</p>
+          {formik.touched.address_one && formik.errors.address_one && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.address_one}</p>
           )}
         </div>
       </div>
@@ -132,7 +136,7 @@ const AddSupplier = ({ handleClose }) => {
             id="address2"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Address 2 (Optional)"
-            {...formik.getFieldProps('address2')}
+            {...formik.getFieldProps('address_two')}
           />
         </div>
         <div>
@@ -142,10 +146,10 @@ const AddSupplier = ({ handleClose }) => {
             id="company"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Company name"
-            {...formik.getFieldProps('company')}
+            {...formik.getFieldProps('company_name')}
           />
-          {formik.touched.company && formik.errors.company && (
-            <p className="mt-2 text-sm text-red-600">{formik.errors.company}</p>
+          {formik.touched.company_name && formik.errors.company_name && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.company_name}</p>
           )}
         </div>
       </div>
@@ -158,10 +162,10 @@ const AddSupplier = ({ handleClose }) => {
             id="gst"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="GST Number"
-            {...formik.getFieldProps('gst')}
+            {...formik.getFieldProps('gst_number')}
           />
-          {formik.touched.gst && formik.errors.gst && (
-            <p className="mt-2 text-sm text-red-600">{formik.errors.gst}</p>
+          {formik.touched.gst_number && formik.errors.gst_number && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.gst_number}</p>
           )}
         </div>
         <div>
@@ -171,7 +175,7 @@ const AddSupplier = ({ handleClose }) => {
             id="pannumber"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="PAN Number"
-            {...formik.getFieldProps('pannumber')}
+            {...formik.getFieldProps('pan_number')}
           />
         </div>
       </div>

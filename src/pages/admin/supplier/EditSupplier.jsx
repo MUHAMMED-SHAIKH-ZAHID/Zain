@@ -1,39 +1,48 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Modal from '../../../components/commoncomponents/Modal';
+import { useDispatch } from 'react-redux';
+import { updateSupplier } from '../../../redux/features/SupplierSlice';
 
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required('First name is required'),
   code: Yup.string(),
   email: Yup.string().email("Invalid email address").required('Email is required'),
-  mobile: Yup.string().matches(/^\d{10}$/, 'Mobile must be exactly 10 digits').required('Mobile number is required'),
-  mobile2: Yup.string().matches(/^\d{10}$/, 'Mobile must be exactly 10 digits'),
-  address: Yup.string().required('Address is required'),
-  address2: Yup.string(),
-  company: Yup.string().required('Company name is required'),
-  gst: Yup.string().required('GST number is required'),
-  pannumber: Yup.string(),
-  location: Yup.string().required('Location is required'),
+  contact_one: Yup.string()
+    .matches(/^\d{10}$/, 'Mobile must be exactly 10 digits')
+    .required('Mobile number is required'),
+  contact_two: Yup.string()
+    .matches(/^\d{10}$/, 'Mobile must be exactly 10 digits')
+    .nullable(true),
+  address_one: Yup.string().required('Address is required'),
+  address_two: Yup.string(),
+  company_name: Yup.string().required('Company name is required'),
+  gst_number: Yup.string().required('GST is mandatory'),
+  pan_number: Yup.string(),
+  location: Yup.string().required('Country is required'),
 });
 
 const EditSupplier = ({ show, handleClose, data = {} }) => {
+  const dispatch = useDispatch()
   const formik = useFormik({
     initialValues: {
       name: data.name || '',
       code: data.code || '',
       email: data.email || '',
-      mobile: data.mobile || '',
-      mobile2: data.mobile2 || '',
-      address: data.address || '',
-      address2: data.address2 || '',
-      company: data.company || '',
-      gst: data.gst || '',
-      pannumber: data.pannumber || '',
+      contact_one: data.contact_one || '',
+      contact_two: data.contact_two || '',
+      address_one: data.address_one || '',
+      address_two: data.address_two || '',
+      company_name: data.company_name || '',
+      gst_number: data.gst_number || '',
+      pan_number: data.pan_number || '',
       location: data.location || '',
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      console.log(values,"Checking values");
+      dispatch(updateSupplier({ id: data.id, supplierData: values }));
+
       handleClose();
     },
     enableReinitialize: true,
@@ -42,7 +51,7 @@ const EditSupplier = ({ show, handleClose, data = {} }) => {
   const modalContent = (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        {['name', 'code', 'email', 'mobile', 'mobile2', 'address', 'address2', 'company', 'gst', 'pannumber'].map(field => (
+        {['name', 'code', 'email', 'contact_one', 'contact_two', 'address_one', 'address_two', 'company_name', 'gst_number', 'pan_number'].map(field => (
           <div key={field}>
             <label className="block text-sm font-medium text-gray-700 capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}:</label>
             <input
@@ -63,12 +72,12 @@ const EditSupplier = ({ show, handleClose, data = {} }) => {
           {...formik.getFieldProps('location')}
         >
           <option value=''>Select a location</option>
-          <option value='kz'>Kozhikode</option>
-          <option value='kc'>Kochi</option>
-          <option value='tl'>Thalassery</option>
-          <option value='vd'>Vadakara</option>
-          <option value='ml'>Malappuram</option>
-          <option value='kt'>Kottayam</option>
+          <option value='Kozhikode'>Kozhikode</option>
+          <option value='Kochi'>Kochi</option>
+          <option value='Thalassery'>Thalassery</option>
+          <option value='Vadakara'>Vadakara</option>
+          <option value='Malapuram'>Malappuram</option>
+          <option value='Kottayam'>Kottayam</option>
         </select>
         {formik.touched.location && formik.errors.location && (
           <p className="mt-2 text-sm text-red-600">{formik.errors.location}</p>
