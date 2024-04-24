@@ -24,8 +24,8 @@ export const CustomerAPI ='/api/customers'
 export const CategoryAPI ='/api/category'
 
 // 2 Brand Subsection
-export const BrandsAPI = '/api/brands'
+export const BrandAPI = '/api/brands'
 // 3 Product Subsection
 export const ProductAPI = '/api/products'
 // 4 Routes Subsection
-export const RoutesAPI = '/api/routes'
+export const RouteAPI = '/api/routes'

@@ -8,71 +8,69 @@ import DashboardDetailCard from './DashboardDetailCard';
 import { LiaCoinsSolid } from "react-icons/lia";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { GoGraph } from "react-icons/go";
-import { IoMdPeople } from "react-icons/io";
-import { IoPersonCircle } from "react-icons/io5";
 import { HiShoppingBag } from "react-icons/hi";
+import { BsGraphDownArrow } from 'react-icons/bs';
+import RecentInvoices from './RecentInvoices';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const { data, loading, error } = useSelector((state) => state?.dashboard || {});
+
   useEffect(() => {
     dispatch(setHeading("Dashboard"));
-
-    // Optionally reset the heading when the component unmounts
-    return () => {
-      dispatch(clearHeading());
-    };
-  }, [dispatch]);
-  const { data, loading, error } = useSelector((state) => state.dashboard);
-
-  useEffect(() => {
-    // Dispatch the action to fetch dashboard data when the component mounts
     dispatch(fetchDashboardData());
+    return () => dispatch(clearHeading());
   }, [dispatch]);
 
   if (loading) {
-    return <div>Loading dashboard data...</div>;
+    return (
+      <div className="flex flex-col justify-center items-center h-full">
+        <div className="text-lg font-semibold mb-4">Loading dashboard data...</div>
+        <div className="border-8 border-gray-200 border-t-blue-500 rounded-full w-16 h-16 animate-spin"></div>
+      </div>
+    );
   }
 
   if (error) {
     return <div>Error fetching data: {error}</div>;
   }
 
-
-
-
+  if (!data) {
+    return <div>No data available</div>;
+  }
 
   return (
     <div className="flex flex-col gap-8 ">
     <div className="flex flex-row gap-8">
-      <DashboardDetailCard />
+      <DashboardDetailCard customer={data?.customers} supplier={data?.suppliers} />
       <div className="flex gap-8">
         <div className="flex flex-col gap-8">
           <Cards
-            heading="Total Suplier"
-            amount="1000"
+            heading="Today income"
+            amount={data?.todayIncome}
             subheading="Subheading 1"
-            Icon={IoMdPeople} // Pass the icon component reference
+            Icon={GoGraph} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
           />
           <Cards
-            heading="Total Customer"
-            amount="1000"
+            heading="Today Expence"
+            amount={data?.todayExpense}
             subheading="Subheading 1"
-            Icon={IoPersonCircle} // Pass the icon component reference
+            Icon={BsGraphDownArrow} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
           />
         </div>
         <div className="flex flex-col gap-8">
           <Cards
-            heading="Total User"
-            amount="1240"
+            heading="This Month Income"
+            amount={data?.thisMonthIncome}
             subheading="Subheading 1"
             Icon={HiShoppingBag} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
           />
           <Cards
-            heading="Heading 1"
-            amount="4562"
+            heading="This Month Revenue"
+            amount={data?.thisMonthExpense}
             subheading="Subheading 1"
             Icon={LiaCoinsSolid} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
@@ -80,15 +78,15 @@ const Dashboard = () => {
         </div>
         <div className="flex flex-col gap-8">
           <Cards
-            heading="Heading 1"
-            amount="2390"
+            heading="Today Revenue"
+            amount={data?.todayRevenue}
             subheading="Subheading 1"
             Icon={FaRegMoneyBillAlt} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
           />
           <Cards
-            heading="Heading 1"
-            amount="9636"
+            heading="This Months Revenue"
+            amount={data?.thisMonthRevenue}
             subheading="Subheading 1"
             Icon={GoGraph} // Pass the icon component reference
             bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
@@ -100,6 +98,9 @@ const Dashboard = () => {
 
     <div>
 <DashboardChart/>
+    </div>
+    <div className="">
+      <RecentInvoices invoices={data?.invoices} />
     </div>
   </div>
   );

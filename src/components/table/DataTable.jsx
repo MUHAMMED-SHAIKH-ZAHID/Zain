@@ -8,7 +8,10 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
   const itemsPerPage = 10;
 
   const filteredData = useMemo(() => {
-    return data?.filter((item) => {
+    // Ensure data is an array before filtering
+    if (!Array.isArray(data)) return [];
+
+    return data.filter((item) => {
       const searchMatch = Object.values(item)
         .join(' ')
         .toLowerCase()
@@ -91,7 +94,7 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
             {page.map((row, rowIndex) => {
               prepareRow(row);
               return (
-                <tr {...row.getRowProps()} className="hover:bg-gray-50">
+                <tr {...row.getRowProps()} className={`text-[.9rem] ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f3f5f9]'} border-b`}>
                   {row.cells.map(cell => (
                     <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {cell.render('Cell')}

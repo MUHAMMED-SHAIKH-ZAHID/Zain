@@ -8,6 +8,7 @@ export const fetchAllCustomers = createAsyncThunk(
   'customers/fetchAll',
   async () => {
     const response = await axios.get(`${CustomerAPI}`);
+    console.log("fetchallcustomer from the customer slice",response.data)
     return response.data;
   }
 );

@@ -20,8 +20,8 @@ import PurchaseSlice from "../features/PurchaseSlice";
 import SalesExecutiveSlice from "../features/SalesExecutiveSlice";
 import CustomerSlice from "../features/CustomerSlice";
 import CategorySlice from "../features/DataManageSlices/CategorySlice";
-import RoutesSlice from "../features/DataManageSlices/RoutesSlice";
 import BrandSlice from "../features/DataManageSlices/BrandSlice";
+import RoutesSlice from "../features/DataManageSlices/RoutesSlice";
 
 
 const rootReducer = combineReducers({
@@ -33,7 +33,7 @@ const rootReducer = combineReducers({
     salesExecutives:SalesExecutiveSlice,
     customers:CustomerSlice,
     categories:CategorySlice,
-    routes:RoutesSlice,
+    routeslice:RoutesSlice,
     brands:BrandSlice,
 
 });

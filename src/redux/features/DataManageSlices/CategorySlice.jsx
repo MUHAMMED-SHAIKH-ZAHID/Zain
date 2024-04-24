@@ -1,42 +1,56 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from  "../../../api/axios";
+import axios from "../../../api/axios";
 import { CategoryAPI } from '../../../api/url';
-
-
 
 // Async thunk for fetching all categories
 export const fetchCategories = createAsyncThunk(
   'categories/fetchAll',
-  async () => {
-    const response = await axios.get(`${CategoryAPI}`);
-    return response.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${CategoryAPI}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
 // Async thunk for creating a new category
 export const createCategory = createAsyncThunk(
   'categories/create',
-  async (categoryData) => {
-    const response = await axios.post(`${CategoryAPI}`, categoryData);
-    return response.data;
+  async (categoryData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${CategoryAPI}`, categoryData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
 // Async thunk for updating a category
 export const updateCategory = createAsyncThunk(
   'categories/update',
-  async ({ id, ...categoryData }) => {
-    const response = await axios.put(`${CategoryAPI}/${id}`, categoryData);
-    return response.data;
+  async ({ id, ...categoryData }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(`${CategoryAPI}/${id}`, categoryData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
 // Async thunk for deleting a category
 export const deleteCategory = createAsyncThunk(
   'categories/delete',
-  async (id) => {
-    await axios.delete(`${CategoryAPI}/${id}`);
-    return id;
+  async (id, { rejectWithValue }) => {
+    try {
+      await axios.delete(`${CategoryAPI}/${id}`);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
@@ -50,8 +64,16 @@ const categorySlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(fetchCategories.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categories = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       })
       .addCase(createCategory.fulfilled, (state, action) => {
         state.categories.push(action.payload);

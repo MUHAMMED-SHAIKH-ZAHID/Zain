@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Categories from './categories/Categories';
-import Routes from './routes/Routes';
 import Brands from './brands/Brands';
+import RoutesComponent from './routes/RoutesComponent';
 
 const DataManage = () => {
   const [activeTab, setActiveTab] = useState('category');
@@ -15,7 +15,7 @@ const DataManage = () => {
       case 'product':
         return <div>Table for Products</div>;
       case 'routes':
-        return <Routes />
+        return <RoutesComponent />
       default:
         return <div>Select a section</div>;
     }

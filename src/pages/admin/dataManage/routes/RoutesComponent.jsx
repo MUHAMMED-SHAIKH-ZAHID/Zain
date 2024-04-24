@@ -1,65 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createCategory, deleteCategory, fetchCategories, updateCategory } from '../../../../redux/features/DataManageSlices/CategorySlice';
-import { CategoryForm } from './CategoryForm';
+import { BiEdit, BiSearch, BiTrash } from 'react-icons/bi';
+import { createRoute, deleteRoute, fetchRoutes, updateRoute } from '../../../../redux/features/DataManageSlices/RoutesSlice';
 import Modal from '../../../../components/commoncomponents/Modal';
-import { BiEdit, BiTrash, BiSearch } from 'react-icons/bi';
+import { RouteForm } from './RouteForm';
 
-const Categories = () => {
+
+const RoutesComponent = () => {
     const dispatch = useDispatch();
-    const { categories, loading } = useSelector(state => state?.categories?.categories);
+    const { routes, loading ,error} = useSelector(state => state?.routeslice?.routes);
     const [currentPage, setCurrentPage] = useState(1);
-    const [categoriesPerPage] = useState(10);
+    const [routesPerPage] = useState(10);
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [currentCategory, setCurrentCategory] = useState(null);
-    const [categoryToDelete, setCategoryToDelete] = useState(null);
+    const [currentRoute, setCurrentRoute] = useState(null);
+    const [routeToDelete, setRouteToDelete] = useState(null);
     const [search, setSearch] = useState('');
-
+    console.log(routes,"touteo poage route")
     useEffect(() => {
-      dispatch(fetchCategories());
+      dispatch(fetchRoutes());
     }, [dispatch]);
 
-    const filteredCategories = (categories || []).filter(cat =>
-        cat.name.toLowerCase().includes(search.toLowerCase())
+    if (loading) {
+      return <div>Loading...</div>; // Show loading indicator while data is fetching
+    }
+  
+    if (error) {
+      return <div>Error: {error}</div>; // Show error message if the fetch failed
+    }
+
+    const filteredRoutes = (routes || []).filter(route =>
+        route.route.toLowerCase().includes(search.toLowerCase())
     );
 
-    const indexOfLastCategory = currentPage * categoriesPerPage;
-    const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
-    const currentCategories = filteredCategories.slice(indexOfFirstCategory, indexOfLastCategory);
+    const indexOfLastRoute = currentPage * routesPerPage;
+    const indexOfFirstRoute = indexOfLastRoute - routesPerPage;
+    const currentRoutes = filteredRoutes.slice(indexOfFirstRoute, indexOfLastRoute);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
     const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(filteredCategories.length / categoriesPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(filteredRoutes.length / routesPerPage); i++) {
         pageNumbers.push(i);
     }
 
     const handleCreate = () => {
-        setCurrentCategory(null);
+        setCurrentRoute(null);
         setModalVisible(true);
     };
 
-    const handleEdit = (category) => {
-        setCurrentCategory(category);
+    const handleEdit = (route) => {
+        setCurrentRoute(route);
         setModalVisible(true);
     };
 
-    const openDeleteModal = (category) => {
-        setCategoryToDelete(category);
+    const openDeleteModal = (route) => {
+        setRouteToDelete(route);
         setDeleteModalVisible(true);
     };
 
     const handleDelete = () => {
-        dispatch(deleteCategory(categoryToDelete.id));
+        dispatch(deleteRoute(routeToDelete.id));
         setDeleteModalVisible(false);
     };
 
     const handleSubmit = (data) => {
-        if (currentCategory) {
-            dispatch(updateCategory({ id: currentCategory.id, ...data }));
+        if (currentRoute) {
+            dispatch(updateRoute({ id: currentRoute.id, ...data }));
         } else {
-            dispatch(createCategory(data));
+            dispatch(createRoute(data));
         }
         setModalVisible(false);
     };
@@ -74,19 +83,19 @@ const Categories = () => {
     return (
       <div className="container mx-auto px-4 sm:px-8 py-4">
         <div className="py-8">
-          <h2 className="text-2xl font-semibold leading-tight">Categories</h2>
+          <h2 className="text-2xl font-semibold leading-tight">Routes</h2>
           <div className="flex justify-between items-center mb-4">
             <div className="flex">
               <input
                 type="text"
-                placeholder="Search categories..."
+                placeholder="Search routes..."
                 onChange={(e) => setSearch(e.target.value)}
                 className="border border-gray-300 rounded py-2 px-4 leading-tight focus:outline-none focus:border-blue-500"
               />
               <BiSearch className="text-gray-500 ml-2 my-auto"/>
             </div>
             <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              Add New Category
+              Add New Route
             </button>
           </div>
           <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
@@ -100,16 +109,16 @@ const Categories = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentCategories.map(cat => (
-                  <tr key={cat.id}>
+                {currentRoutes.map(route => (
+                  <tr key={route.id}>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                      {cat.name}
+                      {route.route}
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
-                      <button onClick={() => handleEdit(cat)} className="text-indigo-600 hover:text-indigo-900 px-4">
+                      <button onClick={() => handleEdit(route)} className="text-indigo-600 hover:text-indigo-900 px-4">
                         <BiEdit />
                       </button>
-                      <button onClick={() => openDeleteModal(cat)} className="text-red-600 hover:text-red-900 px-4">
+                      <button onClick={() => openDeleteModal(route)} className="text-red-600 hover:text-red-900 px-4">
                         <BiTrash />
                       </button>
                     </td>
@@ -129,15 +138,15 @@ const Categories = () => {
         <Modal
           visible={modalVisible}
           onClose={handleClose}
-          title={currentCategory ? 'Edit Category' : 'Add Category'}
-          content={<CategoryForm initialData={currentCategory} onSubmit={handleSubmit} onCancel={handleClose} />}
+          title={currentRoute ? 'Edit Route' : 'Add Route'}
+          content={<RouteForm initialData={currentRoute} onSubmit={handleSubmit} onCancel={handleClose} />}
         />
         <Modal
           visible={deleteModalVisible}
           onClose={handleClose}
           title="Confirm Delete"
           content={<div>
-            <p>Are you sure you want to delete this category?</p>
+            <p>Are you sure you want to delete this route?</p>
             <div className="flex justify-end space-x-4">
               <button onClick={handleClose} className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded">
                 Cancel
@@ -152,6 +161,5 @@ const Categories = () => {
     );
   };
   
-  export default Categories;
-
+  export default RoutesComponent;
 

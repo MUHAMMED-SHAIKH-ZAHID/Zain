@@ -4,81 +4,80 @@ import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import { SalesExecutiveColumns } from "../../../components/table/columns/SalesExecutiveColumns";
 import DataTable from "../../../components/table/DataTable";
 import DeleteSalesExecutive from "./DeleteSalesExecutive";
-import { deleteSalesExecutive, fetchAllSalesExecutives } from "../../../redux/features/SalesExecutiveSlice";
+import { fetchAllSalesExecutives, deleteSalesExecutive } from "../../../redux/features/SalesExecutiveSlice";
 import EditSalesExecutive from "./EditSalesExecutive";
-
-
 
 const SalesExecutive = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setHeading("SalesExecutive"));
-    
-    // Optionally reset the heading when the component unmounts
+    dispatch(setHeading("Sales Executive"));
+    dispatch(fetchAllSalesExecutives()); // Fetch data on component mount
     return () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
-  const { salesExecutives, loading, error } = useSelector((state) => state?.salesExecutives?.salesExecutives);
 
-  useEffect(() => {
-    dispatch(fetchAllSalesExecutives());
-  }, [dispatch]);
-  console.log(salesExecutives,"sales executive data from the backend")
+  const { salesExecutives, loading, error } = useSelector(state => state?.salesExecutives?.salesExecutives);
+  console.log(salesExecutives)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
 
-    const [showEditModal, setShowEditModal] = useState(false);
-const [editData, setEditData] = useState(null);
-const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [deleteItemId, setDeleteItemId] = useState(null);
+  const editClickHandler = (rowData) => {
+    setEditData(rowData);
+    setShowEditModal(true);
+  };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+  };
 
-const editClickHandler = (rowData) => {
-console.log("Button clicked for row:", rowData);
-setEditData(rowData);
-setShowEditModal(true); // Open the modal when edit is clicked
-};
-const handleCloseEditModal = () => {
-setShowEditModal(false);
-};
+  const deleteClickHandler = (rowData) => {
+    setDeleteItemId(rowData.id);
+    setShowDeleteModal(true);
+  };
 
-const deleteClickHandler = (rowData) => {
-setDeleteItemId(rowData.id); // Assuming `id` is the unique identifier
-setShowDeleteModal(true);
-};
+  const handleDelete = (id) => {
+    dispatch(deleteSalesExecutive(id));
+  };
 
-const handleDelete = (id) => {
-console.log("Deleting item with id:", id);
-dispatch(deleteSalesExecutive(id))
-};
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+  };
 
-const handleCloseDeleteModal = () => {
-setShowDeleteModal(false);
-};
-const columns = SalesExecutiveColumns(editClickHandler,deleteClickHandler);
+  const columns = SalesExecutiveColumns(editClickHandler, deleteClickHandler);
+
   return (
     <div>
-          <DataTable
-        data={salesExecutives}
-        columns={columns}
-        filterColumn="name"
-        title={'Sales Executive'}
-      />
-           {showEditModal && (
-                <EditSalesExecutive
-                    show={showEditModal}
-                    handleClose={handleCloseEditModal}
-                    data={editData}
-                />
-            )}
-        <DeleteSalesExecutive
+      {loading ? (
+        <div>Loading...</div>
+      ) : error ? (
+        <div>Error: {error}</div>
+      ) : (
+        <DataTable
+          data={salesExecutives || []} // Ensure data is an array
+          columns={columns}
+          filterColumn="name"
+          title="Sales Executive"
+        />
+      )}
+      {showEditModal && (
+        <EditSalesExecutive
+          show={showEditModal}
+          handleClose={handleCloseEditModal}
+          data={editData}
+        />
+      )}
+      <DeleteSalesExecutive
         show={showDeleteModal}
         handleClose={handleCloseDeleteModal}
         handleDelete={handleDelete}
         itemId={deleteItemId}
       />
     </div>
-  )
-}
+  );
+};
 
-export default SalesExecutive
+export default SalesExecutive;
