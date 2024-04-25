@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const PurchaseColumns = (editActionClick, deleteActionClick) => [
   { Header: "Id", accessor: 'id' },
-  { Header: "Supplier Name", accessor: 'supplier' },
+  { Header: "Supplier Name", accessor: 'supplier_name' },
   { Header: "Purchase Number", accessor: 'purchase_number' },
   {
     Header: 'Total Amount',

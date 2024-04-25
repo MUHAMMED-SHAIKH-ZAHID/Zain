@@ -22,6 +22,7 @@ import CustomerSlice from "../features/CustomerSlice";
 import CategorySlice from "../features/DataManageSlices/CategorySlice";
 import BrandSlice from "../features/DataManageSlices/BrandSlice";
 import RoutesSlice from "../features/DataManageSlices/RoutesSlice";
+import ProductSlice from "../features/DataManageSlices/ProductSlice";
 
 
 const rootReducer = combineReducers({
@@ -35,6 +36,8 @@ const rootReducer = combineReducers({
     categories:CategorySlice,
     routeslice:RoutesSlice,
     brands:BrandSlice,
+    products:ProductSlice,
+    
 
 });
 

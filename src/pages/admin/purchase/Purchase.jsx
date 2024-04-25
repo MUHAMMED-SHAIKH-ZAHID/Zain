@@ -39,8 +39,8 @@ const Purchase = () => {
 
   const columns = PurchaseColumns(deleteClickHandler);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // if (loading) return <div>Loading...</div>;
+  // if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
@@ -48,8 +48,8 @@ const Purchase = () => {
         <DataTable
           data={purchases}
           columns={columns}
-          filterColumn="supplier"
-          title={'name'}
+          filterColumn="supplier_name"
+          title={'Purchase'}
         />
       ) : (
         <div>No purchases available.</div>

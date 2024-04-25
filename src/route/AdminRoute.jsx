@@ -14,6 +14,7 @@ import SalesExecutive from "../pages/admin/salesexecutive/SalesExecutive.jsx"
 import CreatePurchase from "../pages/admin/purchase/CreatePurchase.jsx"
 import { jwtDecode } from "jwt-decode"
 import ProtectedRoute from "./ProtectedRoute.jsx"
+import AddPurchase from "../pages/admin/purchase/createpurchase/AddPurchase.jsx"
 
 
 const RedirectIfAuthenticated = ({ children }) => {
@@ -45,7 +46,7 @@ const AdminRoute = () => {
     <Route path="/" element={<Dashboard /> }/>
     <Route path="/supplier" element={<Suppliers /> }/>
     <Route path="/purchase" element={<Purchase /> }/>
-    <Route path="/purchase/create" element={<CreatePurchase /> }/>
+    <Route path="/purchase/create" element={<AddPurchase /> }/>
     <Route path="/salesexecutive" element={<SalesExecutive /> }/>
     <Route path="/customer" element={<Customer /> }/>
     <Route path="/sales" element={<Sales /> }/>

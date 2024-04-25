@@ -109,7 +109,7 @@ const Brands = () => {
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     {brand.name}
                                 </td>
-                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
+                                <td className="px-5 py-6 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
                                     <button onClick={() => handleEdit(brand)} className="text-indigo-600 hover:text-indigo-900 px-4">
                                         <BiEdit />
                                     </button>

@@ -1,28 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Categories from './categories/Categories';
 import Brands from './brands/Brands';
 import RoutesComponent from './routes/RoutesComponent';
+import ProductComponent from './products/ProductComponent';
+import { useDispatch } from 'react-redux';
+import { clearHeading, setHeading } from '../../../redux/features/HeadingSlice';
 
 const DataManage = () => {
   const [activeTab, setActiveTab] = useState('category');
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setHeading("Data Manage"));
+    return () => {
+      dispatch(clearHeading());
+    };
+  }, [dispatch]);
 
   const renderTable = () => {
     switch (activeTab) {
       case 'category':
-        return <Categories />
+        return <Categories />;
       case 'brand':
-        return <Brands />
+        return <Brands />;
       case 'product':
-        return <div>Table for Products</div>;
+        return <ProductComponent />;
       case 'routes':
-        return <RoutesComponent />
+        return <RoutesComponent />;
       default:
         return <div>Select a section</div>;
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto  px-4 py-8">
       <div className="bg-white p-5 rounded-lg shadow">
         <ul className="flex border-b">
           {['category', 'brand', 'product', 'routes'].map((tab) => (
@@ -38,7 +49,7 @@ const DataManage = () => {
             </li>
           ))}
         </ul>
-        <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+        <div className="mt-4 p-4 border rounded-lg bg-gray-50" style={{ height: 'auto', overflowY: 'auto' }}>
           {renderTable()}
         </div>
       </div>
