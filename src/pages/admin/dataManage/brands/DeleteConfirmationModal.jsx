@@ -11,7 +11,7 @@ const DeleteConfirmationModal = ({ visible, onClose, onDelete, item }) => {
       content={
         <div>
           <p>Are you sure you want to delete {item ? item.name : 'this item'}?</p>
-          <div className="flex justify-end space-x-4 mt-4">
+          <div className="flex justify-end space-x-2 mt-4">
             <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded">
               Cancel
             </button>

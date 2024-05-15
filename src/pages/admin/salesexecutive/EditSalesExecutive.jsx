@@ -13,7 +13,6 @@ const validationSchema = Yup.object({
   mobile_2: Yup.string().matches(/^[0-9]{10}$/, 'Mobile must be exactly 10 digits').nullable(),
   address: Yup.string().required('Address is required'),
   address_2: Yup.string(),
-  role: Yup.string().required('Role is required'),
   password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
   confirm_password: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Confirm password is required'),
 });
@@ -28,7 +27,6 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
       mobile_2: data.mobile_2 || '',
       address: data.address || '',
       address_2: data.address_2 || '',
-      role: data.role || '',
       password: data.password || '',
       confirm_password: data.confirm_password || '',
     },
@@ -44,7 +42,7 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
   const modalContent = (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {['name', 'email', 'mobile', 'mobile_2', 'address', 'address_2', 'role', 'password', 'confirm_password'].map(field => (
+        {['name', 'email', 'mobile', 'mobile_2', 'address', 'address_2', 'password', 'confirm_password'].map(field => (
           <div key={field}>
             <label className="block text-sm font-medium text-gray-700 capitalize">{field.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase())}:</label>
             <input
@@ -58,12 +56,12 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
           </div>
         ))}
       </div>
-      <div className="flex justify-end space-x-4">
+      <div className="flex justify-end space-x-2">
         <button type="button" onClick={handleClose} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
           Discard
         </button>
-        <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Save
+        <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Update Sales Executive
         </button>
       </div>
     </form>

@@ -81,9 +81,9 @@ const RoutesComponent = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
-      <div className="container mx-auto px-4 sm:px-8 py-4">
-        <div className="py-8">
-          <h2 className="text-2xl font-semibold leading-tight">Routes</h2>
+      <div className="container mx-auto  sm:px-8 pt-6 pb-2">
+      <div className="">
+          <h2 className="text-xl mb-2 font-medium leading-tight">Routes</h2>
           <div className="flex justify-between items-center mb-4">
             <div className="flex">
               <input
@@ -147,7 +147,7 @@ const RoutesComponent = () => {
           title="Confirm Delete"
           content={<div>
             <p>Are you sure you want to delete this route?</p>
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end space-x-2">
               <button onClick={handleClose} className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded">
                 Cancel
               </button>

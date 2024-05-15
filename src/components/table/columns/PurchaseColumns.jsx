@@ -1,50 +1,48 @@
-import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import { IoPrint } from 'react-icons/io5';
+import { MdVisibility, MdEdit, MdDelete, MdOutlinePayment } from 'react-icons/md';
+import { VscDebugRestart } from 'react-icons/vsc';
 
-const PurchaseColumns = (editActionClick, deleteActionClick) => [
+const PurchaseColumns = ( paymentActionClick,returnActionClick, viewActionClick, editActionClick, printActionClick, deleteActionClick) => [
+  
   { Header: "Id", accessor: 'id' },
   { Header: "Supplier Name", accessor: 'supplier_name' },
   { Header: "Purchase Number", accessor: 'purchase_number' },
   {
     Header: 'Total Amount',
-    accessor:'grand_total'
+    accessor: 'grand_total'
   },
   {
-    Header: 'Payment Balance',
-    accessor:'payment_balance'
+    Header: 'Payment Due Date',
+    accessor: 'payment_due_date'
   },
-  // {
-  //   Header: "Status",
-  //   accessor: 'status',
-  //   Cell: ({ value }) => {
-  //     const statusToBadgeClass = {
-  //       Transit: "bg-yellow-100 text-yellow-800",
-  //       Placed: "bg-green-100 text-green-800",
-  //       Partial: "bg-orange-100 text-orange-800",  // Assuming statuses are one word; adjust as per your data
-  //       Hold: "bg-red-100 text-red-800",
-  //     };
-  //     return (
-  //       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusToBadgeClass[value] || 'bg-gray-100 text-gray-800'}`}>
-  //         {value}
-  //       </span>
-  //     );
-  //   }
-  // },
+
   {
     Header: () => (
-        <div className='text-center ml-32'>Actions</div> // Text is centered for consistency
-      ),
+      <div className='text-center ml-32'>Actions</div> // Text is centered for consistency
+    ),
     accessor: "actions",
     Cell: ({ row }) => (
       <div className='flex justify-end space-x-2 items-center'>
-        <Link to='/supplier/profile' className='flex items-center bg-gray-600 hover:bg-black text-white py-1 px-3 rounded shadow'>
-          <MdVisibility className="text-lg mr-2" /> View
-        </Link>
+        <button onClick={() => paymentActionClick(row.original)} className='flex items-center  text-blue-500 underline py-1 px-3 rounded shadow'>
+          <MdOutlinePayment className="text-lg " /> Payment
+        </button>
+        <button onClick={() => returnActionClick(row.original)} className='flex items-center bg-gray-600 hover:bg-black text-white py-1 px-3 rounded shadow'>
+          <VscDebugRestart className="text-lg " />
+        </button>
+        <button onClick={() => viewActionClick(row.original)} className='flex items-center bg-gray-600 text-center hover:bg-black text-white py-1 px-3 rounded shadow'>
+          <MdVisibility className="text-lg" /> 
+        </button>
         <button
           onClick={() => editActionClick(row.original)}
           className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded shadow'
         >
           <MdEdit className="text-lg" />
+        </button>
+        <button
+          onClick={() => printActionClick(row.original)}
+          className='flex items-center bg-green-500 hover:bg-green-600 text-white py-2 px-3 text-xs rounded shadow'
+        >
+          <IoPrint className="" /> 
         </button>
         <button
           onClick={(e) => {
@@ -60,5 +58,6 @@ const PurchaseColumns = (editActionClick, deleteActionClick) => [
     ),
   }
 ];
+
 
 export { PurchaseColumns };

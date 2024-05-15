@@ -18,7 +18,7 @@ const ModalManage = ({ title }) => {
     return (
         <div>
             {title === 'supplier' && 
-                <button onClick={() => setShowSupplierModal(true)} className="bg-blue-500 text-white p-2 rounded">
+                <button onClick={() => setShowSupplierModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem]   p-[.7rem] leading-none    rounded">
                     Add Supplier
                 </button>
             }
@@ -32,12 +32,27 @@ const ModalManage = ({ title }) => {
                 />
             )}
             {title === 'Purchase' && 
-                <button onClick={() => navigate('/purchase/create')} className="bg-blue-500 text-white p-2 rounded">
+                <button onClick={() => navigate('/purchase/create')} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
                     Add Purchase
                 </button>
             }
+            {title === 'Purchase Quote' && 
+                <button onClick={() => navigate('/purchase/quotation/create')} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
+                    Add Purchase Quote
+                </button>
+            }
+            {title === 'Sales Quote' && 
+                <button onClick={() => navigate('/sales/quotation/create')} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
+                    Add Sales Quote
+                </button>
+            }
+            {title === 'Sales' && 
+                <button onClick={() => navigate('/sales/create')} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
+                    Add Sales
+                </button>
+            }
             {title === 'Sales Executive' && 
-                <button onClick={() => setShowSalesExecutiveModal(true)} className="bg-blue-500 text-white p-2 rounded">
+                <button onClick={() => setShowSalesExecutiveModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
                     Add Sales Executive
                 </button>
             }
@@ -50,8 +65,9 @@ const ModalManage = ({ title }) => {
                     content={<CreateSalesExecutive handleClose={handleCloseSalesExecutiveModal} />}
                 />
             )}
+       
             {title === 'Customer' && 
-                <button onClick={() => setShowCustomerModal(true)} className="bg-blue-500 text-white p-2 rounded">
+                <button onClick={() => setShowCustomerModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white text-[.9rem] p-[.7rem] leading-none  rounded">
                     Add Customer
                 </button>
             }

@@ -1,29 +1,28 @@
 
-import cardBg6 from "../../../../public/assets/dashbord/card17.jpg";
-import { IoMdPeople } from 'react-icons/io';
-import { IoPersonCircle } from 'react-icons/io5';
+import { CiUser } from "react-icons/ci";
+import { PiUsersThree } from "react-icons/pi";
 
 const DashboardDetailCard = ({customer,supplier}) => {
   return ( 
-    <div className='px-4 py-8 shadow-xl w-[250px] text-white gap-2 rounded-xl flex items-center flex-col' style={{ backgroundImage: `url(${cardBg6})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <p className='text-xl font-semibold font-sans'>Overview</p>
-      <div className='flex flex-col gap-2'>
+    <div className=' p-6 shadow-xl w-full text-white gap-2 rounded-xl flex items-center flex-col bg-[#1D224D]' >
+      {/* <p className='text-xl font-semibold font-sans'>Overview</p> */}
+      <div className='flex  gap-8'>
         <div className='mt-4'>
-          <p className='text-xl'>Total Customer</p>
+          < PiUsersThree className='text-[4rem] bg-[#9CA7FF] text-[#1D224D] rounded-full p-2 font-medium' />
         </div>
-        <div className='flex items-center gap-4'>
-          < IoMdPeople className='text-5xl font-extrabold' />
-          <p className='text-2xl'> {customer}</p>
+        <div className='items-center gap-2 pt-4'>
+          <p className='text-lg text-[#9CA7FF] font-thin'>Total Customer</p>
+          <p className='text-2xl '> {customer}</p>
         </div>
       </div>
 
-      <div className='flex flex-col gap-2'>
+      <div className='flex  gap-8 mt-10'>
         <div className='mt-4'>
-          <p className='text-xl'>Total Supplier</p>
+        < CiUser className='text-[4rem] bg-[#9CA7FF] text-[#1D224D] rounded-full p-2 font-extrabold' />
         </div>
-        <div className='flex items-center gap-4'>
-          < IoPersonCircle className='text-5xl font-extrabold' />
-          <p className='text-2xl'>{supplier}</p>
+        <div className=' items-center gap-2 pt-4'>
+          <p className='text-lg text-[#9CA7FF] font-thin'>Total Supplier</p>
+          <p className='text-2xl '>{supplier}</p>
         </div>
       </div>
     </div>

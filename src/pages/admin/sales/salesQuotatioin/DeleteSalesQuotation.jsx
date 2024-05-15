@@ -1,7 +1,6 @@
 import { AiOutlineWarning } from 'react-icons/ai'; // Importing warning icon from react-icons
 import Modal from '../../../../components/commoncomponents/Modal';
 
-
 const DeleteSalesQuotation = ({ show, handleClose, handleDelete, itemId }) => {
   return (
     <Modal
@@ -28,7 +27,7 @@ const DeleteSalesQuotation = ({ show, handleClose, handleDelete, itemId }) => {
               className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded focus:outline-none shadow"
             >
               Cancel
-            </button>
+            </button> 
           </div>
         </div>
       )}

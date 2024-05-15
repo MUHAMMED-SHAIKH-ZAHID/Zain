@@ -23,6 +23,13 @@ import CategorySlice from "../features/DataManageSlices/CategorySlice";
 import BrandSlice from "../features/DataManageSlices/BrandSlice";
 import RoutesSlice from "../features/DataManageSlices/RoutesSlice";
 import ProductSlice from "../features/DataManageSlices/ProductSlice";
+import LocationSlice from "../features/DataManageSlices/LocationSlice";
+import SalesSlice from "../features/SalesSlice";
+import PurchaseQuotationSlice from "../features/PurchaseQuotationSlice";
+import SalesQuotationSlice from "../features/SalesQuotationSlice";
+import TaxSlice from "../features/DataManageSlices/TaxSlice";
+import AccountSlice from "../features/AccountSlice";
+import StockSlice from "../features/StockSlice";
 
 
 const rootReducer = combineReducers({
@@ -37,7 +44,13 @@ const rootReducer = combineReducers({
     routeslice:RoutesSlice,
     brands:BrandSlice,
     products:ProductSlice,
-    
+    locations:LocationSlice,
+    sales:SalesSlice,
+    purchaseQuotation:PurchaseQuotationSlice,
+    salesQuotation:SalesQuotationSlice,
+    tax:TaxSlice,
+    account:AccountSlice,
+    stock:StockSlice,
 
 });
 

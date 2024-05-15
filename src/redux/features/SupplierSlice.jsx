@@ -20,6 +20,7 @@ export const fetchSupplierById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${SuppliersAPI}/${id}`);
+      console.log(response.data,"Response from teh backednd of the fetch susppol9er by id")
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -88,10 +89,26 @@ export const fetchPurchaseDetails = createAsyncThunk(
   }
 );
 
+export const createSupplierReport = createAsyncThunk(
+  'suppliersreport/create',
+  async ({supplierData, Id },thunkAPI) => {
+    try {
+      console.log(Id,"consolling id int eh submit report",supplierData)
+      const response = await axios.post(`${SuppliersAPI}/${Id}/return`,supplierData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
 const initialState = {
   suppliers: [],
   loading: false,
-  error: null
+  error: null,
+  locations:[],
+  currentsupplier:[],
+  currentpurchase:[],
 };
 
 const supplierSlice = createSlice({
@@ -106,25 +123,37 @@ const supplierSlice = createSlice({
       .addCase(fetchAllSuppliers.fulfilled, (state, action) => {
         state.loading = false;
         state.suppliers = action.payload.suppliers;
+        state.locations = action.payload.locations;
+      })
+      .addCase(fetchSupplierById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentsupplier = action.payload.supplier;
+        state.currentpurchase = action.payload.purchases;
+      })
+      .addCase(createSupplierReport.fulfilled, (state, action) => {
+        state.loading = false;
+  
       })
       .addCase(fetchAllSuppliers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(fetchSupplierById.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.suppliers.findIndex(s => s.id === action.payload.id);
-        if (index !== -1) {
-          state.suppliers[index] = action.payload;
-        }
-      })
+      // .addCase(fetchSupplierById.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   const index = state.suppliers.findIndex(s => s.id === action.payload.id);
+      //   if (index !== -1) {
+      //     state.suppliers[index] = action.payload;
+      //   }
+      // })
       .addCase(createSupplier.fulfilled, (state, action) => {
-        state.suppliers.push(action.payload);
+        console.log(action.payload)
+        state.suppliers.unshift(action.payload.supplier);
       })
       .addCase(updateSupplier.fulfilled, (state, action) => {
-        const index = state.suppliers.findIndex(s => s.id === action.payload.id);
+        console.log(action.payload.supplier,"supplier supplier")
+        const index = state.suppliers.findIndex(s => s.id === action.payload.supplier.id);
         if (index !== -1) {
-          state.suppliers[index] = action.payload;
+          state.suppliers[index] = action.payload.supplier;
         }
       })
       .addCase(deleteSupplier.fulfilled, (state, action) => {

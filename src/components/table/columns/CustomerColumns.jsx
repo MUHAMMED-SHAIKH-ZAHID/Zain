@@ -1,7 +1,7 @@
 import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
-const CustomerColumns = (editActionClick, deleteActionClick) => [
+const CustomerColumns = (viewActionClick,editActionClick, deleteActionClick) => [
   {
     Header: "Full Name",
     accessor: 'name',
@@ -19,18 +19,20 @@ const CustomerColumns = (editActionClick, deleteActionClick) => [
     accessor: 'state',
   },
   {
-    Header: () => <div className='text-center'>Actions</div>,
+    Header: () => (
+      <div className='flex justify-end mr-[5rem]'>Actions</div> // Text is centered for consistency
+    ),
     accessor: "actions",
     Cell: ({ row }) => (
       <div className='flex justify-end space-x-1 items-center'>
-        <Link to={`/user/customer/profile/${row.original.id}`} className='flex items-center bg-gray-600 hover:bg-black text-white py-1 px-3 text-xs rounded shadow'>
-          <MdVisibility className="mr-1" /> View
-        </Link>
+        <button onClick={()  =>viewActionClick(row.original)} className='flex items-center text-center bg-gray-600 hover:bg-black leading-none text-xs text-white py-[6px] px-2 rounded shadow'>
+            <MdVisibility className="text-lg mb-[2px] mr-[5px]" /> View
+          </button>
         <button
           onClick={() => editActionClick(row.original)}
-          className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 text-xs rounded shadow'
+          className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 text-sm rounded shadow'
         >
-          <MdEdit /> Edit
+          <MdEdit className="" /> 
         </button>
         <button
           onClick={(e) => {
@@ -38,9 +40,9 @@ const CustomerColumns = (editActionClick, deleteActionClick) => [
             e.stopPropagation();
             deleteActionClick(row.original);
           }}
-          className='flex items-center bg-red-500 hover:bg-red-600 text-white py-1 px-3 text-xs rounded shadow'
+          className='flex items-center bg-red-500 hover:bg-red-600  text-white py-2 px-3 text-sm rounded shadow'
         >
-          <MdDelete /> Delete
+          <MdDelete className="" /> 
         </button>
       </div>
     ),

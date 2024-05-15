@@ -1,18 +1,22 @@
 import { Link } from "react-router-dom";
 import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
 
-const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
+const   suplierColumns = (viewActionClick,editActionClick  ,deleteActionClick  ) => [
  
     {
-      Header:"Full Name",
+      Header:"Id",
       id: 'names',
-      accessor:'name'
+      accessor:'id'
     },
-  
+    {
+      Header: "Supplier Name",
+      accessor: 'name',
+    },
     {
       Header: "Mobile",
       accessor: 'contact_one',
     },
+  
     {
       Header: "Email",
       accessor: 'email',
@@ -23,7 +27,7 @@ const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
     },
     {
       Header: "Location",
-      accessor: 'location',
+      accessor: 'location_name',
     },
 {
   Header: () => (
@@ -32,12 +36,12 @@ const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
   accessor: "actions",
   Cell: ({ row }) => (
     <div className='flex justify-end space-x-1 items-center'>
-      <Link to='/supplier/profile' className='flex items-center bg-gray-600 hover:bg-black text-white py-1 px-3 text-[.8rem] text-xs rounded shadow'>
-        <MdVisibility className="mr-1 " /> View
-      </Link>
+      <button onClick={()  =>viewActionClick(row.original)} className='flex items-center text-center bg-gray-600 hover:bg-black leading-none text-xs text-white py-[6px] px-2 rounded shadow'>
+          <MdVisibility className="text-lg mb-[2px] mr-[5px]" /> View
+        </button>
       <button
         onClick={() => editActionClick(row.original)}
-        className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 text-xs rounded shadow'
+        className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 text-sm rounded shadow'
       >
         <MdEdit className="" /> 
       </button>
@@ -47,7 +51,7 @@ const   suplierColumns = (editActionClick  ,deleteActionClick  ) => [
           e.stopPropagation();
           deleteActionClick(row.original);
         }}
-        className='flex items-center bg-red-500 hover:bg-red-600 text-white py-2 px-3 text-xs rounded shadow'
+        className='flex items-center bg-red-500 hover:bg-red-600  text-white py-2 px-3 text-sm rounded shadow'
       >
         <MdDelete className="" /> 
       </button>

@@ -1,11 +1,13 @@
 import  { useState, useRef, useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const heading = useSelector((state) => state.heading.value);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate()
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -26,10 +28,10 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white drop-shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-2">
         <div className="flex justify-between h-16">
           <div className="flex-shrink-0 flex items-center">
-            <h1 className="text-xl font-bold text-gray-800">{heading}</h1>
+            <h1 className="text-xl font-medium text-gray-800">{heading}</h1>
           </div>
           <div className="flex-1 flex items-center justify-end">
             <div className="ml-4 relative" ref={dropdownRef}>
@@ -39,9 +41,9 @@ const Navbar = () => {
                 onClick={toggleDropdown}
               >
                 <FaUserCircle className="h-8 w-8 rounded-full text-gray-800" />
-                <span className="ml-2 font-semibold text-gray-800">Admin</span>
+                <span className="mx-4 ml-2  font-semibold text-gray-800">Admin</span>
                 <svg
-                  className={`ml-2 h-4 w-4 text-gray-800 transition-transform duration-150 ${
+                  className={`mr-4 h-4 w-4 text-gray-800 transition-transform duration-150 ${
                     isDropdownOpen ? 'rotate-180' : ''
                   }`}
                   viewBox="0 0 20 20"
@@ -57,7 +59,7 @@ const Navbar = () => {
               <div
                 className={`${
                   isDropdownOpen ? 'block' : 'hidden'
-                } absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none transition duration-150 ease-in-out`}
+                } absolute right-4 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none transition duration-150 ease-in-out`}
               >
                 <div className="py-1">
                   <a
@@ -76,6 +78,7 @@ const Navbar = () => {
                 <div className="py-1">
                   <a
                     href="#"
+                    onClick={() => {localStorage.removeItem('token'); navigate('/login')}}
                     className="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                   >
                     Logout

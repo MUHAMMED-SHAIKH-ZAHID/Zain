@@ -68,12 +68,21 @@ export const deleteSalesExecutive = createAsyncThunk(
   }
 );
 
+export const fetchSalesExecutive = createAsyncThunk(
+  'customers/fetchSalesExecutive',
+  async (id) => {
+    const response = await axios.get(`${SalesExecutivesAPI}/${id}`);
+    return response.data;
+  }
+);
+
 // Initial state for the sales executives slice
 const initialState = {
   salesExecutives: [],
   loading: false,
   error: null,
   currentSalesExecutive: null,
+
 };
 
 // Slice definition
@@ -87,7 +96,7 @@ const salesExecutiveSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllSalesExecutives.fulfilled, (state, action) => {
-        state.salesExecutives = action.payload;
+        state.salesExecutives = action.payload.salesExecutives ;
         state.loading = false;
       })
       .addCase(fetchAllSalesExecutives.rejected, (state, action) => {
@@ -95,15 +104,16 @@ const salesExecutiveSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(fetchSalesExecutiveById.fulfilled, (state, action) => {
-        state.currentSalesExecutive = action.payload;
+        state.currentSalesExecutive = action.payload.salesExecutive;
       })
       .addCase(createSalesExecutive.fulfilled, (state, action) => {
-        state.salesExecutives.push(action.payload);
+        state.salesExecutives.unshift(action.payload.salesExecutive);
       })
       .addCase(updateSalesExecutive.fulfilled, (state, action) => {
-        const index = state.salesExecutives.findIndex(se => se.id === action.payload.id);
+        console.log(action.payload,"update data",state.salesExecutives[0])
+        const index = state.salesExecutives.findIndex(se => se.id === action.payload.salesExecutive.id);
         if (index !== -1) {
-          state.salesExecutives[index] = action.payload;
+          state.salesExecutives[index] = action.payload.salesExecutive;
         }
       })
       .addCase(deleteSalesExecutive.fulfilled, (state, action) => {

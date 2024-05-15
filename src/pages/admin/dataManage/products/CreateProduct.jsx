@@ -8,7 +8,7 @@ import { addProduct } from '../../../../redux/features/DataManageSlices/ProductS
 // Validation schema using Yup
 const validationSchema = Yup.object({
   product_name: Yup.string().required('Product name is required'),
-  hsn_code: Yup.string().required('HSN code is required'),
+  hsn_code: Yup.string().required('HSN code is required').matches(/^\d{4,6}$/, 'Enter a valid HSN code between 4 and 6 digits'),
   ean_code: Yup.string().required('EAN code is required'),
   category_id: Yup.string().required('Category is required'),
   brand_id: Yup.string().required('Brand is required'),
@@ -88,11 +88,11 @@ const DropdownGroup = ({ label, fieldProps, items, error }) => (
 
 // Form buttons
 const FormButtons = ({ handleClose }) => (
-  <div className="flex justify-end space-x-4">
+  <div className="flex justify-end space-x-2">
     <button type="button" onClick={handleClose} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
       Discard
     </button>
-    <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+    <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white space-x-2bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
       Save
     </button>
   </div>

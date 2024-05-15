@@ -19,24 +19,27 @@ const DashboardChart = () => {
         { name: 'May', Sales: 1890, Purchase: 4800 },
         { name: 'Jun', Sales: 2390, Purchase: 3800 },
         { name: 'Jul', Sales: 3490, Purchase: 4300 },
-      ];
+    ];
 
-  return (
-    <div className="bg-[#191818] p-6 rounded-lg shadow-lg">
-      <h2 className="text-lg font-semibold text-gray-100 mb-4">Sales and Purchase Chart</h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#343C6A" />
-          <XAxis dataKey="name" tick={{ fill: '#ccc' }} />
-          <YAxis tick={{ fill: '#ccc' }} />
-          <Tooltip contentStyle={{ backgroundColor: '#202020', borderColor: '#555' }} />
-          <Legend wrapperStyle={{ color: '#ccc' }} />
-          <Bar dataKey="Purchase" fill="#8884d8" barSize={30} />
-          <Bar dataKey="Sales" fill="#16DBCC" barSize={30} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-medium line leading-none text-gray-800 mb-6">Sales and Purchase Chart</h2>
+            <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={data} barGap={10}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis dataKey="name" tick={{ fill: '#4B5563' }} />
+                    <YAxis tick={{ fill: '#4B5563' }} />
+                    <Tooltip
+                        contentStyle={{ backgroundColor: '#F3F4F6', color: '#4B5563', border: 'none', borderRadius: '5px' }}
+                        cursor={{ fill: 'rgba(75, 85, 99, 0.1)' }}
+                    />
+                    <Legend wrapperStyle={{ color: '#4B5563' }} />
+                    <Bar dataKey="Purchase" fill="#F59E0B" barSize={30} />
+                    <Bar dataKey="Sales" fill="#10B981" barSize={30} />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
 };
 
 export default DashboardChart;

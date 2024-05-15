@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 const Modal = ({ visible, onClose, id, content, title }) => {
   const [showStyle, setShowStyle] = useState({ opacity: 0, transition: 'opacity 0.3s ease' });
@@ -40,14 +41,16 @@ const Modal = ({ visible, onClose, id, content, title }) => {
         style={{ backgroundColor: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '600px', width: '100%', margin: '16px' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between">
-          <div className="font-medium">{title}</div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'gray', cursor: 'pointer' }}>
-            <span style={{ fontSize: '24px' }}>&times;</span>
+        <div className="flex justify-between items-center ">
+          <div className="font-medium leading-none">{title}</div>
+          <button className='leading-none' onClick={onClose} style={{ background: 'none', border: 'none', color: 'gray', cursor: 'pointer' }}>
+          <IoIosCloseCircleOutline className='hover:text-red-700 text-xl' />
           </button>
         </div>
+          <div className="w-full text-black bg-black border  my-3"></div>
         <div style={{ marginTop: '16px' }}>
           {content}
+          
         </div>
       </div>
     </div>

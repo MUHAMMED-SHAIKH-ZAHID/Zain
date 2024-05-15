@@ -21,7 +21,7 @@ export const RouteForm = ({ initialData = {}, onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <form onSubmit={handleSubmit} className="">
       <div className="mb-4">
         <label htmlFor="route" className="block text-gray-700 text-sm font-bold mb-2">Route:</label>
         <input type="text" name="route" value={formData.route} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" />
@@ -30,14 +30,21 @@ export const RouteForm = ({ initialData = {}, onSubmit, onCancel }) => {
         <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Description:</label>
         <input type="text" name="description" value={formData.description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" />
       </div>
-      <div className="flex items-center justify-between">
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Submit
-        </button>
-        <button type="button" onClick={onCancel} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Cancel
-        </button>
-      </div>
+      <div className="flex items-center justify-end gap-2">
+          <button 
+            type="button" 
+            onClick={onCancel}
+            className="bg-gray-200 hover:bg-gray-300 text-black font-normal py-2 px-4 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="bg-blue-500 hover:bg-blue-600 text-white font-normal py-2 px-4 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1"
+          >
+            Submit
+          </button>
+        </div>
     </form>
   );
 };

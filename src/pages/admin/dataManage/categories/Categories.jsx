@@ -19,9 +19,10 @@ const Categories = () => {
     useEffect(() => {
       dispatch(fetchCategories());
     }, [dispatch]);
+    console.log(categories,"its the cnaolasoe of catagoryt")
 
-    const filteredCategories = (categories || []).filter(cat =>
-        cat.name.toLowerCase().includes(search.toLowerCase())
+    const filteredCategories = (categories|| []).filter(cat =>
+        cat?.name?.toLowerCase().includes(search.toLowerCase())
     );
 
     const indexOfLastCategory = currentPage * categoriesPerPage;
@@ -72,9 +73,9 @@ const Categories = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
-      <div className="container mx-auto px-4 sm:px-8 py-4">
-        <div className="py-8">
-          <h2 className="text-2xl font-semibold leading-tight">Categories</h2>
+      <div className="container mx-auto  sm:px-8 pt-6 pb-2">
+        <div className="">
+          <h2 className="text-xl font-medium mb-3 leading-tight">Categories</h2>
           <div className="flex justify-between items-center mb-4">
             <div className="flex">
               <input

@@ -7,14 +7,13 @@ import AddSupplier from "./AddSupplier";
 import Modal from "../../../components/commoncomponents/Modal";
 import EditSupplier from "./EditSupplier";
 import DeleteSupplier from "./DeleteSupplier";
-import { deleteSupplier, fetchAllSuppliers } from "../../../redux/features/SupplierSlice";
+import { deleteSupplier, fetchAllSuppliers, fetchSupplierById } from "../../../redux/features/SupplierSlice";
+import { Navigate, useNavigate } from "react-router-dom";
 
 
 
 const Suppliers = () => {
-
-
-
+const navigate = useNavigate()
 
 const [showEditModal, setShowEditModal] = useState(false);
 const [editData, setEditData] = useState(null);
@@ -43,8 +42,14 @@ const handleDelete = (id) => {
 
 const handleCloseDeleteModal = () => {
   setShowDeleteModal(false);
+  
 };
-  const columns = suplierColumns(editClickHandler,deleteClickHandler);
+const viewClickHandler = (id) => {
+  console.log(id.id,"checkign view data before trnasfre")
+  dispatch(fetchSupplierById(id.id))
+  navigate('/supplier/view')
+}
+  const columns = suplierColumns(viewClickHandler,editClickHandler,deleteClickHandler);
 
   const dispatch = useDispatch();
 

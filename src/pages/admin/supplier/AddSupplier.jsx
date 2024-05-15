@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { createSupplier } from '../../../redux/features/SupplierSlice';
 
@@ -18,11 +18,14 @@ const validationSchema = Yup.object().shape({
   company_name: Yup.string().required('Company name is required'),
   gst_number: Yup.string().required('GST is mandatory'),
   pan_number: Yup.string(),
-  location: Yup.string().required('Country is required'),
+  location_id: Yup.string().required('Country is required'),
 });
 
 const AddSupplier = ({ handleClose }) => {
   const dispatch = useDispatch()
+  const { locations, loading, error } = useSelector((state) => state?.supplier);
+  console.log(locations,"the locations si in the location_id page")
+
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -35,7 +38,7 @@ const AddSupplier = ({ handleClose }) => {
       company_name: '',
       gst_number: '',
       pan_number: '',
-      location: '',
+      location_id: '',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
@@ -182,32 +185,30 @@ const AddSupplier = ({ handleClose }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
+          <label htmlFor="location_id" className="block text-sm font-medium text-gray-700">location_id</label>
           <select
-            id="location"
+            id="location_id"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            {...formik.getFieldProps('location')}
+            {...formik.getFieldProps('location_id')}
           >
-            <option value="">Select a location</option>
-            <option value="kz">Kozhikode</option>
-            <option value="kc">Kochi</option>
-            <option value="tl">Thalassery</option>
-            <option value="vd">Vadakara</option>
-            <option value="ml">Malappuram</option>
-            <option value="kt">Kottayam</option>
+            <option value="">Select a location_id</option>
+            {locations.map(item => {
+
+           return  <option key={item.id} value={item.id}>{item.location}</option>
+            })}
           </select>
-          {formik.touched.location && formik.errors.location && (
-            <p className="mt-2 text-sm text-red-600">{formik.errors.location}</p>
+          {formik.touched.location_id && formik.errors.location_id && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.location_id}</p>
           )}
         </div>
       </div>
 
-      <div className="flex justify-end space-x-4 mt-5">
+      <div className="flex justify-end space-x-2 mt-5">
         <button type="button" onClick={handleClose} className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded">
           Close
         </button>
         <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-          Add
+          Add Supplier
         </button>
       </div>
     </form>

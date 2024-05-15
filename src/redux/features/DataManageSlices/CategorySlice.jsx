@@ -76,16 +76,18 @@ const categorySlice = createSlice({
         state.loading = false;
       })
       .addCase(createCategory.fulfilled, (state, action) => {
-        state.categories.push(action.payload);
+        console.log(state.categories,"its the state and payload is ",action.payload)
+        state.categories.categories.unshift(action.payload.category);
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        const index = state.categories.findIndex(c => c.id === action.payload.id);
+        console.log(action.payload,state.categories.categories,"thhe tow")
+        const index = state.categories.categories.findIndex(c => c.id === action.payload.category.id);
         if (index !== -1) {
-          state.categories[index] = action.payload;
+          state.categories.categories[index] = action.payload.category;
         }
       })
       .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.categories = state.categories.filter(c => c.id !== action.payload);
+        state.categories.categories = state.categories.categories.filter(c => c.id !== action.payload);
       });
   }
 });

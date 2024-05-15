@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useTable, usePagination } from 'react-table';
 import ModalManage from './ModalManage';
+import { FaChevronDown } from 'react-icons/fa';
 
 const DataTable = ({ data, columns, filterColumn, title }) => {
   const [filterValue, setFilterValue] = useState('');
@@ -53,10 +54,23 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
     gotoPage(0);
   }, [filteredData, gotoPage]);
 
+  const formatText = (text) => {
+    // Replace underscores with spaces
+    const formattedText = text.replace(/_/g, ' ');
+  
+    // Capitalize first letter of each word
+    const capitalizedText = formattedText.replace(/\b\w/g, (char) => char.toUpperCase());
+  
+    return capitalizedText;
+  };
+  
+
   return (
-    <div className="container mx-auto mt-4 p-4 bg-white rounded-lg shadow">
+    <div className="container mx-auto mt-4 pt-4 px-4 pb-2 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
-        <div className="flex gap-4">
+        <div className="flex gap-3">
+          <div className="">
+
           <input
             type="text"
             placeholder="Search..."
@@ -64,16 +78,23 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           />
+          </div>
+          <div className="relative">
+
           <select
             value={filterValue}
             onChange={(e) => setFilterValue(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-2  pr-8 border appearance-none text-gray-500 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">Filter by {filterColumn}</option>
+<option className='' value="">Filter by {formatText(filterColumn)}</option>
             {[...new Set(data?.map(item => item[filterColumn]))].map(value => (
               <option key={value} value={value}>{value}</option>
             ))}
           </select>
+          <div className="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
+        <FaChevronDown className="text-gray-500 text-[10px]" />
+      </div>
+          </div>
         </div>
         <ModalManage title={title} />
       </div>
@@ -83,7 +104,7 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
             {headerGroups.map(headerGroup => (
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps()} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th {...column.getHeaderProps()} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                     {column.render('Header')}
                   </th>
                 ))}
@@ -96,7 +117,7 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
               return (
                 <tr {...row.getRowProps()} className={`text-[.9rem] ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f3f5f9]'} border-b`}>
                   {row.cells.map(cell => (
-                    <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap text-md  text-gray-900">
                       {cell.render('Cell')}
                     </td>
                   ))}
@@ -106,7 +127,7 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
           </tbody>
         </table>
       </div>
-      <div className="py-3 flex items-center justify-between">
+      <div className="pt-3 flex items-center justify-between">
         <div className="flex-1 flex justify-between sm:hidden">
           <button onClick={() => previousPage()} disabled={!canPreviousPage} className="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
             Previous

@@ -11,13 +11,18 @@ import { GoGraph } from "react-icons/go";
 import { HiShoppingBag } from "react-icons/hi";
 import { BsGraphDownArrow } from 'react-icons/bs';
 import RecentInvoices from './RecentInvoices';
+import bgone from '../../../assets/bgImages/lightblue.jpeg'
+import bgtwo from '../../../assets/bgImages/beige.jpeg'
+import bgthree from '../../../assets/bgImages/green.jpeg'
+import { PiArrowDownLeft } from 'react-icons/pi';
+import { HiArrowsRightLeft } from 'react-icons/hi2';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state?.dashboard || {});
 
   useEffect(() => {
-    dispatch(setHeading("Dashboard"));
+    dispatch(setHeading("Welcome Back , Admin 👋"));
     dispatch(fetchDashboardData());
     return () => dispatch(clearHeading());
   }, [dispatch]);
@@ -37,65 +42,76 @@ const Dashboard = () => {
 
   if (!data) {
     return <div>No data available</div>;
-  }
+   }
 
   return (
-    <div className="flex flex-col gap-8 ">
+    <div className="grid gap-8 p-3 pt-3">
+      <div className="grid  grid-cols-[2fr,6fr] gap-4">
     <div className="flex flex-row gap-8">
       <DashboardDetailCard customer={data?.customers} supplier={data?.suppliers} />
+      </div>
+      <div>
       <div className="flex gap-8">
-        <div className="flex flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
+          
           <Cards
             heading="Today income"
             amount={data?.todayIncome}
-            subheading="Subheading 1"
-            Icon={GoGraph} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            subheading=""
+            Icon={PiArrowDownLeft} // Pass the icon component reference
+            bgImage='#DDFFD8' // Provide the background image URL
+            textColor='#3A6211'
           />
           <Cards
             heading="Today Expence"
             amount={data?.todayExpense}
-            subheading="Subheading 1"
+            subheading=""
             Icon={BsGraphDownArrow} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            bgImage='#EFE1E1' // Provide the background image URL
+            textColor='#BE2F2F'
           />
         </div>
-        <div className="flex flex-col gap-8">
+        <div className=" w-full flex flex-col gap-8">
           <Cards
             heading="This Month Income"
             amount={data?.thisMonthIncome}
-            subheading="Subheading 1"
-            Icon={HiShoppingBag} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            subheading=""
+            Icon={PiArrowDownLeft} // Pass the icon component reference
+            bgImage='#DDFFD8' // Provide the background image URL
+            textColor='#3A6211'
           />
           <Cards
             heading="This Month Revenue"
             amount={data?.thisMonthExpense}
-            subheading="Subheading 1"
+            subheading=""
             Icon={LiaCoinsSolid} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            bgImage="#D8E1FF" // Provide the background image URL
+            textColor='#1564AD'
           />
         </div>
-        <div className="flex flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
           <Cards
             heading="Today Revenue"
             amount={data?.todayRevenue}
-            subheading="Subheading 1"
-            Icon={FaRegMoneyBillAlt} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            subheading=""
+            Icon={HiArrowsRightLeft} // Pass the icon component reference
+            bgImage='#D8E1FF' // Provide the background image URL
+            textColor='#1564AD'
           />
           <Cards
             heading="This Months Revenue"
             amount={data?.thisMonthRevenue}
-            subheading="Subheading 1"
-            Icon={GoGraph} // Pass the icon component reference
-            bgImage={'../../../../public/assets/dashbord/cardBg12.jpg'} // Provide the background image URL
+            subheading=""
+            Icon={HiArrowsRightLeft} // Pass the icon component reference
+            bgImage='#D8E1FF' // Provide the background image URL
+            textColor='#1564AD'
+
           />
           
         </div>
       </div>
     </div>
-
+</div>
     <div>
 <DashboardChart/>
     </div>

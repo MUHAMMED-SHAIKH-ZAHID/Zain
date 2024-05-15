@@ -1,7 +1,7 @@
 import { AiOutlineWarning } from 'react-icons/ai'; // Importing warning icon from react-icons
-import Modal from '../../../components/commoncomponents/Modal';
+import Modal from '../../../../components/commoncomponents/Modal';
 
-const DeletePurchase = ({ show, handleClose, handleDelete, itemId }) => {
+const DeleteSales = ({ show, handleClose, handleDelete, itemId }) => {
   return (
     <Modal
       visible={show}
@@ -35,4 +35,4 @@ const DeletePurchase = ({ show, handleClose, handleDelete, itemId }) => {
   );
 };
 
-export default DeletePurchase;
+export default DeleteSales;

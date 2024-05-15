@@ -24,6 +24,7 @@ export const fetchCustomer = createAsyncThunk(
 export const createCustomer = createAsyncThunk(
   'customers/createCustomer',
   async (customerData) => {
+    console.log(customerData,"values to crewate cuistop,er")
     const response = await axios.post(`${CustomerAPI}`, customerData);
     return response.data;
   }
@@ -59,11 +60,19 @@ const customerSlice = createSlice({
   initialState: {
     customers: [],
     currentCustomer: null,
+    currentSale:null,
     salesDetails: null,
     loading: false,
-    error: null
+    error: null,
+    storedata:'',
+    routes: [],
+    salesExecutives : [],
   },
-  reducers: {},
+  reducers: {
+    storeData:(state,action) => {
+    state.storedata = action.payload
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllCustomers.pending, (state) => {
@@ -71,14 +80,19 @@ const customerSlice = createSlice({
       })
       .addCase(fetchAllCustomers.fulfilled, (state, action) => {
         state.loading = false;
+        console.log(action.payload,"payload ghjklllllllllllllllllllllllll")
         state.customers = action.payload;
+        state.routes = action.payload.routes;
+        state.salesExecutives = action.payload.salesExecutives;
       })
       .addCase(fetchAllCustomers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
       .addCase(fetchCustomer.fulfilled, (state, action) => {
-        state.currentCustomer = action.payload;
+        console.log("tis the fetch custome4r singlve suc customer in the slice",action.payload)
+        state.currentCustomer = action.payload.customer;
+        state.currentSale = action.payload.sales
       })
       .addCase(createCustomer.fulfilled, (state, action) => {
         state.customers.push(action.payload);
