@@ -4,11 +4,13 @@ import { createBrand, deleteBrand, fetchBrands, updateBrand } from '../../../../
 import Modal from '../../../../components/commoncomponents/Modal';
 import { BrandForm } from './BrandForm';
 import { BiEdit, BiTrash, BiSearch } from 'react-icons/bi';
+import { toast } from 'react-toastify';
 
 
 const Brands = () => {
     const dispatch = useDispatch();
-    const { brands, loading } = useSelector(state => state?.brands?.brands);
+    const { brands, loading } = useSelector(state => state?.brands);
+    const { categories } = useSelector(state => state?.categories?.categories);
     const [showModal, setShowModal] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [currentBrand, setCurrentBrand] = useState(null);
@@ -17,13 +19,14 @@ const Brands = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [brandsPerPage] = useState(10);
 
+
     useEffect(() => {
         dispatch(fetchBrands());
     }, [dispatch]);
 
     // Ensure brands is an array before filtering, default to an empty array if undefined
-    const filteredBrands = (brands || []).filter(brand =>
-        brand.name.toLowerCase().includes(search.toLowerCase())
+    const filteredBrands = (brands || [])?.filter(brand =>
+        brand?.name?.toLowerCase().includes(search?.toLowerCase())
     );
 
     const indexOfLastBrand = currentPage * brandsPerPage;
@@ -59,9 +62,14 @@ const Brands = () => {
 
     const handleSubmit = (data) => {
         if (currentBrand) {
-            dispatch(updateBrand({ id: currentBrand.id, ...data }));
+            dispatch(updateBrand({ id: currentBrand.id, ...data })).then((res)=>{
+                console.log(res,"tee res in the dispatch")
+                toast.success(res.payload.suceess)
+              })
         } else {
-            dispatch(createBrand(data));
+            dispatch(createBrand(data)).then((res)=>{
+                toast.success(res.payload.success)
+              })
         }
         setShowModal(false);
     };
@@ -98,7 +106,10 @@ const Brands = () => {
                         <thead>
                         <tr>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Name
+                              Brand  Name
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                              Category  Name
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
                         </tr>
@@ -108,6 +119,12 @@ const Brands = () => {
                             <tr key={brand.id}>
                                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     {brand.name}
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                               
+                                    {categories.find((item) => item.id == brand.category_id)?.name || "Category not Defined" }
+
+                              
                                 </td>
                                 <td className="px-5 py-6 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
                                     <button onClick={() => handleEdit(brand)} className="text-indigo-600 hover:text-indigo-900 px-4">

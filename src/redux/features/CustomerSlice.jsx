@@ -67,6 +67,7 @@ const customerSlice = createSlice({
     storedata:'',
     routes: [],
     salesExecutives : [],
+    channels:[],
   },
   reducers: {
     storeData:(state,action) => {
@@ -81,9 +82,10 @@ const customerSlice = createSlice({
       .addCase(fetchAllCustomers.fulfilled, (state, action) => {
         state.loading = false;
         console.log(action.payload,"payload ghjklllllllllllllllllllllllll")
-        state.customers = action.payload;
-        state.routes = action.payload.routes;
-        state.salesExecutives = action.payload.salesExecutives;
+        state.customers = action.payload.customers;
+        state.channels = action.payload.channels
+        // state.routes = action.payload.routes;
+        // state.salesExecutives = action.payload.salesExecutives;
       })
       .addCase(fetchAllCustomers.rejected, (state, action) => {
         state.loading = false;
@@ -95,12 +97,13 @@ const customerSlice = createSlice({
         state.currentSale = action.payload.sales
       })
       .addCase(createCustomer.fulfilled, (state, action) => {
-        state.customers.push(action.payload);
+        state.customers.unshift(action.payload.customer);
       })
       .addCase(updateCustomer.fulfilled, (state, action) => {
-        const index = state.customers.findIndex(c => c.id === action.payload.id);
+        console.log(action.payload,"tis the fullfilled state ")
+        const index = state.customers.findIndex(c => c.id === action.payload.customer.id);
         if (index !== -1) {
-          state.customers[index] = action.payload;
+          state.customers[index] = action.payload.customer;
         }
       })
       .addCase(deleteCustomer.fulfilled, (state, action) => {

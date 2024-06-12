@@ -8,7 +8,7 @@ import CreateProduct from './CreateProduct';
 
 const Products = () => {
     const dispatch = useDispatch();
-    const { products, loading } = useSelector(state => state?.products?.products);
+    const { products, loading } = useSelector(state => state?.products);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(10);
     const [modalVisible, setModalVisible] = useState(false);
@@ -22,7 +22,7 @@ const Products = () => {
     }, [dispatch]);
 
     const filteredProducts = (products || []).filter(product =>
-        product.product_name.toLowerCase().includes(search.toLowerCase())
+        product?.product_name.toLowerCase().includes(search.toLowerCase())
     );
 
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -75,10 +75,10 @@ const Products = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
-        <div className="container mx-auto  sm:px-8 pt-6 pb-2">
+        <div className="container border-2 mt-4 rounded-md mx-auto bg-zinc-100  sm:px-6 pt-6 pb-2">
         <div className="">
             <h2 className="text-xl mb-2 font-medium leading-tight">Products</h2>
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-start mb-4">
                     <div className="flex">
                         <input
                             type="text"
@@ -88,7 +88,7 @@ const Products = () => {
                         />
                         <BiSearch className="text-gray-500 ml-2 my-auto" />
                     </div>
-                    <button onClick={openModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <button onClick={openModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold leading-none py-2 px-4 rounded">
                         Add New Product
                     </button>
                 </div>
@@ -96,48 +96,91 @@ const Products = () => {
     <thead>
         <tr>
             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Name
+                Code
             </th>
             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                HSN Code
+                 name
             </th>
             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                EAN Code
+                Brand
             </th>
             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Category
             </th>
             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Brand
+                EAN Code
             </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                 Gst            </th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                HSN 
+            </th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                MRP
+            </th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
+                 Price 1
+            </th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
+                 Price 2
+            </th>
+            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
+                 Price 3
+            </th>
+         
+            <th className="px-5 py-3 border-b-2 border-gray-200 text-end bg-gray-100  text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Action
+            </th>
         </tr>
     </thead>
     <tbody>
-        {currentProducts.map(product => (
-            <tr key={product.id}>
+        {currentProducts?.map(product => (
+            <tr key={product?.id}>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.product_name}
+                    {product?.product_code}
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.hsn_code}
+                    {product?.product_name}
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.ean_code}
+                    {product?.brand_name}
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.category_name}
+                    {product?.category_name}
                 </td>
                 <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product.brand_name}
+                    {product?.ean_code}
                 </td>
-                <td className="px-5 py-6 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {product?.hsn_code}
+                </td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {product?.tax_rate}
+                </td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                {product?.mrp =='' ? "0" : product?.mrp}
+
+                </td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                {product?.s_rate_1 == null ? "0" : product?.s_rate_1}
+                </td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                {product?.s_rate_2 ==null ? "0" : product?.s_rate_2}
+                </td>
+                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {product?.s_rate_3 == null ? "0" : product?.s_rate_3}
+                </td>
+               
+                <td className="bg-white border-b">
+                    <div className="px-5 py-6  h-full border-gray-200 bg-white text-sm flex justify-end items-center">
+
                     <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 px-4">
                         <BiEdit />
                     </button>
-                    <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 px-4">
+                    {/* <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 px-4">
                         <BiTrash />
-                    </button>
+                    </button> */}
+                    </div>
                 </td>
             </tr>
         ))}

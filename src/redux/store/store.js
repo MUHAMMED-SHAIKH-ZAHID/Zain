@@ -30,6 +30,9 @@ import SalesQuotationSlice from "../features/SalesQuotationSlice";
 import TaxSlice from "../features/DataManageSlices/TaxSlice";
 import AccountSlice from "../features/AccountSlice";
 import StockSlice from "../features/StockSlice";
+import ExpenceTypeSlice from "../features/DataManageSlices/ExpenceTypeSlice";
+import ExpenseSlice from "../features/ExpenseSlice";
+import PaymentSlice from "../features/PaymentSlice";
 
 
 const rootReducer = combineReducers({
@@ -51,7 +54,9 @@ const rootReducer = combineReducers({
     tax:TaxSlice,
     account:AccountSlice,
     stock:StockSlice,
-
+    expenseTypes:ExpenceTypeSlice,
+    expense:ExpenseSlice,
+    payments:PaymentSlice,
 });
 
 const persistConfig = {

@@ -4,6 +4,7 @@ import { createCategory, deleteCategory, fetchCategories, updateCategory } from 
 import { CategoryForm } from './CategoryForm';
 import Modal from '../../../../components/commoncomponents/Modal';
 import { BiEdit, BiTrash, BiSearch } from 'react-icons/bi';
+import { toast } from 'react-toastify';
 
 const Categories = () => {
     const dispatch = useDispatch();
@@ -58,9 +59,13 @@ const Categories = () => {
 
     const handleSubmit = (data) => {
         if (currentCategory) {
-            dispatch(updateCategory({ id: currentCategory.id, ...data }));
+            dispatch(updateCategory({ id: currentCategory.id, ...data })).then((res)=>{
+              toast.success(res.payload.success)
+            })
         } else {
-            dispatch(createCategory(data));
+            dispatch(createCategory(data)).then((res)=>{
+              toast.success(res.payload.success)
+            });
         }
         setModalVisible(false);
     };

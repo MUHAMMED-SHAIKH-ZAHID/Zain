@@ -5,6 +5,7 @@ import { RiCloseLine } from 'react-icons/ri';
 import Modal from '../../../components/commoncomponents/Modal';
 import { useDispatch } from 'react-redux';
 import { createSalesExecutive } from '../../../redux/features/SalesExecutiveSlice';
+import { toast } from 'react-toastify';
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
@@ -33,7 +34,10 @@ const CreateSalesExecutive = ({ handleClose }) => {
     validationSchema,
     onSubmit: (values) => {
       console.log(values);
-      dispatch(createSalesExecutive(values));
+      dispatch(createSalesExecutive(values)).then((res)=>{
+        toast.success(res.payload.success)
+      })
+;
       handleClose();
     },
   });

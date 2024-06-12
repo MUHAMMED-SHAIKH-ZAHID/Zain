@@ -21,7 +21,7 @@ const Purchase = () => {
  console.log(purchases,"purchase page debug")
   
   useEffect(() => {
-    dispatch(setHeading("Purchase"));
+    dispatch(setHeading("Purchase Bill"));
     return () => {
       dispatch(clearHeading());
     };
@@ -67,17 +67,17 @@ const handleCloseReturnModal = () => {
     navigate('/purchase/view')
   }
 
-  const paymentActionClick   = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    setPaymentData(id)
-    setShowPaymentModal(true)
+  // const paymentActionClick   = (id) => {
+  //   console.log(id,"checkign view data before trnasfre")
+  //   setPaymentData(id)
+  //   setShowPaymentModal(true)
    
-  }
-  const returnClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    setViewData(id)
-    setShowReturnModal(true)
-  }
+  // }
+  // const returnClickHandler = (id) => {
+  //   console.log(id,"checkign view data before trnasfre")
+  //   setViewData(id)
+  //   setShowReturnModal(true)
+  // }
   const [showPrint,setShowPrint] = useState(true)
   const componentRef = useRef(null);
   const handlePrintfun = () => {
@@ -102,23 +102,21 @@ const handleCloseReturnModal = () => {
   }
 
 
-  const columns = PurchaseColumns(paymentActionClick,returnClickHandler,viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
+  const columns = PurchaseColumns(viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
 
   // if (loading) return <div>Loading...</div>;
   // if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="overflow-x-hidden">
-      {purchases?.length > 0 ? (
+    
         <DataTable
           data={purchases}
           columns={columns}
           filterColumn="supplier_name"
-          title={'Purchases'}
+          title={'Bill'}
         />
-      ) : (
-        <div>No purchases available.</div>
-      )}
+  
       {showDeleteModal && (
         <DeletePurchase
           show={showDeleteModal}

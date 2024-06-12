@@ -22,6 +22,8 @@ const TaxComponent = () => {
       dispatch(fetchTaxes());
     }, [dispatch]);
 
+    console.log(taxes,"Checking taxes fro tne use selector")
+
     if (loading) {
       return <div>Loading...</div>; // Show loading indicator while data is fetching
     }
@@ -31,12 +33,13 @@ const TaxComponent = () => {
     }
 
     const filteredtaxes = (taxes || []).filter(tax =>
-        tax.name?.toLowerCase().includes(search.toLowerCase())
+        tax.hsn_code?.toLowerCase().includes(search.toLowerCase())
     );
 
     const indexOfLastRoute = currentPage * taxesPerPage;
     const indexOfFirstRoute = indexOfLastRoute - taxesPerPage;
     const currenttaxes = filteredtaxes.slice(indexOfFirstRoute, indexOfLastRoute);
+    console.log(currenttaxes,"checking curerent tax in teh tax dcomasonkl")
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -104,10 +107,10 @@ const TaxComponent = () => {
               <thead>
                 <tr>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Name
+                    Hsn Code
                   </th>
-                  <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Tax Rate
+                  <th className="px-5 py-3 border-b-2 text-center border-gray-200 bg-gray-100  text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Tax Percentage
                   </th>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
                 </tr>
@@ -116,10 +119,10 @@ const TaxComponent = () => {
                 {currenttaxes.map(tax => (
                   <tr key={tax.id}>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                      {tax.name}
+                      {tax.hsn_code}
                     </td>
-                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                      {tax.tax_rate}
+                    <td className="px-5 text-center py-5 border-b border-gray-200 bg-white text-sm">
+                      {tax.tax_rate}  %
                     </td>
                     <td className="px-5 py-6 border-b border-gray-200 bg-white text-sm flex justify-end items-center">
                       <button onClick={() => handleEdit(tax)} className="text-indigo-600 hover:text-indigo-900 px-4">

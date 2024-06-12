@@ -4,6 +4,7 @@ import { BiEdit, BiSearch, BiTrash } from 'react-icons/bi';
 import { createRoute, deleteRoute, fetchRoutes, updateRoute } from '../../../../redux/features/DataManageSlices/RoutesSlice';
 import Modal from '../../../../components/commoncomponents/Modal';
 import { RouteForm } from './RouteForm';
+import { toast } from 'react-toastify';
 
 
 const RoutesComponent = () => {
@@ -66,9 +67,13 @@ const RoutesComponent = () => {
 
     const handleSubmit = (data) => {
         if (currentRoute) {
-            dispatch(updateRoute({ id: currentRoute.id, ...data }));
+            dispatch(updateRoute({ id: currentRoute.id, ...data })).then((res)=>{
+              toast.success(res.payload.success)
+            })
         } else {
-            dispatch(createRoute(data));
+            dispatch(createRoute(data)).then((res)=>{
+              toast.success(res.payload.success)
+            })
         }
         setModalVisible(false);
     };

@@ -3,7 +3,6 @@ import { Login } from "../pages/admin/auth/Login"
 import AdminLayout from "../layout/AdminLayout"
 import Purchase from "../pages/admin/purchase/purchase/Purchase.jsx"
 import Dashboard from "../pages/admin/dashboard/Dashboard"
-import Suppliers from "../pages/admin/supplier/Suppliers"
 import Customer from "../pages/admin/customer/Customer.jsx"
 import Sales from "../pages/admin/sales/sales/Sales.jsx"
 import DataManage from "../pages/admin/dataManage/DataManage"
@@ -25,7 +24,6 @@ import EditSalesQuotation from "../pages/admin/sales/salesQuotatioin/EditSalesQu
 import ViewSalesQuotation from "../pages/admin/sales/salesQuotatioin/ViewSalesQuotation.jsx"
 import SalesQuoteConvert from "../pages/admin/sales/sales/SalesQuoteConvert.jsx"
 import EditSales from "../pages/admin/sales/sales/EditSales.jsx"
-import ViewSupplier from "../pages/admin/supplier/ViewSupplier.jsx"
 import ViewPurchase from "../pages/admin/purchase/purchase/ViewPurchase.jsx"
 import ViewSales from "../pages/admin/sales/sales/ViewSales.jsx"
 import ViewCustomer from "../pages/admin/customer/ViewCustomer.jsx"
@@ -33,6 +31,11 @@ import AccountComponent from "../pages/admin/account/AccountCrud/AccountComponen
 import AccountBook from "../pages/admin/account/AccountBook.jsx"
 import Stock from "../pages/admin/stock/Stock.jsx"
 import ViewSalesExecutive from "../pages/admin/salesexecutive/ViewSalesExecutive.jsx"
+import ViewVendor from "../pages/admin/vendor/ViewVendor.jsx"
+import Vendors from "../pages/admin/vendor/Vendors.jsx"
+import Products from "../pages/admin/dataManage/products/ProductComponent.jsx"
+import Expense from "../pages/admin/purchase/expense/Expense.jsx"
+import Payment from "../pages/admin/payment/Payment.jsx"
 
 
 const RedirectIfAuthenticated = ({ children }) => {
@@ -65,17 +68,17 @@ const AdminRoute = () => {
     <Route element={<ProtectedRoute requiredRole="admin" />}>
     <Route path="/" element={<AdminLayout /> }>
     <Route path="/" element={<Dashboard /> }/>
-    <Route path="/supplier" element={<Suppliers /> }/>
-    <Route path="/supplier/view" element={<ViewSupplier /> }/>
+    <Route path="/vendor" element={<Vendors /> }/>
+    <Route path="/vendor/view" element={<ViewVendor /> }/>
     <Route path="/purchase" element={<Purchase /> }/>
     <Route path="/purchase/create" element={<AddPurchase /> }/>
     <Route path="/purchase/edit" element={<EditPurchase /> }/>
     <Route path="/purchase/view" element={<ViewPurchase /> }/>
-    <Route path="/purchase/quotation" element={<PurchaseQuotation /> }/>
-    <Route path="/purchase/quotation/create" element={<AddPurchaseQuotation /> }/>
-    <Route path="/purchase/quotation/edit" element={<EditPurchaseQuotation /> }/>
-    <Route path="/purchase/quotation/view" element={<ViewPurchaseQuotation /> }/>
-    <Route path="/purchase/quotation/convert" element={<PurchaseQuoteConvert /> }/>
+    <Route path="/purchase/order" element={<PurchaseQuotation /> }/>
+    <Route path="/purchase/order/create" element={<AddPurchaseQuotation /> }/>
+    <Route path="/purchase/order/edit" element={<EditPurchaseQuotation /> }/>
+    <Route path="/purchase/order/view" element={<ViewPurchaseQuotation /> }/>
+    <Route path="/purchase/order/convert" element={<PurchaseQuoteConvert /> }/>
     <Route path="/salesexecutive" element={<SalesExecutive /> }/>
     <Route path="/salesexecutive/view" element={<ViewSalesExecutive /> }/>
     <Route path="/customer" element={<Customer /> }/>
@@ -95,6 +98,9 @@ const AdminRoute = () => {
     <Route path="/account" element={<AccountComponent /> }/>
     <Route path="/account/view" element={<AccountBook /> }/>
     <Route path="/stock" element={<Stock /> }/>
+    <Route path="/products" element={<Products /> }/>
+    <Route path="/expense" element={<Expense /> }/>
+    <Route path="/payment" element={<Payment /> }/>
     </Route >
     </Route>
     </Routes>

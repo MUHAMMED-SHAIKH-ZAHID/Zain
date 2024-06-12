@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import Modal from '../../../components/commoncomponents/Modal';
 import { useDispatch } from 'react-redux';
 import { updateSalesExecutive } from '../../../redux/features/SalesExecutiveSlice';
+import { toast } from 'react-toastify';
 
 // Define the validation schema for the sales executive form
 const validationSchema = Yup.object({
@@ -33,7 +34,10 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
     validationSchema,
     onSubmit: (values) => {
       console.log(values, "Checking values");
-      dispatch(updateSalesExecutive({ id: data.id, salesExecutiveData: values }));
+      dispatch(updateSalesExecutive({ id: data.id, salesExecutiveData: values })).then((res)=>{
+        toast.success(res.payload.suceess)
+      })
+;
       handleClose();
     },
     enableReinitialize: true,

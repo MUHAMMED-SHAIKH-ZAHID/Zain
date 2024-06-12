@@ -4,6 +4,7 @@ import { BiEdit, BiTrash, BiSearch } from 'react-icons/bi';
 import Modal from '../../../../components/commoncomponents/Modal';
 import { LocationForm } from './LocationForm';
 import { createLocation, deleteLocation, fetchLocations, updateLocation } from '../../../../redux/features/DataManageSlices/LocationSlice';
+import { toast } from 'react-toastify';
 
 const Locations = () => {
     const dispatch = useDispatch();
@@ -59,9 +60,13 @@ const Locations = () => {
 
     const handleSubmit = (data) => {
         if (currentLocation) {
-            dispatch(updateLocation({ id: currentLocation.id, ...data }));
+            dispatch(updateLocation({ id: currentLocation.id, ...data })).then((res)=>{
+              toast.success(res.payload.success)
+            })
         } else {
-            dispatch(createLocation(data));
+            dispatch(createLocation(data)).then((res)=>{
+              toast.success(res.payload.success)
+            })
         }
         setModalVisible(false);
     };

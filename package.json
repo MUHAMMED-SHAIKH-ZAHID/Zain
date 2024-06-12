@@ -1,5 +1,6 @@
 {
   "name": "vite-project",
+  "homepage": "http://zain.bestnbest.ae/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -27,6 +28,7 @@
     "react-toastify": "^10.0.5",
     "recharts": "^2.12.6",
     "redux-persist": "^6.0.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {

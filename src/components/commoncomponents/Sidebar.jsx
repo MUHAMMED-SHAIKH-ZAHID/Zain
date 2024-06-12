@@ -1,35 +1,39 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MdDashboard, MdAccountBalance, MdOutlineProductionQuantityLimits } from "react-icons/md";
+import { MdDashboard, MdAccountBalance, MdOutlineProductionQuantityLimits, MdOutlinePayment } from "react-icons/md";
 import { RiLogoutBoxRFill } from "react-icons/ri";
-import { FaUsers, FaUserCircle } from "react-icons/fa";
-import { BsPersonBoundingBox, BsDatabaseFillUp } from "react-icons/bs";
+import { FaUsers, FaUserCircle, FaFileInvoice } from "react-icons/fa";
+import { BsPersonBoundingBox, BsDatabaseFillUp, BsBlockquoteRight } from "react-icons/bs";
 import { BiSolidPurchaseTag, BiSolidReport } from "react-icons/bi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { SiExpensify } from "react-icons/si";
 import { GoDotFill } from "react-icons/go";
 
 const SidebarData = [
   { name: "Dashboard", icon: MdDashboard, path: "/" },
-  { name: "Supplier", icon: FaUsers, path: "/supplier" },
   {
     name: "Purchase",
     icon: BiSolidPurchaseTag,
     path: "/purchase",
     submenu: [
-      { name: "Purchase List", path: "/purchase/" },
-      { name: "Purchase Quotation", path: "/purchase/quotation" }
+      { name: "Vendor", icon: FaUsers, path: "/vendor" },
+      { name: "Purchase Order", icon: BsBlockquoteRight, path: "/purchase/order" },
+      { name: "Purchase Bill", icon: FaFileInvoice, path: "/purchase/" },
+      { name: "Expense", icon: SiExpensify, path: "/expense/" },
+      { name: "Payment", icon: MdOutlinePayment, path: "/payment/" },
     ],
     arrow: true
   },
   { name: "Sales Executive", icon: FaUserCircle, path: "/salesexecutive" },
-  { name: "Customer", icon: BsPersonBoundingBox, path: "/customer" },
+  { name: "Products", icon: MdOutlineProductionQuantityLimits, path: "/products" },
   {
     name: "Sales",
     icon: FaUsers,
     path: "/sales",
     submenu: [
-      { name: "Sales List", path: "/sales/" },
-      { name: "Sales Quotation", path: "/sales/quotation" }
+      { name: "Customer", icon: BsPersonBoundingBox, path: "/customer" },
+      { name: "Invoice Order", icon: BsBlockquoteRight, path: "/sales/quotation" },
+      { name: "Invoice", icon: FaFileInvoice, path: "/sales/" },
     ],
     arrow: true
   },
@@ -45,7 +49,6 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if the current path matches exactly with the menu item's path
   const isActive = (path) => location.pathname === path;
 
   const toggleSubMenu = (name) => {
@@ -68,11 +71,11 @@ const Sidebar = () => {
           </div>
           {isOpen && <h1 className="text-lg font-normal text-gray-200">Zain Sales</h1>}
         </div>
-        {isOpen &&   <div className="text-[.6rem] text-center mb-3 text-gray-400 ">Sales Managment Dashboard</div>}
-          <button onClick={toggleSidebar} className="ml-auto text-gray-400 hover:text-white flex items-center">
-            <IoIosArrowBack className={`transition-transform duration-300 ${isOpen ? '' : 'rotate-180'}`} /> {isOpen &&  <span className="text-[.6rem]">Minimize</span>}
-          </button>
-        <div className="flex-grow mt-8">
+        {isOpen && <div className="text-[.6rem] text-center mb-3 text-gray-400">Sales Management Dashboard</div>}
+        <button onClick={toggleSidebar} className="ml-auto text-gray-400 hover:text-white flex items-center">
+          <IoIosArrowBack className={`transition-transform duration-300 ${isOpen ? '' : 'rotate-180'}`} /> {isOpen && <span className="text-[.6rem]">Minimize</span>}
+        </button>
+        <div className="flex-grow mt-8 overflow-y-auto no-scrollbar">
           {SidebarData.map((data, i) => {
             const Icon = data.icon;
             const itemColor = isActive(data.path) ? "bg-white bg-opacity-20 text-white" : "text-gray-400 hover:text-white";
@@ -93,28 +96,28 @@ const Sidebar = () => {
                 </div>
                 {data.submenu && (
                   <div className={`overflow-hidden transition-all duration-700 ease-in-out ${subMenuOpen[data.name] ? 'max-h-40' : 'max-h-0'}`}>
-                    {data.submenu.map((sub, index) => (
-                      <div key={index} onClick={() => navigate(sub.path)} className={`pl-4 flex gap-3 mt-2 items-center cursor-pointer rounded-md text-[.8rem] font-normal text-gray-400 hover:text-gray-300 ${isActive(sub.path) ? 'bg-white bg-opacity-20 text-white py-1' : ''}`}>
-                        <div className="flex items-center gap-1">
-                          <GoDotFill className="text-gray-600 w-3" />
-                          {isOpen &&  sub.name}
+                    {data.submenu.map((sub, index) => {
+                      const SubIcon = sub.icon;
+                      return (
+                        <div key={index} onClick={() => navigate(sub.path)} className={`pl-4 flex gap-3 mt-3 items-center cursor-pointer rounded-md text-[.8rem] font-normal text-gray-400 hover:text-gray-300 ${isActive(sub.path) ? 'bg-white bg-opacity-20 text-white py-1' : ''}`}>
+                          <SubIcon className="w-4 h-4" />
+                          {isOpen && sub.name}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             );
           })}
         </div>
-        <div className="flex justify-center  w-full text-center items-center">
-          <div onClick={() => { localStorage.removeItem('token'); navigate('/login'); }} className="flex cursor-pointer flex-start gap-3 mb-2 text-gray-400 font-medium text-center items-center">
+        <div className="flex px-3 pt-5 w-full text-center items-center">
+          <div onClick={() => { localStorage.removeItem('token'); navigate('/login'); }} className="flex cursor-pointer flex-start gap-3 mb-2 text-gray-400 hover:text-red-300 font-medium text-center items-center">
             <RiLogoutBoxRFill className="h-5 w-5" />
             {isOpen && <div>Logout</div>}
           </div>
         </div>
-        {isOpen &&   <div className="text-[.5rem] text-center mb-3 text-gray-400 ">Developed by Grohance</div>}
-
+        {isOpen && <div className="text-[.5rem] px-4 mb-3 text-gray-400">Developed by Grohance</div>}
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ const Navbar = () => {
                 onClick={toggleDropdown}
               >
                 <FaUserCircle className="h-8 w-8 rounded-full text-gray-800" />
-                <span className="mx-4 ml-2  font-semibold text-gray-800">Admin</span>
+                <span className="mx-4 ml-2  font-medium text-gray-800">Admin</span>
                 <svg
                   className={`mr-4 h-4 w-4 text-gray-800 transition-transform duration-150 ${
                     isDropdownOpen ? 'rotate-180' : ''

@@ -19,12 +19,13 @@ const Customer = () => {
     };
   }, [dispatch]);
 
-  const { customers, loading, error } = useSelector(state => state?.customers?.customers);
+  const { customers, loading, error } = useSelector(state => state?.customers);
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
+  console.log(customers,"shaikh zahid hhhhhhhhhhhhhhhhhhhhhhh")
 
   const navigate = useNavigate()
   const editClickHandler = (rowData) => {
@@ -36,10 +37,10 @@ const Customer = () => {
     setShowEditModal(false);
   };
 
-  const deleteClickHandler = (rowData) => {
-    setDeleteItemId(rowData.id);
-    setShowDeleteModal(true);
-  };
+  // const deleteClickHandler = (rowData) => {
+  //   setDeleteItemId(rowData.id);
+  //   setShowDeleteModal(true);
+  // };
   console.log("debugging the customers",customers)
   const handleDelete = (id) => {
     console.log("Deleting item with id:", id);
@@ -58,15 +59,14 @@ const Customer = () => {
     navigate('/customer/view')
   }
 
-  const columns = CustomerColumns(viewClickHandler,editClickHandler,deleteClickHandler);
+  const columns = CustomerColumns(viewClickHandler,editClickHandler);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error loading customers: {error}</div>;
-
+console.log(customers,"sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
   return (
     <div>
       <DataTable
-        data={customers || []} // Ensure data is always an array
+        data={customers} // Ensure data is always an array
         columns={columns}
         filterColumn="state"
         title={'Customer'}

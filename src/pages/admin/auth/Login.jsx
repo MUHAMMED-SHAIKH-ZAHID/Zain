@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Link, useNavigate } from 'react-router-dom';
@@ -32,14 +32,20 @@ export function Login() {
     initialValues,
     validationSchema: loginSchema,
     onSubmit: (values) => {
-      dispatch(loginAuth(values));       
+      dispatch(loginAuth(values)).then((res) => {
+        console.log("after login",res.payload.token)
+        if(res.payload.token){
+          navigate('/')
+        }
+      })      
+       
     },
   });
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/'); // Redirect to dashboard or another protected route
-    }
-  }, [isAuthenticated, navigate]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate('/'); // Redirect to dashboard or another protected route
+  //   }
+  // }, [isAuthenticated, navigate]);
 
   return (
 

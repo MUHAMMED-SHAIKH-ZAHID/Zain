@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 
 export const TaxForm = ({ initialData = {}, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({ name: '', tax_rate: '' });
+  const [formData, setFormData] = useState({ hsn_code: '', tax_rate: '' });
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (initialData) {
-      setFormData({ name: initialData.name || '', tax_rate: initialData.tax_rate || '' });
+      setFormData({ hsn_code: initialData.hsn_code || '', tax_rate: initialData.tax_rate || '' });
     }
   }, [initialData]);
 
@@ -35,11 +35,11 @@ export const TaxForm = ({ initialData = {}, onSubmit, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="">
       <div className="mb-4">
-        <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">name:</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" />
+        <label htmlFor="hsn_code" className="block text-gray-700 text-sm font-bold mb-2">Hsn Code:</label>
+        <input type="text" name="hsn_code" value={formData.hsn_code} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="hsn_code" />
       </div>
       <div className="mb-6">
-        <label htmlFor="tax_rate" className="block text-gray-700 text-sm font-bold mb-2">tax_rate:</label>
+        <label htmlFor="tax_rate" className="block text-gray-700 text-sm font-bold mb-2">Tax Percentage:</label>
         <input type="text" name="tax_rate" value={formData.tax_rate} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="tax_rate" />
         {error && <p className="text-red-500 text-xs italic">{error}</p>}
       </div>

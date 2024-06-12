@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTable, usePagination } from 'react-table';
 import ModalManage from './ModalManage';
 import { FaChevronDown } from 'react-icons/fa';
@@ -9,7 +9,6 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
   const itemsPerPage = 10;
 
   const filteredData = useMemo(() => {
-    // Ensure data is an array before filtering
     if (!Array.isArray(data)) return [];
 
     return data.filter((item) => {
@@ -17,7 +16,7 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
         .join(' ')
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const filterMatch = filterValue === '' || item[filterColumn]?.toString().toLowerCase().includes(filterValue.toLowerCase());
+      const filterMatch = filterValue === '' || item?.[filterColumn]?.toString().toLowerCase().includes(filterValue.toLowerCase());
       return searchMatch && filterMatch;
     });
   }, [data, searchTerm, filterValue, filterColumn]);
@@ -55,75 +54,76 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
   }, [filteredData, gotoPage]);
 
   const formatText = (text) => {
-    // Replace underscores with spaces
     const formattedText = text.replace(/_/g, ' ');
-  
-    // Capitalize first letter of each word
     const capitalizedText = formattedText.replace(/\b\w/g, (char) => char.toUpperCase());
-  
     return capitalizedText;
   };
-  
 
   return (
-    <div className="container mx-auto mt-4 pt-4 px-4 pb-2 bg-white rounded-lg shadow">
+    <div className="container mx-auto mt-4 pt-4 px-4 pb-2  bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-3">
           <div className="">
-
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
           <div className="relative">
-
-          <select
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            className="px-3 py-2  pr-8 border appearance-none text-gray-500 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-<option className='' value="">Filter by {formatText(filterColumn)}</option>
-            {[...new Set(data?.map(item => item[filterColumn]))].map(value => (
-              <option key={value} value={value}>{value}</option>
-            ))}
-          </select>
-          <div className="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
-        <FaChevronDown className="text-gray-500 text-[10px]" />
-      </div>
+            <select
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              className="px-3 py-2 pr-8 border appearance-none text-gray-500 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Filter by {formatText(filterColumn)}</option>
+              {[...new Set(data?.map(item => item?.[filterColumn]))].map((value, index) => (
+                <option key={index} value={value}>{value}</option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
+              <FaChevronDown className="text-gray-500 text-[10px]" />
+            </div>
           </div>
         </div>
         <ModalManage title={title} />
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto no-scrollbar">
         <table {...getTableProps()} className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             {headerGroups.map(headerGroup => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
+              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
                 {headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps()} className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th {...column.getHeaderProps()} className="px-4 py-3 text-left  text-xs font-[500] text-gray-400 uppercase tracking-wider" key={column.id}>
                     {column.render('Header')}
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
-          <tbody {...getTableBodyProps()} className="bg-white divide-y divide-gray-200">
-            {page.map((row, rowIndex) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()} className={`text-[.9rem] ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f3f5f9]'} border-b`}>
-                  {row.cells.map(cell => (
-                    <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap text-md  text-gray-900">
-                      {cell.render('Cell')}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
+          <tbody {...getTableBodyProps()} className="bg-white divide-y divide-gray-200 ">
+            {page.length > 0 ? (
+              page.map((row, rowIndex) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()} className={`text-[.9rem]  ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-[#f3f5f9]'} border-b`} key={row.id}>
+                    {row.cells.map(cell => (
+                      <td {...cell.getCellProps()} className="px-4 py-4 whitespace-nowrap leading-none text-md text-gray-900" key={cell.column.id}>
+                        {cell.render('Cell')}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={columns.length} className="px-6 py-4 text-center text-gray-500">
+                  No data available
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -139,14 +139,13 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Showing <span className="font-medium">{pageIndex * itemsPerPage + 1}</span> to <span className="font-medium">{Math.min((pageIndex + 1) * itemsPerPage, data.length)}</span> of <span className="font-medium">{data.length}</span> results
+            Showing <span className="font-medium">{data?.length > 0 ? pageIndex * itemsPerPage + 1 : 0}</span> to <span className="font-medium">{Math.min((pageIndex + 1) * itemsPerPage, data?.length || 0)}</span> of <span className="font-medium">{data?.length || 0}</span> results
             </p>
           </div>
           <div>
             <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
               <button onClick={() => previousPage()} disabled={!canPreviousPage} className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                 <span className="sr-only">Previous</span>
-                {/* Icon for previous */}
               </button>
               {pageOptions.map(option => (
                 <button
@@ -159,7 +158,6 @@ const DataTable = ({ data, columns, filterColumn, title }) => {
               ))}
               <button onClick={() => nextPage()} disabled={!canNextPage} className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                 <span className="sr-only">Next</span>
-                {/* Icon for next */}
               </button>
             </nav>
           </div>

@@ -55,7 +55,7 @@ const AccountBook = () => {
         </div>
 
         <DataTable
-          data={currentAccount.payments}
+          data={currentAccount?.payments}
           columns={columns}
           filterColumn="reference_type"
           title={'Supplier'}

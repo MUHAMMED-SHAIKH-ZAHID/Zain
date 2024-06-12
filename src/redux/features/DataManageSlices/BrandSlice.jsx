@@ -63,17 +63,17 @@ const brandSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchBrands.fulfilled, (state, action) => {
-        state.brands = action.payload;
+        state.brands = action.payload.brands;
       })
       .addCase(createBrand.fulfilled, (state, action) => {
-        state.brands.push(action.payload);
+        state.brands.unshift(action.payload.brand);
       })
       .addCase(updateBrand.fulfilled, (state, action) => {
-        console.log(action.payload,"checking in the slice to pupadte",state.brands)
-        const index = state.brands.findIndex(b => b.id === action.payload.id);
-        console.log(action.payload,"checking in the slice to pupadte",state.brands)
+        console.log(action.payload.brand,"checking in the slice to pupadte",state.brands)
+        const index = state.brands.findIndex(b => b.id === action.payload.brand.id);
+        console.log(action.payload,"checking in the slice to Brand upadte",state.brands)
         if (index !== -1) {
-          state.brands[index] = action.payload;
+          state.brands[index] = action.payload.brand;
         }
       })
       .addCase(deleteBrand.fulfilled, (state, action) => {

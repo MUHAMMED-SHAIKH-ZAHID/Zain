@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import RetutnForm from "../supplier/ReturnForm";
 import { CustomerSaleColumns } from "../../../components/table/columns/CustomerSaleColumns";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import DataTable from "../../../components/table/DataTable";
 import { fetchSaleById } from "../../../redux/features/SalesSlice";
+import RetutnForm from "../vendor/ReturnForm";
 
 
 
@@ -72,7 +72,6 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
                             //     // Dispatch the action to fetch dashboard data when the component mounts
                             //     dispatch(fetchAllcurrentSale());
                             //   }, [dispatch]);
-                            console.log(currentSale,"shahala")
   return (
     <div>
    

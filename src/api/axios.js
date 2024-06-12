@@ -60,7 +60,7 @@ instance.interceptors.response.use(
             window.location.href = '/login';  // Adjust this path to your login route
 
             // Optionally display a message to the user
-            alert('Your session has expired. Please log in again.');
+            // alert('Your session has expired. Please log in again.');
         }
 
         return Promise.reject(error);

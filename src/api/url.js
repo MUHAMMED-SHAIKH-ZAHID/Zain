@@ -5,22 +5,28 @@ export const LoginAPI = '/api/login'
 export const getDashboardDataAPI ='/api/dashboard'
 
 //Supplier Section
-export const SuppliersAPI = '/api/suppliers'
+export const SuppliersAPI = '/api/vendors'
+export const SupplierAPI = '/api/vendor'
 export const SupplierDetailsAPI = '/api/suppliers/details'
 export const SupplierPurchaseDetailsAPI = '/api/suppliers/purchase'
 
 //Purchase Section
 //subsection purchase
-export const PurchasesAPI = '/api/purchases'
+export const PurchasesAPI = '/api/bills'
 //subsection purchasequotation
-export const PurchaseQuotationAPI = '/api/purchase/quotation'
-export const PurchaseQuotationsAPI = '/api/purchase/quotations'
+export const PurchaseQuotationAPI = '/api/purchase/order'
+export const PurchaseQuotationsAPI = '/api/purchase/order'
 
+//Expense Section
+export const ExpensesAPI ='/api/expenses'
+
+//Payment Section
+export const PaymentsAPI ='/api/purchases/payments'
 
 // Sales Section
-export  const SalesAPI = '/api/sales'
+export  const SalesAPI = '/api/invoices'
 // Sales SectionQuotation
-export  const SalesQuotationAPI = '/api/sale/quotation'
+export  const SalesQuotationAPI = '/api/sale/order'
 
 //salesExecutive Section
 export const SalesExecutivesAPI ='/api/sales-executives'
@@ -43,6 +49,8 @@ export const RouteAPI = '/api/routes'
 export const LocationAPI ='/api/locations'
 //6 Tax subsection
 export const TaxAPI = '/api/taxes'
+//7 Expense type section 
+export const ExpenseTypeAPI = 'api/expense-type'
 
 // Account Section
 export const AccountAPI = '/api/accounts'

@@ -34,10 +34,12 @@ export const createPurchase = createAsyncThunk(
   'purchases/create',
   async (purchaseData, thunkAPI) => {
     try {
-      console.log(purchaseData,"the purchase data to send to backend")
+      console.log(purchaseData, "the purchase data to send to backend");
       const response = await axios.post(PurchasesAPI, purchaseData);
+      console.log(response, "response in the thunk");
       return response.data;
     } catch (error) {
+      console.error("Error response", error.response); // Log the error response
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
@@ -98,6 +100,7 @@ const initialState = {
   editpurchaseindex:null,
   viewpurchasedata:null,
   paymentModes:null,
+  purchaseOrders:null,
 };
 
 // Slice definition
@@ -129,6 +132,7 @@ const purchaseSlice = createSlice({
         state.suppliers = action.payload.suppliers;
         state.products = action.payload.products;
         state.paymentModes = action.payload.paymentModes;
+        state.purchaseOrders = action.payload.purchaseOrders
         state.loading = false;
       })
       .addCase(fetchAllPurchases.rejected, (state, action) => {
@@ -139,7 +143,7 @@ const purchaseSlice = createSlice({
         state.currentPurchase = action.payload;
       })
       .addCase(createPurchase.fulfilled, (state, action) => {
-        state.purchases.push(action.payload);
+        state.purchases.push(action.payload.purchase);
       })
       .addCase(purchasePayment.fulfilled, (state, action) => {
         state.purchases.push(action.payload);

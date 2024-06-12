@@ -3,16 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import DataTable from "../../../components/table/DataTable";
 import { suplierColumns } from "../../../components/table/columns/SupplierColumns";
-import AddSupplier from "./AddSupplier";
-import Modal from "../../../components/commoncomponents/Modal";
-import EditSupplier from "./EditSupplier";
-import DeleteSupplier from "./DeleteSupplier";
 import { deleteSupplier, fetchAllSuppliers, fetchSupplierById } from "../../../redux/features/SupplierSlice";
 import { Navigate, useNavigate } from "react-router-dom";
+import EditVendor from "./EditVendor";
+import DeleteVendor from "./DeleteVendor";
 
 
 
-const Suppliers = () => {
+const Vendors = () => {
 const navigate = useNavigate()
 
 const [showEditModal, setShowEditModal] = useState(false);
@@ -47,14 +45,14 @@ const handleCloseDeleteModal = () => {
 const viewClickHandler = (id) => {
   console.log(id.id,"checkign view data before trnasfre")
   dispatch(fetchSupplierById(id.id))
-  navigate('/supplier/view')
+  navigate('/vendor/view')
 }
-  const columns = suplierColumns(viewClickHandler,editClickHandler,deleteClickHandler);
+  const columns = suplierColumns(viewClickHandler,editClickHandler);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setHeading("Supplier"));
+    dispatch(setHeading("Vendor Details"));
 
     // Optionally reset the heading when the component unmounts
     return () => {
@@ -62,7 +60,7 @@ const viewClickHandler = (id) => {
     };
   }, [dispatch]);
 
-  const { suppliers, loading, error } = useSelector((state) => state?.supplier);
+  const { suppliers, loading , error } = useSelector((state) => state?.supplier);
 
     useEffect(() => {
     // Dispatch the action to fetch dashboard data when the component mounts
@@ -74,18 +72,18 @@ const viewClickHandler = (id) => {
       <DataTable
         data={suppliers}
         columns={columns}
-        filterColumn="location"
-        title={'supplier'}
+        filterColumn="balance"
+        title={'vendor'}
       />
  
                   {showEditModal && (
-                <EditSupplier
+                <EditVendor
                     show={showEditModal}
                     handleClose={handleCloseEditModal}
                     data={editData}
                 />
             )}
-              <DeleteSupplier
+              <DeleteVendor
         show={showDeleteModal}
         handleClose={handleCloseDeleteModal}
         handleDelete={handleDelete}
@@ -96,4 +94,4 @@ const viewClickHandler = (id) => {
   )
 }
 
-export default Suppliers
+export default Vendors

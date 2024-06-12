@@ -26,8 +26,9 @@ export const addProduct = createAsyncThunk('products/add', async (product) => {
   return response.data;
 });
 
-export const updateProduct = createAsyncThunk('products/update', async (product) => {
-  const response = await axios.put(`${ProductAPI}/${product.id}`, product);
+export const updateProduct = createAsyncThunk('products/update', async ({id,...values}) => {
+  console.log(values,"Sahi ashai sai",)
+  const response = await axios.put(`${ProductAPI}/${id}`, values);
   return response.data;
 });
 
@@ -41,7 +42,7 @@ const productSlice = createSlice({
   initialState: {
     products: [],
     categories: [],
-    brands: [],
+    taxes: [],
     status: 'idle',
     error: null
   },
@@ -49,15 +50,18 @@ const productSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.products = action.payload;
+        console.log(action.payload,"the data inte h product")
+        state.products = action.payload.products;
+        state.taxes = action.payload.taxes
+        state.categories = action.payload.categories
       })
       .addCase(addProduct.fulfilled, (state, action) => {
-        state.products.push(action.payload);
+        state.products.unshift(action.payload.product);
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex(p => p.id === action.payload.id);
+        const index = state.products.findIndex(p => p.id === action.payload.product.id);
         if (index !== -1) {
-          state.products[index] = action.payload;
+          state.products[index] = action.payload.product;
         }
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {

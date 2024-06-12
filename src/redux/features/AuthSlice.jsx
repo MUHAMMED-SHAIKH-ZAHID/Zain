@@ -4,6 +4,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from  "../../api/axios";
 import { toast } from 'react-toastify';
 import { LoginAPI } from "../../api/url";
+import { Navigate } from "react-router-dom";
 
 export const loginAuth = createAsyncThunk(
   'auth/login',

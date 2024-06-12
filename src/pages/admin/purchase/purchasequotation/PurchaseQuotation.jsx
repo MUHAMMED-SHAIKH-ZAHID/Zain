@@ -19,7 +19,7 @@ const PurchaseQuotation = () => {
   const { purchase, loading, error } = useSelector((state) => state?.purchaseQuotation);
  console.log(purchase,"purchase page debughhhhhhhhh")
   useEffect(() => {
-    dispatch(setHeading("Quotation List"));
+    dispatch(setHeading("Purchase Order"));
     return () => {
       dispatch(clearHeading());
     };
@@ -46,20 +46,20 @@ const PurchaseQuotation = () => {
   const editClickHandler = (id) => {
     console.log(id,"id to edite")
     dispatch(PurchaseQuotationEdit(id))
-    navigate('/purchase/quotation/edit')
+    navigate('/purchase/order/edit')
   }
 
   const viewClickHandler = (id) => {
     console.log(id,"checkign view data before trnasfre")
     dispatch(PurchaseQuotationView(id))
-    navigate('/purchase/quotation/view')
+    navigate('/purchase/order/view')
   }
   
-  const convertActionClick = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    dispatch(convertPurchase(id))
-    navigate('/purchase/quotation/convert')
-  }
+  // const convertActionClick = (id) => {
+  //   console.log(id,"checkign view data before trnasfre")
+  //   dispatch(convertPurchase(id))
+  //   navigate('/purchase/order/convert')
+  // }
 
   const [showPrint,setShowPrint] = useState(true)
   const componentRef = useRef(null);
@@ -84,23 +84,20 @@ const PurchaseQuotation = () => {
     handlePrintfun()
   }
 
-  const columns = PurchaseQuotationColumns(convertActionClick,viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
+  const columns = PurchaseQuotationColumns(viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
 
   // if (loading) return <div>Loading...</div>;
   // if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="overflow-x-hidden">
-      {purchase?.length > 0 ? (
         <DataTable
           data={purchase}
           columns={columns}
           filterColumn="supplier_name"
-          title={'Purchase Quote'}
+          title={'Create P O'}
         />
-      ) : (
-        <div>No purchase Quotation available.</div>
-      )}
+     
       {showDeleteModal && (
         <DeletePurchase
           show={showDeleteModal}

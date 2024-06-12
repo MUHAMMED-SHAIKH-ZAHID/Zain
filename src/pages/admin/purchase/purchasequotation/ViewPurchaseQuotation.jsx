@@ -12,30 +12,24 @@ import { useReactToPrint } from 'react-to-print';
 import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
 
 const itemSchema = Yup.object().shape({
-    product_id: Yup.string().required('Product is required'),
-    quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
-    price: Yup.number().min(1, 'Price must be at least 1').required('Price is required'),
-    tax: Yup.number().min(0, 'Tax must be at least 0').max(100, 'Tax must not exceed 100'),
-    total: Yup.number(),
-    tax_amount: Yup.number(),
-    total_inc_tax: Yup.number(),
-    purchase_order_id:Yup.number(),
-    id:Yup.number(),
-    createdat:Yup.number(),
-    updatedat:Yup.number(),
-    });
-    
-  
-  const purchaseValidationSchema = Yup.object({
-      purchase_order_date: Yup.date().required('Purchase date is required'),
-      supplier_id: Yup.string().required('Supplier is required'),
-      notes: Yup.string(),
-      purchase_order_items: Yup.array()
-      .of(itemSchema).min(1, 'At least one item is required'),
-      total_exclude_tax:Yup.number(),
-      grand_total:Yup.number(),
-      tax_amount:Yup.number(),
-  });
+  comment: Yup.string(),
+  mrp: Yup.number().min(1, 'MRP must be at least 1').required('MRP is required'),
+  price: Yup.number().min(1, 'Purchase price must be at least 1').required('Purchase price is required'),
+  product_id: Yup.string().required('Product is required'),
+  quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
+  total: Yup.number(),
+});
+
+const purchaseValidationSchema = Yup.object({
+  purchase_order_date: Yup.date().required('Purchase date is required'),
+  purchase_order_number: Yup.string(),
+  supplier_id: Yup.string().required('Supplier is required'),
+  notes: Yup.string(),
+  purchase_order_items: Yup.array().of(itemSchema).min(1, 'Please Add Atleast 1 Item to Create order'),
+  grand_total: Yup.number().required('Grand total is required'),
+  expected_delivery_date: Yup.date().required('Expected delivery date is required'),
+  payment_terms: Yup.string().required('Payment terms are required'),
+});
 
 const ViewPurchase = () => {
   const dispatch = useDispatch()
@@ -91,16 +85,16 @@ const ViewPurchase = () => {
             purchase_order_items:viewpurchase?.purchase_order_items,
             purchase_order_number:viewpurchase?.purchase_order_number,
             notes: viewpurchase?.notes,
-            total_exclude_tax:viewpurchase?.total_exclude_tax,
             grand_total:viewpurchase?.grand_total,
-            tax_amount:viewpurchase?.tax_amount
+            expected_delivery_date:viewpurchase?.expected_delivery_date,
+            payment_terms:viewpurchase?.payment_terms
         },
         validationSchema: purchaseValidationSchema,
         onSubmit: (values) => {
             console.log("testing");
             console.log('Final Submission:', values);
             dispatch(convertPurchase(values))
-            navigate('/purchase/quotation/convert')
+            // navigate('/purchase/order/convert')
             // dispatch(updatePurchasequotation({ id: viewpurchase.id, purchaseData: values }))
 
         },
@@ -108,44 +102,48 @@ const ViewPurchase = () => {
 
     });
     console.log(items,"it is to chaeck the items is available or not")
+
+    const calculateGrandTotal = () => {
+      const total = items?.reduce((acc, item) => acc + parseFloat(item.total || 0), 0);
+      setGrandTotal(total);
+      formik.setFieldValue("grand_total",grandTotal)
+      formik.setFieldValue("purchase_order_items",items)
+    };
+  
     useEffect(() => {
-        const newTotal = items?.reduce((acc, item) => acc + (item.quantity * item.price ), 0);
-        const totalTax = items?.reduce((acc,item) => acc + parseInt(item.tax_amount) , 0)
-        const newGrandTotal = newTotal  + totalTax
-        const newpayment_balance = newGrandTotal - formik.values.paid_amount;
-        console.log(totalTax,"it is the total taxes",items)
-        setTaxAmount(totalTax)
-        setTotal(newTotal);
-        setGrandTotal(newGrandTotal);
-    
-        // Update Formik's field values
-        formik.setFieldValue('total_exclude_tax', newTotal.toFixed(2));
-        formik.setFieldValue('grand_total', newGrandTotal.toFixed(2));
-        formik.setFieldValue('payment_balance', newpayment_balance.toFixed(2));
-        formik.setFieldValue('tax_amount', totalTax);
-    }, [items, formik.values.discount, formik.values.paid_amount]);
-
-
-   // Function to remove an item from the list
-   const handleDeleteItem = (index) => {
-    const newItems = items.filter((_, i) => i !== index);
-    setItems(newItems);
-  };
+      dispatch(setHeading('Purchase Order'));
+      return () => {
+        dispatch(clearHeading());
+      };
+    }, [dispatch]);
+  
+    useEffect(() => {
+      calculateGrandTotal();
+    }, [items]);
+  
+    const handleDeleteItem = (index) => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      setItems(newItems);
+    };
+      
 
 
 
   return (
-    <div ref={componentRef} className="  mx-6 m-5 border drop-shadow-sm">
+    <div ref={componentRef} className="  px-6 p-5 border bg-white  drop-shadow-sm">
+                      <div className="text-xl font-semibold justify-center flex mb-3"> Purchase Order</div>
+
         <div className="grid grid-cols-2 w-full p-4">
             <div className="">
            <div className="">
-            <div className="text-lg font-bold my-1 mt-2"> Quote From:</div>
+            <div className="text-lg font-semibold  "> Order From:</div>
             <div className="text-md font-semibold">{viewpurchase?.supplier_name}</div>
             <div className="">{viewpurchase?.supplier_email}</div>
             <div className="">{viewpurchase?.supplier_address}</div>
             <div className="">{viewpurchase?.supplier?.gst_number}834945 48499 </div>
             </div>
-            <div className="text-lg font-bold mb-1 pt-4"> Quote To:</div>
+            <div className="text-lg font-semibold  pt-4">Order  To:</div>
 
       <div className="text-md font-semibold"> Zain Sale Corp</div>
       <div className="">address address address</div>
@@ -156,17 +154,16 @@ const ViewPurchase = () => {
             </div>
             <div className="">
                 
-                <div className="text-2xl font-bold justify-center flex mb-3"> Quotation</div>
              <div className="grid justify-items-end">
                 <div className="grid grid-cols-2">
 
              <div className='gap-5'>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Date:</div>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Quotation Number:</div>
+            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Date</div>
+            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Quotation Number</div>
         </div>
              <div className=' gap-5'>
-           <div className="">{viewpurchase?.purchase_order_date}</div>
-           <div className="">{viewpurchase?.purchase_order_number}</div>
+           <div className="">&nbsp; : &nbsp;{viewpurchase?.purchase_order_date}</div>
+           <div className="">&nbsp; : &nbsp;{viewpurchase?.purchase_order_number}</div>
         </div>
                 </div>
              </div>
@@ -190,127 +187,129 @@ const ViewPurchase = () => {
 
      
 
-       {/* Items Table */}
-       {items?.length > 0 && (
-        <div className="mt-6">
+          {/* Items Table */}
+          <div className="mt-10">
           <div className="mt-4">
-            <table className="min-w-full divide-y divide-gray-200">
+<div className="mb-2 flex justify-end">
+   <button type="button" onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-medium leading-none py-2 px-4 rounded">
+          Add Products
+        </button>
+</div>
+            <table className="min-w-full divide-y divide-gray-200 border">
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HSN</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                  {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">physical</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exbound</th> */}
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
+              {items?.length > 0 && (
+
               <tbody className="bg-white divide-y divide-gray-200">
                 {items?.map((item, index) => (
                   <tr key={index}>
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+<td className="px-6  whitespace-nowrap text-sm text-gray-500">
   {
-    products.find(pro => pro.id == item.product_id)?.product_name || item.product_id
+    products?.find(pro => pro.id == item?.product_id)?.product_name || item?.product_id
   }
 </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax_amount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total_inc_tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button onClick={() => handleDeleteItem(index)} className="text-red-600 hover:text-red-900">
-                        Delete
-                      </button>
-                    </td>
+                    <td className="px-6 py-6  whitespace-nowrap text-sm text-gray-500">{item?.hsn}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.tax || 0}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.quantity}</td>
+                    {/* <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.inbound || 0} </td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.outbound || 0}</td> */}
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.price}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.total}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.discount  || 0}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.tax_amount || 0}</td>
+                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax ||0}</td>
+                
                   </tr>
                 ))}
               </tbody>
+          )}
             </table>
-            
+          <div className="flex justify-center items-center py-2">
+{formik.touched.purchase_items && formik.errors.purchase_items && (
+    <p className="text-red-500 text-sm ">{formik.errors.purchase_items}</p>)}
+            </div>  
 
           </div>
         </div>
-      )}
-            <div className="grid gap-2 justify-end mt-5">
-  {/* Total Display */}
-   <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-
-        <label htmlFor="total_exclude_tax" className="block text-sm font-medium text-gray-700">Total Exclude Tax:</label>
-    </div>
-    <div className="">
-
-        <input
-          id="total_exclude_tax"
-          type="text"
-          {...formik.getFieldProps('total_exclude_tax')}
-          disabled // This field is disabled and cannot be edited by the user
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-    </div>
-      </div>
-      {/* Grand Total TAx */}
-      <div className='flex justify-between items-center gap-10 mx-2'>
-        <div className="">
-        <label htmlFor="tax_amount" className="block text-sm font-medium text-gray-700"> Total Tax:</label>
-
-        </div>
-        <div className="">
-        <input
-      id="tax_amount"
-      type="text"
-      value={taxAmount}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
+            <div className="grid gap-4 justify-end mt-5">
+        {/* Grand Total Display */}
+        <div className='flex justify-between items-center gap-10 mx-2'>
+          <div>
+            <label htmlFor="grandTotal" className="block text-sm font-medium text-gray-700">Grand Total:</label>
+          </div>
+          <div>
+            <input
+              id="grandTotal"
+              type="text"
+              value={grandTotal.toFixed(2)}
+              disabled
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
         </div>
       </div>
-
-
-
-
-  {/* Grand Total Display */}
-  <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-    <label htmlFor="grandTotal" className="block text-sm font-medium text-gray-700">Grand Total:</label>
-
-    </div>
-    <div className="">
-    <input
-      id="grandTotal"
-      type="text"
-      value={grandTotal.toFixed(2)}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
-    </div>
-  </div>
- 
-</div>
-
-   
-          <div className='my-6 p-4'>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes:</label>
-          <textarea
+      
+      <div className='flex justify-between'>
+        <div>
+          <label htmlFor="expected_delivery_date" className="block text-sm font-medium text-gray-700">Expected Delivery Date:</label>
+          <DatePicker
           disabled
-            id="notes"
-            {...formik.getFieldProps('notes')}
+            id="expected_delivery_date"
+            selected={formik.values.expected_delivery_date}
+            onChange={(date) => formik.setFieldValue('expected_delivery_date', date)}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Add any relevant notes here..."
           />
+          {formik.touched.expected_delivery_date && formik.errors.expected_delivery_date && (
+            <p className="text-red-500 text-xs italic">{formik.errors.expected_delivery_date}</p>
+          )}
         </div>
+        <div>
+          <label htmlFor="payment_terms" className="block text-sm font-medium text-gray-700">Payment Terms:</label>
+          <input
+            id="payment_terms"
+            type="text"
+            disabled
+            {...formik.getFieldProps('payment_terms')}
+            placeholder="Payment terms"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+          {formik.touched.payment_terms && formik.errors.payment_terms && (
+            <p className="text-red-500 text-xs italic">{formik.errors.payment_terms}</p>
+          )}
+        </div>
+      </div>
+      
+      <div className='my-6'>
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes:</label>
+        <textarea
+        disabled
+          id="notes"
+          {...formik.getFieldProps('notes')}
+          className="mt-1 block w-full px-3 py-2 border border-white-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="Add any relevant notes here..."
+        />
+      </div>
         {showPrint && (
         <div className="flex justify-center pb-10 my-4">   
         <div className="flex justify-between gap-4">
           <div className="">
-          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          {/* <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Convert To Purchase
-        </button>
+        </button> */}
           </div>
           <div className="">
           <button onClick={handlePrintfun} type="submit" className="bg-zinc-800 hover:bg-black text-white font-bold py-2 px-4 rounded">

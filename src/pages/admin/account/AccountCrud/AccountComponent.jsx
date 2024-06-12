@@ -6,6 +6,7 @@ import { createAccount, deleteAccount, fetchAccountById, fetchAccounts, updateAc
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
+import { toast } from 'react-toastify';
 
 const AccountComponent = () => {
   const dispatch = useDispatch();
@@ -43,7 +44,11 @@ const AccountComponent = () => {
     if (isEditMode) {
       dispatch(updateAccount({ id: selectedAccount.id, ...data }));
     } else {
-      dispatch(createAccount(data));
+      dispatch(createAccount(data))
+      .then((res)=>{
+        console.log(res.payload.suceess,"checking res update sales Executive",res)
+        toast.success(res.payload.success)
+      });
     }
     setModalVisible(false);
   };
@@ -68,8 +73,8 @@ const AccountComponent = () => {
   return (
     <div className="container mx-auto px-4 sm:px-8">
       <h1 className="text-xl font-medium text-center py-4">Account Management</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
+      {/* {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">Error: {error}</p>} */}
       <div className="py-4 flex justify-between mb-4">
         <div className="relative w-[20rem]">
           <FaSearch className="absolute text-gray-400 left-3  top-5  transform -translate-y-1/2" />
@@ -89,9 +94,9 @@ const AccountComponent = () => {
         {filteredAccounts?.map(account => (
           <div key={account.id} className="bg-gray-100 p-4 rounded shadow-lg flex flex-col items-center">
             <div className="bg-white p-4 shadow rounded-full w-40 h-40 flex items-center justify-center">
-              <span className="text-xl font-bold">Rs.{account.opening_balance}</span>
+              <span className="text-xl font-bold">Rs.{account?.opening_balance}</span>
             </div>
-            <p className="text-lg font-bold mt-4">{account.account_name}</p>
+            <p className="text-lg font-bold mt-4">{account?.account_name}</p>
             <div className="mt-4">
               <button onClick={() => handleAccountBook(account)} className="text-blue-500 hover:text-blue-700 px-2">
                 View Account 

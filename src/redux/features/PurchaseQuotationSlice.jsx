@@ -30,8 +30,8 @@ export const fetchPurchasequotationById = createAsyncThunk(
 );
 
 // Create a new purchase
-export const createPurchasequotation = createAsyncThunk(
-  'purchases/create',
+export const  createPurchasequotation = createAsyncThunk(
+  'purchaseQuotation/create',
   async (purchaseData, { rejectWithValue }) => {
     try {
       const response = await axios.post(PurchaseQuotationsAPI, purchaseData);
@@ -45,7 +45,7 @@ export const createPurchasequotation = createAsyncThunk(
 
 // Update a purchase
 export const updatePurchasequotation = createAsyncThunk(
-  'purchases/update',
+  'purchaseQuote/update',
   async ({ id, purchaseData }, thunkAPI) => {
     try {
       console.log("checking id when updating purchsade shaikh",id)
@@ -119,16 +119,16 @@ const purchaseQuotationSlice = createSlice({
       })
       .addCase(createPurchasequotation.fulfilled, (state, action) => {
         console.log(action.payload,"checking the purchase create")
-        state.purchase.unshift(action.payload.purchase);
+        state.purchase.unshift(action.payload.purchaseQuotation);
       })
       .addCase(createPurchasequotation.rejected, (state, action) => {
         // Ensure you are setting some form of error state here
         state.error = action.error.message || 'Failed to create purchase';
       })
       .addCase(updatePurchasequotation.fulfilled, (state, action) => {
-        const index = state.purchases.findIndex(p => p.id === action.payload.id);
+        const index = state.purchase.findIndex(p => p.id === action.payload.purchaseQuotation.id);
         if (index !== -1) {
-          state.purchases[index] = action.payload;
+          state.purchase[index] = action.payload.purchaseQuotation;
         }
       })
       .addCase(deletePurchasequotation.fulfilled, (state, action) => {

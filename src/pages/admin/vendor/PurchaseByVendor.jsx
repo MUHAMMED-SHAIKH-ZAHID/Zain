@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
 import DataTable from "../../../components/table/DataTable";
-import { suplierColumns } from "../../../components/table/columns/SupplierColumns";
-import AddSupplier from "./AddSupplier";
-import Modal from "../../../components/commoncomponents/Modal";
-import EditSupplier from "./EditSupplier";
-import DeleteSupplier from "./DeleteSupplier";
 import { deleteSupplier, fetchAllSuppliers, fetchSupplierById } from "../../../redux/features/SupplierSlice";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SupplierPurchases } from "../../../components/table/columns/SupplierPurchases";
 import RetutnForm from "./ReturnForm";
+import DataTableExports from "../../../components/table/DataTableExports";
 
 
 
-const PurchaseBySupplier = () => {
-const navigate = useNavigate()
+const PurchaseByVendor = () => {
+  const { currentsupplier } = useSelector((state) => state?.supplier);
+
 
 const [showEditModal, setShowEditModal] = useState(false);
 const [editData, setEditData] = useState(null);
@@ -56,18 +53,19 @@ const viewClickHandler = (id) => {
   setViewData(id)
   setShowReturnModal(true)
 }
-  const columns = SupplierPurchases(viewClickHandler,editClickHandler,deleteClickHandler);
+  const columns = SupplierPurchases();
 
   const dispatch = useDispatch();
-
+  
   useEffect(() => {
-    dispatch(setHeading("Supplier Profile"));
+    dispatch(setHeading("Vendor Profile"));
 
     // Optionally reset the heading when the component unmounts
     return () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
+  
 
   const { currentpurchase, loading, error } = useSelector((state) => state?.supplier);
 
@@ -80,11 +78,11 @@ const viewClickHandler = (id) => {
     <div>
      {!loading &&
      
-      <DataTable
+      <DataTableExports
         data={currentpurchase}
         columns={columns}
         filterColumn="payment_due_date"
-        title={'supplierr'}
+        title={'Vendor'}
       />
      }
  
@@ -113,4 +111,4 @@ const viewClickHandler = (id) => {
   )
 }
 
-export default PurchaseBySupplier
+export default PurchaseByVendor

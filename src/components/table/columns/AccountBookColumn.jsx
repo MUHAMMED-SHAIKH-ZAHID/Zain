@@ -10,7 +10,7 @@ const   AccountBookColumns = (viewActionClick,editActionClick  ,deleteActionClic
     },
     {
       Header: "Product Name ",
-      accessor: 'product_',
+      accessor: 'product_name',
     },
     {
       Header: "Price",

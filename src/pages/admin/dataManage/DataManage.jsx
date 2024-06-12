@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { clearHeading, setHeading } from '../../../redux/features/HeadingSlice';
 import Locations from './locations/Locations';
 import TaxComponent from './tax/TaxComponent';
+import ExpenseTypes from './expencetype/ExpenceType';
 
 const DataManage = () => {
   const [activeTab, setActiveTab] = useState('category');
@@ -27,12 +28,12 @@ const DataManage = () => {
         return <Brands />;
       case 'tax':
         return <TaxComponent />;
-      case 'product':
-        return <ProductComponent />;
       case 'routes':
         return <RoutesComponent />;
       case 'location' :
         return <Locations />;
+      case 'expense types' :
+        return <ExpenseTypes />;
       default:
         return <div>Select a section</div>;
     }
@@ -42,7 +43,7 @@ const DataManage = () => {
     <div className="container mx-auto  p-4 ">
       <div className="bg-white p-5 rounded-lg shadow">
         <ul className="flex border-b">
-          {['category', 'brand','tax' ,'product', 'routes','location'].map((tab) => (
+          {['category', 'brand','tax' , 'routes','location','expense types'].map((tab) => (
             <li key={tab} className="-mb-px mr-1">
               <button
                 onClick={() => setActiveTab(tab)}

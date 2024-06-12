@@ -100,16 +100,13 @@ const Sales = () => {
 
   return (
     <div className="overflow-x-hidden">
-      {sales?.length > 0 ? (
         <DataTable
           data={sales}
           columns={columns}
           filterColumn="status" // Assuming you're filtering by customer_name
           title={'slaesss'}
         />
-      ) : (
-        <div>No sales available.</div>
-      )}
+    
       {showDeleteModal && (
         <DeleteSales
           show={showDeleteModal}
