@@ -10,7 +10,7 @@ import TaxComponent from './tax/TaxComponent';
 import ExpenseTypes from './expencetype/ExpenceType';
 
 const DataManage = () => {
-  const [activeTab, setActiveTab] = useState('category');
+  const [activeTab, setActiveTab] = useState('brand');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -22,16 +22,16 @@ const DataManage = () => {
 
   const renderTable = () => {
     switch (activeTab) {
-      case 'category':
-        return <Categories />;
       case 'brand':
+        return <Categories />;
+      case 'category':
         return <Brands />;
       case 'tax':
         return <TaxComponent />;
-      case 'routes':
-        return <RoutesComponent />;
-      case 'location' :
-        return <Locations />;
+      // case 'routes':
+      //   return <RoutesComponent />;
+      // case 'location' :
+      //   return <Locations />;
       case 'expense types' :
         return <ExpenseTypes />;
       default:
@@ -43,7 +43,7 @@ const DataManage = () => {
     <div className="container mx-auto  p-4 ">
       <div className="bg-white p-5 rounded-lg shadow">
         <ul className="flex border-b">
-          {['category', 'brand','tax' , 'routes','location','expense types'].map((tab) => (
+          {['brand','category','tax' ,'expense types'].map((tab) => (
             <li key={tab} className="-mb-px mr-1">
               <button
                 onClick={() => setActiveTab(tab)}
@@ -51,7 +51,7 @@ const DataManage = () => {
                   ${activeTab === tab ? 'text-white border-blue-500 bg-blue-600 border-l border-t border-r' : 'text-blue-500 hover:text-blue-800'}
                   focus:outline-none`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab.charAt(0).toUpperCase() + tab?.slice(1)}
               </button>
             </li>
           ))}

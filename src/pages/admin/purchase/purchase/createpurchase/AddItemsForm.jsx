@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { Select } from 'antd';
 
 const itemSchema = Yup.object().shape({
   product_id: Yup.string().required('Product is required'),
   quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
-  price: Yup.number().min(1, 'Price must be at least 1').required('Price is required'),
+  price: Yup.number().required('Price is required'),
   mrp: Yup.number()
     .min(1, 'MRP must be at least 1')
     .required('MRP is required')
@@ -19,14 +21,14 @@ const itemSchema = Yup.object().shape({
   tax_amount: Yup.number(),
   total_inc_tax: Yup.number(),
   hsn: Yup.number(),
-  ean_code: Yup.number()
+  ean_code: Yup.string()
 });
 
 const AddItemsForm = ({ items, setItems, onClose }) => {
+  
   const { products, loading, error } = useSelector((state) => state?.purchases);
   const [disableProduct, setDisableProduct] = useState(false);
   const [disableEan, setDisableEan] = useState(false);
-console.log(products,"the")
   const formik = useFormik({
     initialValues: {
       product_id: '',
@@ -67,21 +69,31 @@ console.log(products,"the")
   }, [formik.values.quantity, formik.values.price, formik.values.discount, formik.values.tax]);
 
   useEffect(() => {
-    const selectedProduct = products.find(product => product.id == formik.values.product_id);
+    if (items?.some(item => item.product_id == formik.values.product_id)) {
+      toast.warn("This item has already been selected.")
+      formik.setFieldValue('product_id','')
+    }else{
+    const selectedProduct = products?.find(product => product.id == formik.values.product_id);
     if (selectedProduct) {
-      formik.setFieldValue('ean_code', selectedProduct.ean_code);
+      if(selectedProduct?.ean_code){
+        formik.setFieldValue('ean_code', selectedProduct.ean_code);
+      }else{
+        formik.setFieldValue('ean_code', 0);
+      }
       formik.setFieldValue('tax', selectedProduct.tax_rate);
       formik.setFieldValue('hsn', selectedProduct.hsn_code);
+        formik.setFieldValue('mrp',selectedProduct?.mrp)
+        formik.setFieldValue('price',selectedProduct.p_rate)
       setSeletedPrice(selectedProduct.p_rate)
-      setSeletedMRP(selectedProduct.mrps)
+      setSeletedMRP(selectedProduct.mrp)
       setDisableEan(true);
     } else {
       setDisableEan(false);
-    }
+    }}
   }, [formik.values.product_id, products]);
 
   useEffect(() => {
-    if (formik.values.ean_code.toString().length === 6) {
+    if (formik.values?.ean_code.toString()?.length >= 4 && formik.values.ean_code?.toString()?.length <= 14) {
       const selectedProduct = products.find(product => product.ean_code == formik.values.ean_code);
       if (selectedProduct) {
         formik.setFieldValue('product_id', selectedProduct.id);
@@ -95,7 +107,6 @@ console.log(products,"the")
       setDisableProduct(false);
     }
   }, [formik.values.ean_code, products]);
-console.log(selectedPrice,"the selected one",selectedMRP)
   return (
     <form onSubmit={formik.handleSubmit} className="">
       <div className="grid grid-cols-2 gap-4 p-4">
@@ -115,18 +126,27 @@ console.log(selectedPrice,"the selected one",selectedMRP)
         </div>
       
         <div>
-          <label htmlFor="product_id" className="block text-sm font-medium text-gray-700">Product:</label>
-          <select
-            id="product_id"
-            disabled={disableProduct}
-            {...formik.getFieldProps('product_id')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a product</option>
-            {products?.map(product => (
-              <option key={product.id} value={product.id}>{product.product_name}</option>
-            ))}
-          </select>
+          <label htmlFor="product_id" className="block text-sm pb-1 font-medium text-gray-700">Product:</label>
+          <Select
+									showSearch
+									style={{ width: '100%' }}
+									onChange={e => {
+                    formik.setFieldValue('product_id',e)
+									}}
+									placeholder='Select a Product'
+									optionFilterProp='children'
+									filterOption={(input, option) =>
+										option.props.children
+											.toLowerCase()
+											.indexOf(input?.toLowerCase()) >= 0
+									}
+								>
+									{products?.map(product => (
+										<Select.Option key={product.id} value={product.id}>
+											{product.product_name}
+										</Select.Option>
+									))}
+								</Select>
           {formik.touched.product_id && formik.errors.product_id && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.product_id}</p>
           )}
@@ -176,16 +196,14 @@ console.log(selectedPrice,"the selected one",selectedMRP)
 
         <div>
           <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price:</label>
-          <select
+          <input
+          disabled
             id="price"
+            type="number"
             {...formik.getFieldProps('price')}
+            placeholder="Price"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a Price</option>
-            {selectedPrice?.map(product => (
-              <option key={product} value={product}>{product}</option>
-            ))}
-          </select>
+          />
           {formik.touched.price && formik.errors.price && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.price}</p>
           )}
@@ -193,16 +211,14 @@ console.log(selectedPrice,"the selected one",selectedMRP)
 
         <div>
           <label htmlFor="mrp" className="block text-sm font-medium text-gray-700">MRP:</label>
-          <select
+          <input
+          disabled
             id="mrp"
+            type="number"
             {...formik.getFieldProps('mrp')}
+            placeholder="MRP"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a MRP</option>
-            {selectedMRP?.map(product => (
-              <option key={product} value={product}>{product}</option>
-            ))}
-          </select>
+          />
           {formik.touched.mrp && formik.errors.mrp && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.mrp}</p>
           )}

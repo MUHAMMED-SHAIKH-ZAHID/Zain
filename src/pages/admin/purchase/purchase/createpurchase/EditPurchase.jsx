@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { LuImport } from 'react-icons/lu';
 import { format } from 'date-fns';
+import { Select } from 'antd';
 
 
 
@@ -34,11 +35,11 @@ const itemSchema = Yup.object().shape({
   const purchaseValidationSchema = Yup.object({
     purchase_date: Yup.date().required('Purchase date is required'),
     purchase_number: Yup.number(),
-    supplier_id: Yup.string().required('Supplier is required'),
+    supplier_id: Yup.string().required('Vendor is required'),
     payment_status: Yup.string().required('Payment status option is required'),
     paid_amount: Yup.number()
       .when('payment_status', (payment_status, schema) =>
-        ['advance', 'credit'].includes(payment_status)
+        ['partial'].includes(payment_status)
           ? schema.required('Paid amount is required').min(0)
           : schema.notRequired()
       ),
@@ -85,7 +86,6 @@ const EditPurchase = () => {
  const [taxAmount,setTaxAmount] = useState(0)
  const [showModal, setShowModal] = useState(false);
  const [showEditModal, setShowEditModal] = useState(false);
- console.log(editpurchase?.purchase_items,"waht an")
  const [items, setItems] = useState(editpurchase?.purchase_items);
     // const { suppliers,products,purchaseOrders,paymentModes, loading, error } = useSelector((state) => state?.purchases);
 
@@ -115,39 +115,35 @@ const EditPurchase = () => {
       validationSchema: purchaseValidationSchema,
       onSubmit: async (values) => {
         try {
-          // Format the dates before submitting
           const formattedValues = {
             ...values,
             purchase_date: format(new Date(values.purchase_date), 'yyyy-MM-dd'),
             payment_due_date: format(new Date(values.payment_due_date), 'yyyy-MM-dd'),
             reference_date: format(new Date(values.reference_date), 'yyyy-MM-dd'),
           };
-          
-          // Log the final submission values
-          console.log('Final Submission:', formattedValues);
-  
-          // Dispatch the updatePurchase action
+    
           const promise = dispatch(updatePurchase({ id: editpurchase.id, purchaseData: formattedValues }));
           
           promise.then((res) => {
-            console.log(res, "checking the res");
-            toast.success(res.payload.success);
+            if(res.payload.success){
+              toast.success(res.payload.success);
+              setTimeout(() => {
+                navigate('/purchase/');
+              }, 1000);
+    
+            }
             if (res.payload.error) {
               toast.error(res.payload.error);
             }
-            setTimeout(() => {
-              navigate('/purchase/');
-            }, 1000);
+        
           });
         } catch (error) {
-          console.error('Error updating purchase:', error);
-          // Handle general error (e.g., display error message)
+   
         }
       },
       enableReinitialize: true,
     });
   
-  console.log(editpurchase,"Sona maked some errors",formik.errors)
 
 
   useEffect
@@ -155,27 +151,27 @@ const EditPurchase = () => {
 
     useEffect(() => {
       const newTotal = items?.reduce((acc, item) => {
-        const itemTotal = (item?.quantity * item?.price) || 0;
+        const itemTotal = (parseFloat(item?.quantity) * parseFloat(item?.price)) || 0;
         return acc + itemTotal;
       }, 0);
-    
+      
       const totalTax = items?.reduce((acc, item) => {
-        const itemTaxAmount = parseInt(item?.tax_amount) || 0;
+        const itemTaxAmount = parseFloat(item?.tax_amount) || 0;
         return acc + itemTaxAmount;
       }, 0);
-    
-      const newGrandTotal = (newTotal - (newTotal * (formik.values.discount || 0) / 100) + totalTax) || 0 ;
-      const newPaymentBalance = newGrandTotal - (formik.values.paid_amount || 0);
-    
+       const updatedTotal = newTotal+totalTax
+      const newGrandTotal = (updatedTotal - (updatedTotal * (parseFloat(formik.values.discount)  || 0) / 100) ) || 0;
+      const newPaymentBalance = newGrandTotal - (parseFloat(formik.values.paid_amount) || 0);
+      
       setTaxAmount(totalTax);
       setTotal(newTotal);
       setGrandTotal(newGrandTotal);
-    
+      
       // Update Formik's field values
       formik.setFieldValue('total_exclude_tax', newTotal?.toFixed(2));
       formik.setFieldValue('grand_total', newGrandTotal?.toFixed(2));
       formik.setFieldValue('payment_balance', newPaymentBalance.toFixed(2));
-      formik.setFieldValue('tax_amount', totalTax);
+      formik.setFieldValue('tax_amount', totalTax?.toFixed(2));
       formik.setFieldValue('purchase_items', items);
     }, [items, formik.values.discount, formik.values.paid_amount]);
     
@@ -189,33 +185,6 @@ const EditPurchase = () => {
 
 
 
-  // useEffect(() => {
-  //   const filter = matchingPurchaseOrder?.purchase_order_items?.map((item)=>{
-  //     const selectedProduct = products.find(product => product.id == item?.product_id); 
-  //     console.log(selectedProduct,"selected products",item)
-  //     return {...item, hsn: selectedProduct?.hsn_code,tax:selectedProduct?.tax_rate}
-  //     })
-  //     console.log(filter,"First filter")
-  //  const secondfilter =   filter?.map((item)=>{
-  //       const quantity = item.quantity
-  //       const price = item.price
-  //       const tax = item.tax
-  //       const total = quantity * price;
-  //       const taxAmount = total * tax / 100;
-  //       const totalInclTax = total + taxAmount;
-        
-  //       return {...item, total : total.toFixed(2) ,tax_amount : taxAmount.toFixed(2) ,total_inc_tax : totalInclTax.toFixed(2)}
-  //     })
-  //     console.log(secondfilter,"sec0ond filter")
-
-  //   setItems(secondfilter)
-  //   formik.setFieldTouched('purchase_items', items);
-
-  // }, [formik.values.purchase_order_id, purchaseOrders]);
-  // useEffect(()=> {
-  //     formik.setFieldValue('purchase_items', items); 
-  //     formik.setFieldValue('total_exclude_tax', total?.toFixed(2));
-  // },[])
 
 useEffect(() => {
   dispatch(setHeading("Edit Purchase Bill"));
@@ -254,18 +223,27 @@ const importPurchaseOrder = () =>{
     <div className="grid grid-cols-2">
       <div className="flex w-full gap-4">
       <div className='w-full'>
-      <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Venodr :</label>
-      <select
-          id="supplier_id"
-          disabled
-          {...formik.getFieldProps('supplier_id')}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      >
-          <option value="">Select Vendor</option>
-          {suppliers?.map(item => (
-              <option key={item.id} value={item.id}>{item?.first_name}</option>
-          ))}
-      </select>
+      <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Company :</label>
+      <Select
+									showSearch
+									style={{ width: '100%' }}
+									onChange={e => {
+                    formik.setFieldValue('supplier_id',e)
+									}}
+									placeholder='Select a Vendor'
+									optionFilterProp='children'
+									filterOption={(input, option) =>
+										option.props.children
+											.toLowerCase()
+											.indexOf(input?.toLowerCase()) >= 0
+									}
+								>
+									{suppliers?.map(store => (
+										<Select.Option key={store.id} value={store.id}>
+											{store.company_name}
+										</Select.Option>
+									))}
+								</Select>
       {formik.touched.supplier_id && formik.errors.supplier_id && (
           <p className="text-red-500 text-xs italic">{formik.errors.supplier_id}</p>
       )}
@@ -316,7 +294,7 @@ const importPurchaseOrder = () =>{
 
 
 
-  <div className='grid grid-cols-3'>
+  <div className='grid grid-cols-3 hidden'>
     <div className="">
 
       <label htmlFor="purchase_order_number" className="block text-sm font-medium text-gray-700">Purchase Order :</label>
@@ -409,10 +387,10 @@ const importPurchaseOrder = () =>{
                   <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax ||0}</td>
                   <td className="px-6  whitespace-nowrap flex items-center gap-4 justify-center text-right text-sm font-medium">
                     <div className="flex items-center ">
-                    <button onClick={() => handleEditItem(index,item.id)} className="text-primary-600 hover:text-red-900">
+                    <button type='button' onClick={() => handleEditItem(index,item.id)} className="text-primary-600 hover:text-red-900">
                     <CiEdit className='mt-5 w-6 h-5' /> &nbsp; &nbsp;
                     </button></div>
-                    <button onClick={() => handleDeleteItem(index)} className="text-red-600 hover:text-red-900">
+                    <button type='button' onClick={() => handleDeleteItem(index)} className="text-red-600 hover:text-red-900">
                     <AiOutlineDelete className='w-5 h-5' />
                     </button>
                   </td>
@@ -486,8 +464,7 @@ const importPurchaseOrder = () =>{
     >
       <option value="">Select payment Status </option>
       <option value="full">Full</option>
-      <option value="advance">advance</option>
-      <option value="credit">credit</option>
+      <option value="partial">Partial</option>
     </select>
     {formik.touched.payment_status && formik.errors.payment_status && (
       <div className="text-sm text-red-600">{formik.errors.payment_status}</div>
@@ -495,7 +472,7 @@ const importPurchaseOrder = () =>{
      </div>
 
     {/* Paid Amount - Conditional */}
-    {formik.values.payment_status === 'advance' || formik.values.payment_status === 'credit' ? (
+    {formik.values.payment_status === 'partial' ? (
       <>
       <div className="">
       <label htmlFor="account_id" className="block text-sm font-medium text-gray-700">Paid Amount</label>

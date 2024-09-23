@@ -1,295 +1,394 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { updatePurchasequotation } from '../../../../redux/features/PurchaseQuotationSlice';
 import Modal from '../../../../components/commoncomponents/Modal';
-import AddItemsForm from './AddItemsForm';
-import { convertSalesQuotation } from '../../../../redux/features/SalesQuotationSlice';
+import AddItemsQuoteForm from '../../purchase/purchasequotation/AddItemsQuoteForm';
+import { editSaleColumn } from '../../../../redux/features/SalesSlice';
+import EditItemsForm from '../sales/EditItemsForm';
+import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
+import { format } from 'date-fns'; // make sure to import the date-fns library
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { editPurchaseColumn } from '../../../../redux/features/PurchaseSlice';
+import { CiEdit } from 'react-icons/ci';
+import { AiOutlineDelete } from 'react-icons/ai';
+import AddInvoiceOrderItemsForm from './AddInvoiceOrderItemsForm';
+import EditItemInvoiceOrderForm from './EditItemInvoiceOrderForm';
+import { useReactToPrint } from 'react-to-print';
+
 
 const itemSchema = Yup.object().shape({
-    product_id: Yup.string().required('Product is required'),
-    quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
-    price: Yup.number().min(1, 'Price must be at least 1').required('Price is required'),
-    tax: Yup.number().min(0, 'Tax must be at least 0').max(100, 'Tax must not exceed 100'),
-    total: Yup.number(),
-    tax_amount: Yup.number(),
-    total_inc_tax: Yup.number(),
-    purchase_order_id:Yup.number(),
-    id:Yup.number(),
-    createdate:Yup.number(),
-    updatedate:Yup.number(),
-    });
+  comment: Yup.string(),
+  mrp: Yup.number()
+    .min(1, 'MRP must be at least 1')
+    .required('MRP is required')
+    .when('price', (price, schema) => {
+      return schema.min(price, 'MRP must be equal to or greater than the purchase price');
+    }),
+  price: Yup.number().min(1, 'Purchase price must be at least 1').required('Purchase price is required'),
+  product_id: Yup.string().required('Product is required'),
+  quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
+  total: Yup.number(),
+});
     
   
-  const purchaseValidationSchema = Yup.object({
-      quotation_date: Yup.date().required('Purchase date is required'),
-      customer_id: Yup.string().required('Supplier is required'),
-      notes: Yup.string(),
-      items: Yup.array()
-      .of(itemSchema).min(1, 'At least one item is required'),
-      total_exclude_tax:Yup.number().notRequired(),
-      grand_total:Yup.number(),
-      tax_amount:Yup.number().notRequired(),
-  });
+const purchaseValidationSchema = Yup.object({
+  quotation_date: Yup.date().required('Invoice Order date is required'),
+  purchase_order_number: Yup.string(),
+  customer_id: Yup.string().required('Customer is required'),
+  notes: Yup.string(),
+  quotation_items: Yup.array().of(itemSchema).min(1, 'Please add at least 1 item to create the order'),
+  grand_total: Yup.number().required('Grand total is required'),
+  expected_delivery_date: Yup.date().required('Expected delivery date is required'),
+  payment_terms: Yup.string().required('Payment terms are required'),
+  shipping_address_id: Yup.string().required('Shipping Address  are required'),
+}); 
 
 const ViewSalesQuotation = () => {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const navigate= useNavigate()
     const { customers,viewSales,products, loading, error } = useSelector((state) => state?.salesQuotation);
-     console.log(customers,"customers list");
     const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showPrint,setShowPrint] = useState(true)
+
     const [items, setItems] = useState(viewSales?.items || []);
     const [total, setTotal] = useState(0);
     const [grandTotal, setGrandTotal] = useState(0);
     const [taxAmount,setTaxAmount] = useState(0)
+    const [selectedShippingAddress,setSelectedShippingAddress]=useState([])
+    const [filteredProducts,setFilteredProducts] = useState([])
+
+    const componentRef = useRef();
+
+    const handlePrintfun = () => {
+      setShowPrint(false); // Hide elements
+      setTimeout(() => {
+        handlePrint(); // Trigger print operation
+        setTimeout(() => {
+          setShowPrint(true); // Restore visibility after printing
+        }, 100); // You might adjust this timeout based on your needs
+      }, 0);
+    };
+          
+    const handlePrint = useReactToPrint({
+      content: () => componentRef.current,
+      onBeforePrint: () => setShowPrint(false),
+      onAfterPrint: () =>  setShowPrint(true),
+    });
+  
+    const calculateGrandTotal = () => {
+      const total = items.reduce((acc, item) => acc + parseFloat(item.total_inc_tax || 0), 0);
+      setGrandTotal(total);
+      formik.setFieldValue('grand_total', total);
+      formik.setFieldValue('quotation_items', items);
+    };
+  
+    useEffect(() => {
+      dispatch(setHeading('Sales Order'));
+      return () => {
+        dispatch(clearHeading());
+      };
+    }, [dispatch]);
+  
+    useEffect(() => {
+      calculateGrandTotal();
+    }, [items]);
+  
+    const handleDeleteItem = (index) => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      setItems(newItems);
+    };
+  
+    const handleEditItem = (index, itemId) => {
+      const item = items.find((data) => data.id == itemId);
+      dispatch(editPurchaseColumn({ data: item, index }));
+      setShowEditModal(true);
+    };
+
+
+    const formik = useFormik({
+      initialValues: {
+        quotation_date: viewSales?. quotation_date || '',
+        purchase_order_number: viewSales?.purchase_order_number || '',
+        customer_id:  viewSales?.customer_id || '',
+        quotation_items: viewSales?.items || [],
+        notes:  viewSales?.notes || '',
+        grand_total: viewSales?.grand_total || '',
+        expected_delivery_date:  viewSales?.expected_delivery_date || '',
+        payment_terms:  viewSales?.payment_terms || '',
+        shipping_address_id: viewSales?.shipping_address_id || '',
+      },
+      validationSchema: purchaseValidationSchema,
+      onSubmit: (values) => {
+        values.quotation_items = items;
+        values.grand_total = grandTotal;
+     
+  
+        // Format dates before submission
+        values.quotation_date = format(values.quotation_date, 'yyyy-MM-dd');
+        values.expected_delivery_date = format(values.expected_delivery_date, 'yyyy-MM-dd');
+  
+        const promise =dispatch(updatePurchasequotation({ id: viewSales.id, purchaseData: values }))
 
   
-
-    console.log(viewSales,"checking viewSalesid",viewSales?.id)
-    
-    
-    
-    
-    const formik = useFormik({
-        initialValues: {
-            quotation_date: viewSales?.quotation_date,
-            customer_id: viewSales?.customer_id,
-            items:viewSales?.items,
-            purchase_order_number:viewSales?.purchase_order_number,
-            notes: viewSales?.notes,
-            total_exclude_tax:viewSales?.total_exclude_tax,
-            grand_total:viewSales?.grand_total,
-            tax_amount:viewSales?.tax_amount
-        },
-        validationSchema: purchaseValidationSchema,
-        onSubmit: (values) => {
-            console.log("testing");
-            console.log('Final Submission:', values);
-            dispatch(convertSalesQuotation(values))
-            navigate('/sales/quotation/convert')
-            console.log("Reste testing testing testing")
-            // dispatch(updatePurchasequotation({ id: viewSales.id, purchaseData: values }))
-
-        },
-        enableReinitialize: true,  // This is crucial for reinitializing the form when viewSales changes
-
+  
+        promise
+          .then((res) => {
+            if (res.payload.success) {
+              toast.success(res.payload.success);
+              setTimeout(() => {
+                navigate('/purchase/order');
+              }, 2000);
+            }
+            if (res.payload.error) {
+              toast.error(res.payload.error);
+            }
+          
+          })
+          .catch((error) => {
+            toast.error(error.message);
+          });
+      },
     });
-    console.log(items,"it is to chaeck the items is available or not")
-    useEffect(() => {
-        const newTotal = items?.reduce((acc, item) => acc + (item.quantity * item.price ), 0);
-        const totalTax = items?.reduce((acc,item) => acc + parseInt(item.tax_amount) , 0)
-        const newGrandTotal = newTotal  + totalTax
-        const newpayment_balance = newGrandTotal - formik.values.paid_amount;
-        console.log(totalTax,"it is the total taxes")
-        setTaxAmount(totalTax)
-        setTotal(newTotal);
-        setGrandTotal(newGrandTotal);
-    
-        // Update Formik's field values
-        formik.setFieldValue('total_exclude_tax', newTotal.toFixed(2));
-        formik.setFieldValue('grand_total', newGrandTotal.toFixed(2));
-        // formik.setFieldValue('payment_balance', newpayment_balance.toFixed(2));
-        formik.setFieldValue('tax_amount', totalTax);
-    }, [items, formik.values.discount, formik.values.paid_amount]);
-
-
-   // Function to remove an item from the list
-   const handleDeleteItem = (index) => {
-    const newItems = items.filter((_, i) => i !== index);
-    setItems(newItems);
-  };
-
-
-
-
-
+    useEffect(()=>{
+      const channel = customers.find((i)=> i.id == formik.values.customer_id)
+      if(channel){
+        setSelectedShippingAddress(channel.shipping_addresses)
+        const filteredProducts = products.map((item) => {
+          const {  s_rate_1, s_rate_2, s_rate_3, ...rest } = item;  // Destructure to get the rates and other fields
+          const channel_id = channel.channel_id
+           let price;
+        
+          if (channel_id == 1) {
+            price = s_rate_1;  // Use s_rate_1 for channel_id 1
+          } else if (channel_id == 2) {
+            price = s_rate_2;  // Use s_rate_2 for channel_id 2
+          } else if (channel_id == 3) {
+            price = s_rate_3;  // Use s_rate_3 for channel_id 3
+          }
+        
+          return {
+            ...rest,  // Include other fields
+            price,    // Add the new price field
+          };
+        });
+        setFilteredProducts(filteredProducts)
+      }
+    },[items,customers,formik.values.customer_id])
 
   return (
-    <div className="  mx-6 m-5 border drop-shadow-sm">
-        <div className="grid grid-cols-2 w-full p-5">
-            <div className="">
-            {/* <div className="text-lg font-bold mb-1"> Quote To:</div> */}
-
-      <div className="text-md font-semibold"> Zain Sale Corp</div>
-      <div className="">address address address</div>
-      <div className="">pincode state</div>
-      <div className="">zain@gmail.com</div>
-      <div className="">+91 9999999999</div>
-
-            <div className="">
-            <div className="text-lg font-bold my-1 mt-2"> Quote to:</div>
-            <div className="text-md font-semibold">{viewSales?.customer_name}</div>
-            <div className="">{viewSales?.customer_email}</div>
-            <div className="">{viewSales?.customer_address}</div>
-            <div className="">{viewSales?.supplier?.gst_number}92077 83535</div>
-            </div>
-            </div>
-            <div className="">
-                
-                <div className="text-2xl font-bold justify-center flex mb-3">Sales Quotation</div>
-             <div className="grid justify-items-end">
-                <div className="grid grid-cols-2">
-
-             <div className='gap-5'>
-            <div htmlFor="quotation_date" className="block text-sm font-medium text-gray-700">Date:</div>
-            <div htmlFor="quotation_date" className="block text-sm font-medium text-gray-700">Quotation Number:</div>
+    <div ref={componentRef} className="px-2 md:px-4 p-4 bg-white no-scrollbar">
+    <h2 className="text-lg font-medium  my-2 text-center"> Sales Order</h2>
+    <form onSubmit={formik.handleSubmit} className="">
+    <div className="grid grid-cols-[3fr,3fr,2fr] text-[.5rem] md:text-[0.9rem] border border-b-0">
+  <div className="border-r">
+        <div className="grid gap-1 p-2">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Regt Name</div>
+          <div className="uppercase justify-start">Gnidertron Private </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Address</div>
+          <div className="justify-start flex">No. 57/1003-C ,Near Abu Haji Auditorium ,Kundungal Park, Pilakandi Road Kozhikode</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Pin</div>
+          <div className="justify-start flex">673003</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">State Code</div>
+          <div className="justify-start flex">32</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">GST</div>
+          <div className="justify-start uppercase flex">32aalcg2360h1zt</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">CIN</div>
+          <div className="justify-start flex">U46490KL2024PTC087587</div>
+          </div>
         </div>
-             <div className=' gap-5'>
-           <div className="">{viewSales?.quotation_date}</div>
-           <div className="">{viewSales?.quotation_number}</div>
-        </div>
-                </div>
-             </div>
-            </div>
-        </div>
-      <form onSubmit={formik.handleSubmit} className="space-y-4 ">
-      <div className="flex justify-between">
-      
+    
 
+        <div className="border w-full p-3">
+        <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Sales Order Number</div>
+          <div className="justify-start flex">{viewSales?.sale_order_number}</div>
+          </div>
+        </div>
+      </div>
+      <div className="">
+      <div className="grid gap-1 p-1 border-l">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Customer Name</div>
+          <div className="uppercase justify-start">{viewSales?.customer_name} </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Address</div>
+          <div className="justify-start flex">{viewSales?.customer_address}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">GST number</div>
+          <div className="justify-start flex">{viewSales?.gst_number}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Pan number</div>
+          <div className="justify-start flex">{viewSales?.pan_number}</div>
+          </div>
+        </div>
+   
+      <div className="border  border-b-0 w-full">
+        <div className="grid grid-cols-[2fr,6fr] p-1" >
+        <div className="gap-1 grid ">
+          <div className="uppercase">Route</div>
+          <div className="uppercase">DL.NO</div>
+        </div>
+        <div className="grid gap-1 pl-10 border-l ">
+        
+          <div className="uppercase"></div>
+          <div className="justify-start flex"></div>
+        </div>
+      </div>
+        </div>
+      </div>
+  
+    <div className="border p-1 ">
+    <div className="grid grid-cols-2 py-1 justify-between">
+          <div className="uppercase">Sales Executive</div>
+          <div className="uppercase justify-start">{viewSales?.created_by} </div>
+          </div>
+    <div className="grid grid-cols-2 py-1 justify-between">
+          <div className="uppercase">Phone Number</div>
+          <div className="uppercase justify-start">{viewSales?.contact} </div>
+          </div>
+    <div className="grid grid-cols-2 py-1 justify-between">
+          <div className="uppercase">Email</div>
+          <div className="text-[0.6rem] md:text-[.8rem] lg:text-[.9rem] justify-start">{viewSales?.customer_email}</div>
+          </div>
+    <div className="grid grid-cols-2 py-1 justify-between">
+          <div className="uppercase">Date</div>
+          <div className="uppercase justify-start">{viewSales?.quotation_date} </div>
+          </div>
     </div>
-
+    </div>
   
 
-
-{/* 
-        <button type="button" onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Add Products
-        </button>
-      */}
-     
-
-     
-
-       {/* Items Table */}
-       {items?.length > 0 && (
-        <div className="mt-6">
-          <div className="mt-4">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
+      {/* Items Table */}
+      <div className="">
+        <div className="">
+          <div className=" flex justify-end">
+          </div>
+          <table className="min-w-full divide-y divide-gray-200 border">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">HSN</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
+                <th scope="col" className="px-2 md:px-4 py-3 text-left md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+              </tr>
+            </thead>
+            {items?.length > 0 && (
               <tbody className="bg-white divide-y divide-gray-200">
                 {items?.map((item, index) => (
                   <tr key={index}>
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  {
-    products.find(pro => pro.id == item.product_id)?.product_name || item.product_id
-  }
-</td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax_amount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total_inc_tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button onClick={() => handleDeleteItem(index)} className="text-red-600 hover:text-red-900">
-                        Delete
-                      </button>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">
+                      {products?.find((pro) => pro.id == item?.product_id)?.product_name || item?.product_id}
+                    </td>
+                    <td className="px-2 md:px-4 py-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.hsn}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.tax || 0}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.quantity}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.price}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.total}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.discount || 0}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.tax_amount || 0}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">{item?.total_inc_tax || 0}</td>
+                    <td className="px-2 md:px-4 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500">
+                    {item?.comment?.length > 25 ? item?.comment?.slice(0, 25) + '...' : item?.comment }
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-            
-
+            )}
+          </table>
+          <div className="flex justify-center items-center py-2">
+            {formik.touched.quotation_items && formik.errors.quotation_items && (
+              <p className="text-red-500 md:text-xs text-[.5rem]">{formik.errors.quotation_items}</p>
+            )}
           </div>
         </div>
-      )}
-            <div className="grid gap-2 justify-end mt-5">
-  {/* Total Display */}
-   <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-
-        <label htmlFor="total_exclude_tax" className="block text-sm font-medium text-gray-700">Total Exclude Tax:</label>
-    </div>
-    <div className="">
-
-        <input
-          id="total_exclude_tax"
-          type="text"
-          {...formik.getFieldProps('total_exclude_tax')}
-          disabled // This field is disabled and cannot be edited by the user
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-    </div>
       </div>
-      {/* Grand Total TAx */}
-      <div className='flex justify-between items-center gap-10 mx-2'>
-        <div className="">
-        <label htmlFor="tax_amount" className="block text-sm font-medium text-gray-700"> Total Tax:</label>
 
-        </div>
-        <div className="">
-        <input
-      id="tax_amount"
-      type="text"
-      value={taxAmount}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
+      <div className="grid gap-4 justify-end mt-5">
+        {/* Grand Total Display */}
+        <div className="flex justify-between items-center gap-10 mx-2">
+          <div>
+            <label htmlFor="grandTotal" className="block md:text-xs text-[.5rem] font-medium text-gray-700">Grand Total:</label>
+          </div>
+          <div>
+          {grandTotal.toFixed(2)}
+          </div>
         </div>
       </div>
 
+      <div className="flex justify-between">
+        <div>
+          <label htmlFor="expected_delivery_date" className="block md:text-xs text-[.5rem] font-medium text-gray-700">Expected Delivery Date:</label>
+      <div className="">
+        {formik.values.expected_delivery_date}
+      </div>
+        </div>
+        <div className='flex justify-between items-center gap-10 mx-2'>
+          <label htmlFor="payment_terms" className="block md:text-xs text-[.5rem] font-medium text-gray-700">Payment Terms:</label>
+       <div className="">
+        {formik.values.payment_terms}
+       </div>
+        </div>
+      </div>
+      {formik.values?.notes && 
+      
+      <div className="my-6">
+        <label htmlFor="notes" className="block md:text-xs text-[.5rem] font-medium text-gray-700 underline">Notes:</label>
+        {formik?.values?.notes}
+      </div>
+      }
 
+      {showPrint && (
 
+<div className="flex justify-center my-4 pb-10">   <button onClick={handlePrintfun} type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-medium leading-none py-2 px-4 rounded">
+  Print Sales Order
+</button>
 
-  {/* Grand Total Display */}
-  <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-    <label htmlFor="grandTotal" className="block text-sm font-medium text-gray-700">Grand Total:</label>
-
-    </div>
-    <div className="">
-    <input
-      id="grandTotal"
-      type="text"
-      value={grandTotal.toFixed(2)}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
-    </div>
-  </div>
- 
 </div>
+)}
+    </form>
 
-
-   
-          <div className='my-6 p-5'>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes:</label>
-          <textarea
-          disabled
-            id="notes"
-            {...formik.getFieldProps('notes')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Add any relevant notes here..."
-          />
-        </div>
-        <div className="flex justify-center my-4 pb-10" >   <button type="submit" className="bg-zinc-800 hover:bg-black text-white font-bold py-2 px-4 rounded">
-          Convert To Sale
-        </button></div>
-        </form>
-         {/* Modal for adding items */}
-      <Modal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        title="Add Products to Purchase"
-        content={<AddItemsForm  items={items} setItems={setItems} onClose={() => setShowModal(false)} />}
-      />
-    </div>
+    {/* Modal for adding items */}
+    <Modal
+      visible={showModal}
+      onClose={() => setShowModal(false)}
+      title="Products Form"
+      content={<AddInvoiceOrderItemsForm items={items} products={filteredProducts} setItems={setItems} onClose={() => setShowModal(false)} />}
+    />
+    <Modal
+      visible={showEditModal}
+      onClose={() => setShowEditModal(false)}
+      title="Edit Items to Purchase"
+      id="Add-Purchase-column"
+      content={<EditItemInvoiceOrderForm items={items} products={filteredProducts} setItems={setItems} onClose={() => setShowEditModal(false)} />}
+    />
+  </div>
   );
 };
 

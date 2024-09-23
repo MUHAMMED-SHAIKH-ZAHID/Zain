@@ -4,54 +4,105 @@ import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { editSaleColumn, updateSale } from '../../../../redux/features/SalesSlice';
 import Modal from '../../../../components/commoncomponents/Modal';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { CiEdit } from 'react-icons/ci';
+import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
+import { useNavigate } from 'react-router-dom';
+import { LuImport } from 'react-icons/lu';
 import AddItemsForm from './AddItemsForm';
-import { convertSalesQuotation } from '../../../../redux/features/SalesQuotationSlice';
+import EditItemsForm from './EditItemsForm';
+import { toast } from 'react-toastify';
 import { useReactToPrint } from 'react-to-print';
+import logo from '../../../../../public/images/logo.png'
+import { numberToWords } from '../../../../components/commoncomponents/numbertowords';
+
 
 const itemSchema = Yup.object().shape({
-    product_id: Yup.string().required('Product is required'),
-    quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
-    price: Yup.number().min(1, 'Price must be at least 1').required('Price is required'),
-    tax: Yup.number().min(0, 'Tax must be at least 0').max(100, 'Tax must not exceed 100'),
-    total: Yup.number(),
-    tax_amount: Yup.number(),
-    total_inc_tax: Yup.number(),
-    purchase_order_id:Yup.number(),
-    id:Yup.number(),
-    createdate:Yup.number(),
-    updatedate:Yup.number(),
-    });
-    
-  
-  const purchaseValidationSchema = Yup.object({
-      sales_date: Yup.date().required('Purchase date is required'),
-      customer_id: Yup.string().required('Supplier is required'),
-      notes: Yup.string(),
-      sales_items: Yup.array()
-      .of(itemSchema).min(1, 'At least one item is required'),
-      total_exclude_tax:Yup.number().notRequired(),
-      grand_total:Yup.number(),
-      tax_amount:Yup.number().notRequired(),
+  product_id: Yup.string().required('Product is required'),
+  quantity: Yup.number().min(1, 'Quantity must be at least 1').required('Quantity is required'),
+  price: Yup.number().min(1, 'Price must be at least 1').required('Price is required'),
+  mrp: Yup.number()
+  .min(1, 'MRP must be at least 1')
+  .required('MRP is required')
+  .when('price', (price, schema) => {
+    return schema.min(price, 'MRP must be equal to or greater than the purchase price');
+  }), 
+  //  discount: Yup.number().min(0, 'Discount must be at least 0').max(100, 'Discount must not exceed 100').required('Discount is required'),
+  tax: Yup.number().min(0, 'Tax must be at least 0').max(100, 'Tax must not exceed 100'),
+  total: Yup.number(),
+  tax_amount: Yup.number(),
+  total_inc_tax: Yup.number(),
+  hsn:Yup.number()
   });
+  
+
+  const salesValidationSchema = Yup.object({
+    sales_date: Yup.date().required('Invoice date is required'),
+     invoice_number: Yup.string(),
+    customer_id: Yup.string().required('Vendor is required'),
+    payment_status: Yup.string().required('Payment status option is required'),
+    paid_amount: Yup.number()
+      .when('payment_status', (payment_status, schema) =>
+        [ 'partial'].includes(payment_status)
+          ? schema.required('Paid amount is required').min(0)
+          : schema.notRequired()
+      ),
+    payment_balance: Yup.number(),
+    payment_due_date: Yup.date().nullable(), // No need for Yup.string()
+    notes: Yup.string(),
+     sales_items: Yup.array()
+      .of(itemSchema) // Ensure itemSchema is defined
+      ,
+    total_exclude_tax: Yup.number(),
+    grand_total: Yup.number(),
+    discount: Yup.number().min(0.01, 'Discount must be at least 1%').max(1, 'Discount must not exceed 100%'),
+    tax_amount: Yup.number(),
+     sales_order_id: Yup.string(),
+    payment_mode: Yup.string().required('Please select payment mode'),
+    account_id: Yup.string()
+      .when('payment_mode', (payment_mode, schema) =>
+        payment_mode === 'bank' ? schema.required('Mode of transaction is required') : schema.notRequired()
+      ),
+    reference_number: Yup.number()
+      .when('payment_mode', (payment_mode, schema) =>
+        ['cheque', 'rtgs', 'neft'].includes(payment_mode)
+          ? schema.required('Reference Number is required').min(0)
+          : schema.notRequired()
+      ),
+    reference_date: Yup.string()
+      .when('payment_mode', (payment_mode, schema) =>
+        ['cheque', 'rtgs', 'neft'].includes(payment_mode)
+          ? schema.required('Please select Reference Date')
+          : schema.notRequired()
+      ),
+    bank_name: Yup.string()
+      .when('payment_mode', (payment_mode, schema) =>
+        ['cheque', 'rtgs', 'neft'].includes(payment_mode)
+          ? schema.required('Please select Reference Date')
+          : schema.notRequired()
+      ),
+      sale_order_number: Yup.string(), // Added validation for sale_order_number
+
+  });
+
 
 const PrintSales = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-    const { customer,viewsalesdata,products, loading, error } = useSelector((state) => state?.sales);
-     console.log(customer,"customer list",viewsalesdata);
+    const { customers,viewsalesdata,products,paymentModes, loading, error } = useSelector((state) => state?.sales);
+
     const [showModal, setShowModal] = useState(false);
-    const [items, setItems] = useState(viewsalesdata?.sales_items || []);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    const [items, setItems] = useState(viewsalesdata?.sales_items);
     const [total, setTotal] = useState(0);
     const [grandTotal, setGrandTotal] = useState(0);
     const [taxAmount,setTaxAmount] = useState(0)
-    const [showPrint,setShowPrint] = useState(true)
 
-  
-
-    console.log(viewsalesdata,"checking viewsalesdataid",viewsalesdata?.sales_items)
-    
+    const [customErrMsg,setCustomErrMsg] = useState('')
+      const [showPrint,setShowPrint] = useState(true)    
     const componentRef = useRef();
 
     const handlePrintfun = () => {
@@ -72,335 +123,462 @@ const PrintSales = () => {
     
     
     const formik = useFormik({
-        initialValues: {
-            sales_date: viewsalesdata?.sales_date,
-            customer_id: viewsalesdata?.customer_id,
-            sales_items:viewsalesdata?.sales_items,
-            purchase_order_number:viewsalesdata?.purchase_order_number,
-            notes: viewsalesdata?.notes,
-            total_exclude_tax:viewsalesdata?.total_exclude_tax,
-            grand_total:viewsalesdata?.grand_total,
-            tax_amount:viewsalesdata?.tax_amount,
-            payment_status: viewsalesdata?.payment_status,
-            paid_amount: viewsalesdata?.paid_amount,
-            payment_balance: viewsalesdata?.payment_balance,
-            payment_due_date:viewsalesdata?.payment_due_date,
-            transaction_mode:viewsalesdata?.transaction_mode,
-        },
-        validationSchema: purchaseValidationSchema,
+      initialValues: {
+        sales_date: viewsalesdata?.sales_date || new Date(),
+        invoice_number: viewsalesdata?.invoice_number || '',
+        customer_id: viewsalesdata?.customer_id || '',
+        payment_status: viewsalesdata?.payment_status || '',
+        paid_amount: viewsalesdata?.paid_amount || '',
+        payment_balance: viewsalesdata?.payment_balance || '',
+        payment_due_date: viewsalesdata?.payment_due_date || '',
+        discount: viewsalesdata?.discount || '',
+        account_id: viewsalesdata?.account_id || '',
+        payment_mode: viewsalesdata?.payment_mode || '',
+        sales_items: viewsalesdata?.sales_items || [],
+        notes: viewsalesdata?.notes || '',
+        total_exclude_tax: viewsalesdata?.total_exclude_tax || '',
+        grand_total: viewsalesdata?.grand_total || '0',
+        tax_amount: viewsalesdata?.tax_amount || '',
+        sales_order_id: viewsalesdata?.sales_order_id || '',
+        sale_order_number: viewsalesdata?.sale_order_number || '',
+        reference_number: viewsalesdata?.reference_number || '',
+        reference_date: viewsalesdata?.reference_date || '',
+        shipping_address_id: viewsalesdata?.shipping_address_id || '',
+        invoice_order_number: viewsalesdata?.invoice_order_number || '',
+        id: viewsalesdata?.id || '',
+        bank_name: viewsalesdata?.bank_name || '',
+      },      
+        validationSchema: salesValidationSchema,
         onSubmit: (values) => {
-            console.log("testing");
-            console.log('Final Submission:', values);
-            dispatch(convertSalesQuotation(values))
-            navigate('/sales/quotation/convert')
-            console.log("Reste testing testing testing")
-            // dispatch(updatePurchasequotation({ id: viewsalesdata.id, purchaseData: values }))
+            const promise =   dispatch(updateSale({ id: viewsalesdata.id, saleData: values }))
+            promise.then((res) => {
+              if (res.payload.success){
+                toast.success(res.payload.success);
+                setTimeout(() => {
+                  navigate('/invoice/');
+                }, 1000);
+              }
+              if (res.payload.error){
+                toast.error(res.payload.error)
+              }
+            });
 
         },
-        enableReinitialize: true,  // This is crucial for reinitializing the form when viewsalesdata changes
 
     });
-    console.log(items,"it is to chaeck the items is available or not")
-    useEffect(() => {
-        const newTotal = items?.reduce((acc, item) => acc + (item.quantity * item.price ), 0);
-        const totalTax = items?.reduce((acc,item) => acc + parseInt(item.tax_amount) , 0)
-        const newGrandTotal = newTotal  + totalTax
-        const newpayment_balance = newGrandTotal - formik.values.paid_amount;
-        console.log(totalTax,"it is the total taxes")
-        setTaxAmount(totalTax)
-        setTotal(newTotal);
-        setGrandTotal(newGrandTotal);
+
     
-        // Update Formik's field values
-        formik.setFieldValue('total_exclude_tax', newTotal.toFixed(2));
-        formik.setFieldValue('grand_total', newGrandTotal.toFixed(2));
-        formik.setFieldValue('payment_balance', newpayment_balance.toFixed(2));
-        formik.setFieldValue('tax_amount', totalTax);
-    }, [items, formik.values.discount, formik.values.paid_amount]);
-
-
-   // Function to remove an item from the list
-   const handleDeleteItem = (index) => {
-    const newItems = items.filter((_, i) => i !== index);
-    setItems(newItems);
-  };
-
-
-
-
-
-
-  return (
-    <div ref={componentRef}  className="   mx-6 m-5 border drop-shadow-sm">
-      <div className="font-semibold text-xl text-center pt-5">Sales Bill</div>
-    <div className="grid grid-cols-2 w-full p-5">
-            <div className="">
-     
-
-           <div className="">
-            <div className="text-lg font-semibold my-1 mt-2"> Bill to:</div>
-            <div className="text-md font-semibold">{viewsalesdata?.customer?.name}</div>
-            <div className="">{viewsalesdata?.customer?.address_one}las vegas</div>
-            <div className="">{viewsalesdata?.customer?.contact_one}+92 839 4328</div>
-            <div className="">{viewsalesdata?.customer?.gst_number}834945 48499 </div>
-            </div>
-            </div>
-            <div className="grid justify-items-end">
-                <div className="">
-
-<div className="text-md font-semibold"> Zain Sale Corp</div>
-<div className="">address address address</div>
-<div className="">pincode state</div>
-<div className="">zain@gmail.com</div>
-<div className="">+91 9999999999</div>
-                </div>
-                <div className="">
-
-             <div className="grid justify-items-end pt-5">
-                <div className="grid grid-cols-2">
-           
-
-             <div className='gap-5'>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-black">Invoice Number:</div>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-black">Invoice Date:</div>
-        </div>
-             <div className=' gap-5'>
-           <div className="block text-[.8rem] font-medium text-gray-500">{viewsalesdata?.sales_date}</div>
-           <div className="block text-[.8rem] font-medium text-gray-500">{viewsalesdata?.sales_number}</div>
-        </div>
-                </div>
-                </div>
-             </div>
-            </div>
-        </div>  
-      <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <div className="flex justify-between">
+      const {  saleorder } = useSelector((state) => state?.sales);
+      // const { customers,products, loading, error } = useSelector((state) => state?.sales);
+      const [selectedShippingAddress,setSelectedShippingAddress]=useState([])
+      const [filteredProducts,setFilteredProducts] = useState([])
+      const matchingPurchaseOrder =  saleorder?.find((po) => formik.values.sales_order_id == po.id);
+      useEffect(() => {
+        const newTotal = items?.reduce((acc, item) => {
+          const itemTotal = (parseFloat(item?.quantity) * parseFloat(item?.price)) || 0;
+          return acc + itemTotal;
+        }, 0);
       
-
-    </div>
-
+        const totalTax = items?.reduce((acc, item) => {
+          const itemTaxAmount = parseFloat(item?.tax_amount) || 0;
+          return acc + itemTaxAmount;
+        }, 0);
+      
+        const discountAmount = (newTotal * (parseFloat(formik.values.discount) || 0) / 100);
+        const newGrandTotal = (newTotal - discountAmount ) || 0;
+        const newPaymentBalance = newGrandTotal - (parseFloat(formik.values.paid_amount) || 0);
+      
+        setTaxAmount(totalTax);
+        setTotal(newTotal);
+        setGrandTotal(viewsalesdata?.grand_total);
+      
+        // Update Formik's field values
+        formik.setFieldValue('total_exclude_tax', newTotal?.toFixed(2));
+        // formik.setFieldValue('grand_total', newGrandTotal?.toFixed(2));
+        formik.setFieldValue('payment_balance', newPaymentBalance.toFixed(2));
+        formik.setFieldValue('tax_amount', totalTax?.toFixed(2));
+        formik.setFieldValue('purchase_items', items);
+      }, [items, formik.values.discount, formik.values.paid_amount]);
+      
+      
+  
+  
+     // Function to remove an item from the list
+     const handleDeleteItem = (index) => {
+      const newItems = items?.filter((_, i) => i !== index);
+      setItems(newItems);
+    };
+  
+  
+  
+    useEffect(() => {
+      const filter = matchingPurchaseOrder?.purchase_order_items?.map((item)=>{
+        const selectedProduct = products?.find(product => product.id == item?.product_id); 
+        return {...item, hsn: selectedProduct?.hsn_code,tax:selectedProduct?.tax_rate}
+        })
+     const secondfilter =   filter?.map((item)=>{
+          const quantity = item.quantity
+          const price = item.price
+          const tax = item.tax
+          const total = quantity * price;
+          const taxAmount = total * tax / 100;
+          const totalInclTax = total + taxAmount;
+          
+          return {...item, total : total.toFixed(2) ,tax_amount : taxAmount.toFixed(2) ,total_inc_tax : totalInclTax.toFixed(2)}
+        })
+  
+      // setItems(secondfilter)
+      formik.setFieldTouched(' sales_items', items);
+  
+    }, [formik.values. sales_order_id,  saleorder]);
+    // useEffect(()=> {
+    //     formik.setFieldValue(' sales_items', items); 
+    //     formik.setFieldValue('total_exclude_tax', total?.toFixed(2));
+    // },[])
+  
+  useEffect(() => {
+    dispatch(setHeading("Invoice"));
+    return () => {
+      dispatch(clearHeading());
+    };
+  }, [dispatch]);
+  
+  const handleEditItem = (index,itemsId) => {
+    const item = items?.find(data => data.id == itemsId)
+    dispatch(editSaleColumn({data:item,index:index}))
+    setShowEditModal(true)
+   }
+  
+  
+  const importInvoiceOrder = () =>{
+    setCustomErrMsg('')
+    if(formik.values.sale_order_number?.length == 11){
+        const ReferensePurchase = saleorder?.find(item => (item.sale_order_number == formik.values.sale_order_number
+                ))
+                if(ReferensePurchase == undefined){
+                return  setCustomErrMsg("Cannot find Invoice Order")
+                }else{
+                return   formik.setFieldValue('sales_order_id',ReferensePurchase.id)
+                }
+              }else{
+               return setCustomErrMsg("Invoice Order Number format is Wrong")
+              }
+  }
+  
+  useEffect(() => {
+    const channel = customers.find((i) => i.id == formik.values.customer_id);
+    if (channel) {
+      setSelectedShippingAddress(channel.shipping_addresses);
+      const filteredProducts = products.map((item) => {
+        const { s_rate_1, s_rate_2, s_rate_3, ...rest } = item;
+        const channel_id = channel.channel_id;
+        let price;
+        if (channel_id == 1) {
+          price = s_rate_1;
+        } else if (channel_id == 2) {
+          price = s_rate_2;
+        } else if (channel_id == 3) {
+          price = s_rate_3;
+        }
+        return { ...rest, price };
+      });
+      setFilteredProducts(filteredProducts);
+    }
+  }, [customers, products, formik.values.customer_id]);
   
 
+  return (
+    <div ref={componentRef} className="bg-white  p-5">
+    <div className="grid grid-cols-3 items-end">
+        <div className="">
+      <img src={logo} alt="" className='h-16 leading-none' />
 
-{/* 
-        <button type="button" onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Add Products
-        </button>
-      */}
-     
+        </div>
+        <div className="grid justify-items-center">
+                      <div className="text-xl font-medium justify-center flex items-end leading-none pb-3"> Invoice</div>
+          <div className="">{viewsalesdata?.invoice_number}</div>
+        </div>
+      </div>
+      <form onSubmit={formik.handleSubmit} className="">
+      <div className="grid grid-cols-[2fr,3fr,1fr] text-[.5rem] md:text-[0.8rem] border border-black border-b-0">
+      <div className="border-r-2  border-black">
+        <div className="grid gap-1 p-2">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Regt Name</div>
+          <div className="uppercase justify-start">Gnidertron Private </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Address</div>
+          <div className="justify-start flex">No. 57/1003-C ,Near Abu Haji Hall </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Pin</div>
+          <div className="justify-start flex">673003</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">State Code</div>
+          <div className="justify-start flex">32</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">GST</div>
+          <div className="justify-start uppercase flex">32aalcg2360h1zt</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="uppercase">Pan</div>
+          <div className="justify-start flex">AALCG2360H</div>
+          </div>
+        </div>
+    
 
-     
+    
+      </div>
+      <div className="border-r-2 grid grid-cols-[3fr,1fr,2fr] border-black">
+        <div className="p-1">
 
-       {/* Items Table */}
-       {items?.length > 0 && (
-        <div className="mt-6">
-          <div className="mt-4">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {items?.map((item, index) => (
+      <div className="grid grid-cols-[2fr,6fr]  justify-between">
+          <div className="uppercase">Company </div>
+          <div className="justify-start flex">{viewsalesdata?.customer?.company_name}</div>
+          </div>
+      <div className="grid grid-cols-[2fr,6fr] justify-between">
+          <div className="uppercase">Address</div>
+          <div className="justify-start  flex">{viewsalesdata?.customer?.address}</div>
+          </div>
+      <div className="grid grid-cols-[2fr,6fr] justify-between">
+          <div className="uppercase">pin</div>
+          <div className="justify-start  flex">{viewsalesdata?.customer?.pin_code}</div>
+          </div>
+      <div className="grid grid-cols-[2fr,6fr] justify-between">
+          <div className="uppercase">State Code</div>
+          <div className="justify-start flex">{viewsalesdata?.customer?.gst?.slice(0,2)}</div>
+          </div>
+      <div className="grid grid-cols-[2fr,6fr] justify-between">
+          <div className="uppercase">Gst </div>
+          <div className="justify-start flex">{viewsalesdata?.customer?.gst}</div>
+          </div>
+      <div className="grid grid-cols-[2fr,6fr] justify-between">
+          <div className="uppercase">Pan </div>
+          <div className="justify-start flex">{viewsalesdata?.customer?.pan}</div>
+          </div>
+        </div>
+        <div className=""></div>
+        <div className="p-1">
+
+      <div className="grid grid-cols-2  justify-between">
+          <div className="uppercase">Code </div>
+          <div className="justify-start flex">{viewsalesdata?.customer?.code}</div>
+          </div>
+      <div className="grid grid-cols-2  justify-between">
+          <div className="uppercase">contact No:</div>
+          <div className="justify-start  flex">{viewsalesdata?.customer?.phone }</div>
+          </div>
+ 
+        </div>
+ 
+      </div>
+      
+         <div className="border border-black">
+        <div className="font-medium pt-2 text-center">INVOICE NO</div>
+        <div className="font-normal pt-1 text-center uppercase">{viewsalesdata?.invoice_number}</div>
+        <div className="border border-x-0 border-black flex justify-between">
+          <div className="p-1">DATE</div>
+          <div className="text-start flex p-1">&nbsp; : &nbsp;{viewsalesdata?.invoice_date}</div>
+        </div>
+      </div>
+    </div>
+    <div className="grid grid-cols-[2fr,3fr,1fr] text-[.5rem] md:text-[0.8rem] border border-black ">
+      <div className="grid grid-cols-[2fr,2fr] ">    <div className="flex gap-2">
+          <div className="uppercase">DSE:</div>
+          <div className="justify-start flex">{viewsalesdata?.created_by}</div>
+          </div>
+          <div className="flex gap-2">
+          <div className="capitalize">Number:</div>
+          <div className="justify-start flex">9567987408</div>
+          </div></div>
+      <div className="border-x-2 grid grid-cols-2 border-black">
+        <div className="border-r-2 border-black"></div>
+        <div className="grid grid-cols-2">
+          <div className="">SO Date:&nbsp; {viewsalesdata?.sale_order_date}</div>
+          <div className="">Del veh:</div>
+        </div>
+      </div>
+      <div className=""></div>
+    </div>
+  
+  <table className="min-w-full divide-y mt-3 divide-gray-200 border-black border">
+      <thead className="">
+        <tr>
+          <th scope="col" className="px-2 py-1 text-cneter md:text-xs text-[.5rem] font-medium text-gray-500 uppercase tracking-wider border-black border w-1/3">Particulars</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Psc</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Gross Amt</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Sch Amt</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Oth Disc Amt</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Taxable Amt</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Tax Amt</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Net Payable</th>
+        </tr>
+      </thead>
+      {viewsalesdata?.sales_items?.map((item, index) => (
                   <tr key={index}>
-<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  {
-    products.find(pro => pro.id == item.product_id)?.product_name || item.product_id
-  }
-</td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tax_amount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.total_inc_tax}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button onClick={() => handleDeleteItem(index)} className="text-red-600 hover:text-red-900">
-                        Delete
-                      </button>
-                    </td>
+
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">CGST {(parseInt(item?.tax)/2).toFixed(2)} + SGST {(parseInt(item?.tax)/2).toFixed(2)  || 0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.quantity}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.price}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">0</td>
+                    <td  className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.discount  || 0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.total}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.tax_amount || 0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.total_inc_tax ||0}</td>
+                 
                   </tr>
                 ))}
-              </tbody>
-            </table>
-            
-
-          </div>
-        </div>
-      )}
-            <div className="grid gap-2 justify-end mt-5  ">
-  {/* Total Display */}
-   <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-
-        <label htmlFor="total_exclude_tax" className="block text-sm font-medium text-gray-700">Total Exclude Tax:</label>
-    </div>
-    <div className="">
-
-        <input
-          id="total_exclude_tax"
-          type="text"
-          {...formik.getFieldProps('total_exclude_tax')}
-          disabled // This field is disabled and cannot be edited by the user
-          className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-    </div>
-      </div>
-      {/* Grand Total TAx */}
-      <div className='flex justify-between items-center gap-10 mx-2'>
-        <div className="">
-        <label htmlFor="tax_amount" className="block text-sm font-medium text-gray-700"> Total Tax:</label>
-
-        </div>
-        <div className="">
-        <input
-      id="tax_amount"
-      type="text"
-      value={taxAmount}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
-        </div>
-      </div>
+                <tr >
 
 
+<td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">Total</td>
 
-
-  {/* Grand Total Display */}
-  <div className='flex justify-between items-center gap-10 mx-2'>
-    <div className="">
-    <label htmlFor="grandTotal" className="block text-sm font-medium text-gray-700">Grand Total:</label>
-
-    </div>
-    <div className="">
-    <input
-      id="grandTotal"
-      type="text"
-      value={grandTotal.toFixed(2)}
-      disabled
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-    />
-    </div>
-  </div>
- 
-</div>
-
-<div className="grid grid-cols-3 gap-3 mt-10 p-4">
-       {/* payment_status Method */}
-       <div className="">
-       <label htmlFor="transaction_mode" className="block text-sm font-medium text-gray-700">payment_status Option:</label>
-
-       <select
-        id="payment_status"
-        disabled
-        {...formik.getFieldProps('payment_status')}
-        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-      >
-        <option value="">Select payment_status Method</option>
-        <option value="full">Full</option>
-        <option value="advance">advance</option>
-        <option value="credit">credit</option>
-      </select>
-      {formik.touched.payment_status && formik.errors.payment_status && (
-        <div className="text-sm text-red-600">{formik.errors.payment_status}</div>
-      )}
-       </div>
-
-      {/* Paid Amount - Conditional */}
-      {formik.values.payment_status === 'advance' || formik.values.payment_status === 'credit' ? (
-        <>
-        <div className="">
-        <label htmlFor="transaction_mode" className="block text-sm font-medium text-gray-700">Paid Amount</label>
-          <input
-          disabled
-            type="number"
-            {...formik.getFieldProps('paid_amount')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Paid Amount"
-          />
-          {formik.touched.paid_amount && formik.errors.paid_amount && (
-            <div className="text-sm text-red-600">{formik.errors.paid_amount}</div>
-          )}
-
-        </div>
-          {/* Balance Amount - Automatically calculated, shown when relevant */}
-          <div className="">
-          <label htmlFor="transaction_mode" className="block text-sm font-medium text-gray-700">Balance Amount:</label>
-          <input
-          disabled
-            type="text"
-            {...formik.getFieldProps('payment_balance')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm sm:text-sm"
-            placeholder="Balance Amount"
-          />
-
-          </div>
-
-          {/* Last Date - Conditional */}
-          <div className="">
-          <label htmlFor="transaction_mode" className="block text-sm font-medium text-gray-700">Due Date:</label>
-
-          <DatePicker
-          disabled
-            selected={formik.values.payment_due_date}
-            onChange={date => formik.setFieldValue('payment_due_date', date)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-          {formik.touched.payment_due_date && formik.errors.payment_due_date && (
-            <div className="text-sm text-red-600">{formik.errors.payment_due_date}</div>
-          )}
-          </div>
-        </>
-      ) : null}
-            <div>
-          <label htmlFor="transaction_mode" className="block text-sm font-medium text-gray-700">Mode of Transaction:</label>
-          <select
-            id="transaction_mode"
-            disabled
-            {...formik.getFieldProps('transaction_mode')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value =''>select Transaction method</option>
-            <option value="cash">cash</option>
-            <option value="card">card</option>
-            <option value="online">online</option>
-          </select>
-          {formik.touched.transaction_mode && formik.errors.transaction_mode && (
-            <div className="text-sm text-red-600">{formik.errors.transaction_mode}</div>
-          )}
-        </div>
-      
-     </div>
-
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseInt(item.quantity), 0)}</td>
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.price), 0).toFixed(2)}</td>
+<td  className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">0</td>
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.discount), 0).toFixed(2)}</td>
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.total), 0).toFixed(2)}</td>
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.tax_amount), 0).toFixed(2)}</td>
+<td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.total_inc_tax), 0).toFixed(2)}</td>
+</tr>
    
-          <div className='my-6 p-4'>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes:</label>
-          <textarea
-          disabled
-            id="notes"
-            {...formik.getFieldProps('notes')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Add any relevant notes here..."
-          />
-        </div>
-     
+    </table>
+
+<table className="min-w-full divide-y mt-3 divide-gray-200 border-black border">
+      <thead className="">
+        <tr>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Sl No.</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">HSN</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">ITEM Name</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">MRP</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Qty</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Price</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Gross</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Disc</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Taxable</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Gst %</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Gst</th>
+          <th scope="col" className="px-2 py-1 text-left md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border">Net</th>
+        </tr>
+      </thead>
+      {viewsalesdata?.sales_items?.map((item, index) => (
+                  <tr key={index}>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{index + 1}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.hsn}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{products?.find(pro => pro.id == item?.product_id)?.product_name || item?.product_id}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.mrp  || 0}</td>
+                    <td  className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.qty  || 0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.price}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.total || 0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.discount ||0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.total ||0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.tax ||0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.tax_amount ||0}</td>
+                    <td className="px-6 whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border">{item?.total_inc_tax ||0}</td>
+                 
+                  </tr>
+                ))}
+          
+   
+    </table>
+
+    <div className="grid text-sm gap-2 pt-4 justify-items-center">
+              <div className="flex font-medium gap-5">
+                <div className="">Total</div>
+                <div className="">{items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.total_inc_tax), 0).toFixed(2)}</div>
+              </div>
+              <div className="flex font-medium gap-5">
+                <div className="">Amount In Words</div>
+                <div className="">{numberToWords(items?.reduce((acc, item) => parseInt(acc) + parseFloat(item.total_inc_tax), 0).toFixed(2))}</div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-[5fr,1fr] border-black border">
+              <div className="grid">
+                <div className="border-black border-b-2 flex justify-center items-end uppercase text-[.7rem]  font-medium h-5">Digital Signature Date</div>
+                <div className="h-16">
+                  <div className="text-center uppercase underline text-[.6rem] font-medium pt-1">Terms and Conditions</div>
+                  <div className="uppercase text-[.6rem] ">All Legal Disputes Subject to Calicut Only</div>
+                </div>
+              </div>
+              <div className="border-black border-l-2  ">
+                <div className="border-black border-b-2 h-5"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-[5fr,1fr] border-black border mt-8 text-[.7rem]">
+              <div className="grid">
+                <div className="border-black border-b-2 flex justify-center items-end  text-[.7rem]  font-medium h-5">Aknowledgement of Goods Recieved & Dues  </div>
+                <div className="">
+                  <div className="grid grid-cols-2 border-black border border-t-0">
+                    <div className="font-medium">To : Gnidetron Private Limited</div>
+                    <div className="grid grid-cols-[1fr,3fr]">
+
+                    <div className="border-black border-x">From Customer</div>
+                    <div className=""></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 border-black border border-t-0">
+                    <div className="font-medium"></div>
+                    <div className="grid grid-cols-[1fr,3fr]">
+
+                    <div className="border-black border-l">Route : &nbsp; 0</div>
+                    <div className=""></div>
+                    </div>
+                  </div>
+                    <table className="min-w-full divide-y divide-gray-200 ">
+      <thead className="">
+        <tr>
+          <th scope="col" className="px-2 py-1 text-center md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border-t-0 border-l-0 border">Invoice Number.</th>
+          <th scope="col" className="px-2 py-1 text-center md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border-t-0 border-l-0 border">Customer Code</th>
+          <th scope="col" className="px-2 py-1 text-center md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border-t-0 border-l-0 border">Invoice Date</th>
+          <th scope="col" className="px-2 py-1 text-center md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider border-black border-t-0 border-l-0 border">Invoice Amt</th>
+          <th scope="col" className="px-2 py-1 text-center md:text-xs text-[.5rem] font-medium text-gray-500  tracking-wider ">Balance</th>
+        </tr>
+      </thead>
+    
+                  <tr >
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border border-l-0 border-b-0">{viewsalesdata?.invoice_number} </td>
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border border-l-0 border-b-0">{viewsalesdata?.code}</td>
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border border-l-0 border-b-0">{viewsalesdata?.invoice_date}</td>
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border border-l-0 border-b-0">{viewsalesdata?.grand_total}</td>
+                    <td className="px-6 text-center whitespace-nowrap md:text-xs text-[.5rem] text-gray-500 border-black border-t-2 ">{viewsalesdata?.supplier_balance}</td>
+                 
+                  </tr>
+          
+   
+    </table>
+                  
+                </div>
+              </div>
+              <div className="border-black border-l-2  ">
+                <div className="border-black border-b-2 h-5 uppercase font-medium text-[.6rem] flex justify-center items-end">Signature And Stamp</div>
+              </div>
+            </div>
+
+
+
+          {formik.values.notes &&
+      
+      <div className='my-6'>
+        <label htmlFor="notes" className="block md:text-xs text-[.5rem] font-medium text-gray-700 underline">Notes</label>
+      <div className="">{formik?.values?.notes}</div>
+      </div>
+      }
+
+        {showPrint && (
+
+<div className="flex justify-center my-4 pb-10">   <button onClick={handlePrintfun} type="submit" className="bg-blue-600 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+  Print Invoice
+</button>
+
+</div>
+)}
         </form>
-         {/* Modal for adding items */}
-      <Modal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        title="Add Products to Purchase"
-        content={<AddItemsForm  items={items} setItems={setItems} onClose={() => setShowModal(false)} />}
-      />
+  
     </div>
   );
 };

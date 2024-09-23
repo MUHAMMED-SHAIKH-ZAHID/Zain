@@ -1,9 +1,8 @@
 import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
-import { Link } from 'react-router-dom';
 
 const CustomerColumns = (viewActionClick,editActionClick,) => [
   {
-    Header: "code",
+    Header: "Code",
     accessor: 'code',
   },
   {
@@ -11,8 +10,16 @@ const CustomerColumns = (viewActionClick,editActionClick,) => [
     accessor: 'company_name',
   },
   {
-    Header: "Customer Name",
-    accessor: 'name',
+    Header:"Sales Executive",
+    accessor:"executive_name"
+  },
+  {
+    Header:"Route",
+    accessor:"route_name"
+  },
+  {
+    Header: "Channel",
+    accessor: 'channel_name',
   },
   {
     Header: "Email / Phone",
@@ -25,12 +32,20 @@ const CustomerColumns = (viewActionClick,editActionClick,) => [
     )
   },
   {
-    Header: "Gst",
-    accessor: 'gst',
+    Header: "Created By",
+    accessor: 'created_by',
   },
   {
-    Header: "PAN",
-    accessor: 'pan',
+    Header: "Payment Receivable",
+    accessor: 'payment_receivable',
+  },
+  {
+    Header: "Sales Total",
+    accessor: 'sales_total',
+  },
+  {
+    Header: "Balances",
+    accessor: 'balance',
   },
   {
     Header: () => (

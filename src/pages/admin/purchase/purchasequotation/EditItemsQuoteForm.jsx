@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
+import { Select } from 'antd';
 
 const itemSchema = Yup.object().shape({
   product_id: Yup.string().required('Product is required'),
@@ -23,8 +24,6 @@ const itemSchema = Yup.object().shape({
 
 const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
   const { products, editpurchasecolumn, editpurchaseindex, loading, error } = useSelector((state) => state?.purchases);
-  console.log(products, "Consoling products in the form");
-  const [disableProduct, setDisableProduct] = useState(false);
   const [disableEan, setDisableEan] = useState(false);
   const [selectedPrice,setSeletedPrice] = useState([])
   const [selectedMRP,setSeletedMRP] = useState([])
@@ -45,21 +44,20 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
     },
     validationSchema: itemSchema,
     onSubmit: (values, { resetForm }) => {
-      console.log(values, "checking the items to update value", editpurchasecolumn.id, items[0].id);
 
       const updatedItems = items?.map((item, index) => {
-        console.log(item, "checking in map");
         if (index === editpurchaseindex) {
           return values;
         }
         return item;
       });
-      console.log(updatedItems, "checking the items to update", editpurchaseindex);
       setItems(updatedItems);
       resetForm();
       onClose();
     },
+    enableReinitialize:true
   });
+  console.log(editpurchasecolumn,"baby y i needs yoiu")
   useEffect(() => {
     const { quantity, price, discount, tax } = formik.values;
     const total = quantity * price * (1 - discount / 100);
@@ -74,9 +72,15 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
   useEffect(() => {
     const selectedProduct = products.find(product => product.id == formik.values.product_id);
     if (selectedProduct) {
-      formik.setFieldValue('ean_code', selectedProduct.ean_code);
+      if(selectedProduct?.ean_code){
+        formik.setFieldValue('ean_code', selectedProduct.ean_code);
+      }else{
+        formik.setFieldValue('ean_code', 0);
+      }
       formik.setFieldValue('tax', selectedProduct.tax_rate);
       formik.setFieldValue('hsn', selectedProduct.hsn_code);
+      formik.setFieldValue('mrp',selectedProduct?.mrp)
+      formik.setFieldValue('price',selectedProduct.p_rate)
       setSeletedPrice(selectedProduct.p_rate)
       setSeletedMRP(selectedProduct.mrps)
       setDisableEan(true);
@@ -84,22 +88,21 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
       setDisableEan(false);
     }
   }, [formik.values.product_id, products]);
-    console.log(formik.values,"before issue bi bib bib bi bi ")
-  useEffect(() => {
-    if (formik.values?.ean_code?.toString()?.length === 6) {
-      const selectedProduct = products.find(product => product.ean_code == formik.values.ean_code);
-      if (selectedProduct) {
-        formik.setFieldValue('product_id', selectedProduct.id);
-        setDisableProduct(true);
-      } else {
-        formik.setFieldValue('product_id', '');
-        setDisableProduct(false);
-      }
-    } else {
-      formik.setFieldValue('product_id', '');
-      setDisableProduct(false);
-    }
-  }, [formik.values.ean_code, products]);
+  // useEffect(() => {
+  //   if (formik.values.ean_code.toString().length >= 4 && formik.values.ean_code.toString().length <= 12) {
+  //     const selectedProduct = products.find(product => product.ean_code == formik.values.ean_code);
+  //     if (selectedProduct) {
+  //       formik.setFieldValue('product_id', selectedProduct.id);
+  //       setDisableProduct(true);
+  //     } else {
+  //       formik.setFieldValue('product_id', '');
+  //       setDisableProduct(false);
+  //     }
+  //   } else {
+  //     formik.setFieldValue('product_id', '');
+  //     setDisableProduct(false);
+  //   }
+  // }, [formik.values.ean_code, products]);
 
   return (
     <form onSubmit={formik.handleSubmit} className="">
@@ -121,17 +124,27 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
       
         <div>
           <label htmlFor="product_id" className="block text-sm font-medium text-gray-700">Product:</label>
-          <select
-            id="product_id"
-            disabled={disableProduct}
-            {...formik.getFieldProps('product_id')}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a product</option>
-            {products?.map(product => (
-              <option key={product.id} value={product.id}>{product.product_name}</option>
-            ))}
-          </select>
+          <Select
+									showSearch
+									style={{ width: '100%' }}
+									onChange={e => {
+                    formik.setFieldValue('product_id',e)
+									}}
+                  defaultValue={products.find(item=> item.id == formik.values.product_id)?.product_name}
+									placeholder='Select a Product'
+									optionFilterProp='children'
+									filterOption={(input, option) =>
+										option.props.children
+											.toLowerCase()
+											.indexOf(input?.toLowerCase()) >= 0
+									}
+								>
+									{products?.map(product => (
+										<Select.Option key={product.id} value={product.id}>
+											{product.product_name}
+										</Select.Option>
+									))}
+								</Select>
           {formik.touched.product_id && formik.errors.product_id && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.product_id}</p>
           )}
@@ -181,16 +194,14 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
 
         <div>
           <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price:</label>
-          <select
+          <input
+          disabled
             id="price"
+            type="number"
             {...formik.getFieldProps('price')}
+            placeholder="Price"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a Price</option>
-            {selectedPrice?.map(product => (
-              <option key={product} value={product}>{product}</option>
-            ))}
-          </select>
+          />
           {formik.touched.price && formik.errors.price && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.price}</p>
           )}
@@ -198,16 +209,14 @@ const EditItemsQuoteForm = ({ items, setItems, onClose }) => {
 
         <div>
           <label htmlFor="mrp" className="block text-sm font-medium text-gray-700">MRP:</label>
-          <select
+          <input
+          disabled
             id="mrp"
+            type="number"
             {...formik.getFieldProps('mrp')}
+            placeholder="MRP"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="">Select a MRP</option>
-            {selectedMRP?.map(product => (
-              <option key={product} value={product}>{product}</option>
-            ))}
-          </select>
+          />
           {formik.touched.mrp && formik.errors.mrp && (
             <p className="mt-1 text-sm text-red-500">{formik.errors.mrp}</p>
           )}

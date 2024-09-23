@@ -21,7 +21,7 @@ export const CategoryForm = ({ initialData = {}, onSubmit, onCancel }) => {
     return (
       <form onSubmit={handleSubmit} className="">
         <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+          <label htmlFor="name" className="block text-gray-700 text-sm font-medium mb-2">Name:</label>
           <input 
             type="text" 
             name="name" 
@@ -32,7 +32,7 @@ export const CategoryForm = ({ initialData = {}, onSubmit, onCancel }) => {
           />
         </div>
         <div className="mb-6">
-          <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+          <label htmlFor="description" className="block text-gray-700 text-sm font-medium mb-2">Description:</label>
           <input 
             type="text" 
             name="description" 

@@ -11,7 +11,6 @@ export const loginAuth = createAsyncThunk(
   async (credentials, thunkAPI) => {
     try {
       const response = await axios.post(LoginAPI, credentials);
-      console.log("object",response.data.token);
       toast.success("Login Successful");
       return response.data;
     } catch (error) {
@@ -25,7 +24,7 @@ const initialState = {
   loading: false,
   error: null,
   token: null,
-  isAuthenticated: false,
+  currentuser:'',
 };
 
 const authSlice = createSlice({
@@ -35,7 +34,6 @@ const authSlice = createSlice({
     logout(state) {
       toast.info("Logged out successfully");
       state.token = null;
-      state.isAuthenticated = false;
     },
   },
   extraReducers: (builder) => {
@@ -46,10 +44,8 @@ const authSlice = createSlice({
       })
       .addCase(loginAuth.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = localStorage.setItem("token",action.payload.token)
-        
-        state.isAuthenticated = true;
-     
+        state.currentuser = action.payload.user.name
+        state.token = localStorage.setItem("token",action.payload.token)     
       })
       .addCase(loginAuth.rejected, (state, action) => {
         state.loading = false;

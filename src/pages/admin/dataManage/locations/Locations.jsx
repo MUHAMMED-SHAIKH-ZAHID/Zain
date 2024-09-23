@@ -17,7 +17,6 @@ const Locations = () => {
     const [locationToDelete, setLocationToDelete] = useState(null);
     const [search, setSearch] = useState('');
 
-    console.log(locations,"Debuhh===",typeof(locations))
 
     useEffect(() => {
       dispatch(fetchLocations());
@@ -29,7 +28,7 @@ const Locations = () => {
 
     const indexOfLastLocation = currentPage * locationsPerPage;
     const indexOfFirstLocation = indexOfLastLocation - locationsPerPage;
-    const currentLocations = filteredLocations.slice(indexOfFirstLocation, indexOfLastLocation);
+    const currentLocations = filteredLocations?.slice(indexOfFirstLocation, indexOfLastLocation);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -92,7 +91,7 @@ const Locations = () => {
               />
               <BiSearch className="text-gray-500 ml-2 my-auto"/>
             </div>
-            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
               Add New Location
             </button>
           </div>
@@ -116,9 +115,9 @@ const Locations = () => {
                       <button onClick={() => handleEdit(loc)} className="text-indigo-600 hover:text-indigo-900 px-4">
                         <BiEdit />
                       </button>
-                      <button onClick={() => openDeleteModal(loc)} className="text-red-600 hover:text-red-900 px-4">
+                      {/* <button onClick={() => openDeleteModal(loc)} className="text-red-600 hover:text-red-900 px-4">
                         <BiTrash />
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))}

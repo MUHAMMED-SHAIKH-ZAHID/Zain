@@ -7,7 +7,6 @@ export const fetchAllSuppliers = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(SupplierAPI);
-      console.log("in the get all suppplier requestt slice", response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -20,7 +19,6 @@ export const fetchSupplierById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${SupplierAPI}/${id}`);
-      console.log(response.data,"Response from teh backednd of the fetch susppol9er by id")
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -44,7 +42,6 @@ export const updateSupplier = createAsyncThunk(
   'suppliers/update',
   async ({ id, supplierData }, thunkAPI) => {
     try {
-        console.log(supplierData,"debugging thi thunk")
       const response = await axios.put(`${SuppliersAPI}/${id}`, supplierData);
       return response.data;
     } catch (error) {
@@ -93,7 +90,6 @@ export const createSupplierReport = createAsyncThunk(
   'suppliersreport/create',
   async ({supplierData, Id },thunkAPI) => {
     try {
-      console.log(Id,"consolling id int eh submit report",supplierData)
       const response = await axios.post(`${SuppliersAPI}/${Id}/return`,supplierData);
       return response.data;
     } catch (error) {
@@ -125,8 +121,10 @@ const supplierSlice = createSlice({
         state.suppliers = action.payload.suppliers;
         // state.locations = action.payload.locations;
       })
+      .addCase(fetchSupplierById.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(fetchSupplierById.fulfilled, (state, action) => {
-        console.log(action.payload,"vend9ir yb==undeurfined")
         state.loading = false;
         state.currentsupplier = action.payload.supplier;
         state.currentpurchase = action.payload.purchases;
@@ -147,11 +145,9 @@ const supplierSlice = createSlice({
       //   }
       // })
       .addCase(createSupplier.fulfilled, (state, action) => {
-        console.log(action.payload,"Addcase fullfilled the create suppleir")
         state.suppliers.unshift(action.payload.supplier);
       })
       .addCase(updateSupplier.fulfilled, (state, action) => {
-        console.log(action.payload.supplier,"supplier supplier")
         const index = state.suppliers.findIndex(s => s.id === action.payload.supplier.id);
         if (index !== -1) {
           state.suppliers[index] = action.payload.supplier;

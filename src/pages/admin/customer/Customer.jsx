@@ -25,7 +25,6 @@ const Customer = () => {
   const [editData, setEditData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
-  console.log(customers,"shaikh zahid hhhhhhhhhhhhhhhhhhhhhhh")
 
   const navigate = useNavigate()
   const editClickHandler = (rowData) => {
@@ -37,13 +36,8 @@ const Customer = () => {
     setShowEditModal(false);
   };
 
-  // const deleteClickHandler = (rowData) => {
-  //   setDeleteItemId(rowData.id);
-  //   setShowDeleteModal(true);
-  // };
-  console.log("debugging the customers",customers)
+ 
   const handleDelete = (id) => {
-    console.log("Deleting item with id:", id);
     // dispatch(deleteCustomer(id));
   };
 
@@ -51,8 +45,6 @@ const Customer = () => {
     setShowDeleteModal(false);
   };
   const viewClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    // dispatch(viewSalesData())
 
     dispatch(fetchCustomer(id.id))
 
@@ -62,14 +54,13 @@ const Customer = () => {
   const columns = CustomerColumns(viewClickHandler,editClickHandler);
 
   if (loading) return <div>Loading...</div>;
-console.log(customers,"sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
   return (
     <div>
       <DataTable
-        data={customers} // Ensure data is always an array
+        data={customers} 
         columns={columns}
-        filterColumn="state"
         title={'Customer'}
+        filterColumn={'route_name'}
       />
          {showEditModal && (
         <EditCustomer

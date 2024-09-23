@@ -73,7 +73,7 @@ const taxSlice = createSlice({
         state.loading = false;
       })
       .addCase(createTax.fulfilled, (state, action) => {
-        state.taxes.unshift(action.payload.taxes);
+        state.taxes.unshift(action.payload.tax);
       })
       .addCase(updateTax.fulfilled, (state, action) => {
         const index = state.taxes.findIndex(t => t.id === action.payload.tax.id);

@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../api/axios';
 import { StockAPI } from '../../api/url'; // Define this constant to point to your stock API
+import { editPurchaseColumn } from './PurchaseSlice';
 
 export const fetchStocks = createAsyncThunk(
   'stocks/fetchAll',
   async (_, { rejectWithValue }) => {
-    console.log("in thunk stock")
     try {
       const response = await axios.get(StockAPI);
       return response.data;
@@ -69,7 +69,17 @@ const stockSlice = createSlice({
     stocks: [],
     loading: false,
     currentStock: [],
-    error: null
+    error: null,
+    bills:[],
+    editstockindex:'',
+    editstockcolumn:'',
+    products:'',
+  },
+  reducers:{
+    editStockColumn:(state,action) => {
+      state.editstockcolumn = action.payload.data
+      state.editstockindex = action.payload.index
+     },
   },
   extraReducers: (builder) => {
     builder
@@ -77,8 +87,9 @@ const stockSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchStocks.fulfilled, (state, action) => {
-        console.log(action.payload,"Stocks fetch")
         state.stocks = action.payload.stocks;
+        state.bills = action.payload.bills;
+        state.products = action.payload.products;
         state.loading = false;
       })
       .addCase(fetchStocks.rejected, (state, action) => {
@@ -86,7 +97,7 @@ const stockSlice = createSlice({
         state.loading = false;
       })
       .addCase(createStock.fulfilled, (state, action) => {
-        state.stocks.unshift(action.payload.stocks);
+        state.stocks.unshift(action.payload.stock);
       })
       .addCase(updateStock.fulfilled, (state, action) => {
         const index = state.stocks.findIndex(stock => stock.id === action.payload.stock.id);
@@ -110,5 +121,5 @@ const stockSlice = createSlice({
       });
   }
 });
-
+export const {editStockColumn} =stockSlice.actions
 export default stockSlice.reducer;

@@ -16,6 +16,7 @@ import { CiEdit } from 'react-icons/ci';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { editPurchaseColumn } from '../../../../redux/features/PurchaseSlice';
 import { format } from 'date-fns'; // make sure to import the date-fns library
+import { Select } from 'antd';
 
 const itemSchema = Yup.object().shape({
   comment: Yup.string(),
@@ -34,7 +35,7 @@ const itemSchema = Yup.object().shape({
 const purchaseValidationSchema = Yup.object({
   purchase_order_date: Yup.date().required('Purchase date is required'),
   purchase_order_number: Yup.string(),
-  supplier_id: Yup.string().required('Supplier is required'),
+  supplier_id: Yup.string().required('Vendor is required'),
   notes: Yup.string(),
   purchase_order_items: Yup.array().of(itemSchema).min(1, 'Please add at least 1 item to create the order'),
   grand_total: Yup.number().required('Grand total is required'),
@@ -50,9 +51,11 @@ const AddPurchaseQuotation = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [items, setItems] = useState([]);
   const [grandTotal, setGrandTotal] = useState(0);
+  const [loadingMessage,setLoadingMessage] = useState(false)
+ 
 
   const calculateGrandTotal = () => {
-    const total = items.reduce((acc, item) => acc + parseFloat(item.total || 0), 0);
+    const total = items.reduce((acc, item) => acc + parseFloat(item.total_inc_tax || 0), 0);
     setGrandTotal(total);
     formik.setFieldValue('grand_total', total);
     formik.setFieldValue('purchase_order_items', items);
@@ -76,8 +79,8 @@ const AddPurchaseQuotation = () => {
   };
 
   const handleEditItem = (index, itemId) => {
-    const item = items.find((data) => data.id === itemId);
-    dispatch(editPurchaseColumn({ data: item, index }));
+    const item = items.find((data) => data.product_id === itemId);
+    dispatch(editPurchaseColumn({ data: item, index: index }));
     setShowEditModal(true);
   };
 
@@ -103,42 +106,50 @@ const AddPurchaseQuotation = () => {
       values.expected_delivery_date = format(values.expected_delivery_date, 'yyyy-MM-dd');
 
       const promise = dispatch(createPurchasequotation(values));
+      setLoadingMessage(true)
       promise
         .then((res) => {
           if (res.payload.success) {
             toast.success(res.payload.success);
+            navigate('/purchase/order');
           }
           if (res.payload.error) {
             toast.error(res.payload.error);
           }
-          setTimeout(() => {
-            navigate('/purchase/order');
-          }, 2000);
         })
         .catch((error) => {
           toast.error(error.message);
         });
     },
   });
-  console.log(formik.errors,"the formik")
-
+console.log(suppliers,"hello")
   return (
     <div className="px-6 p-4 bg-white">
       <h2 className="text-xl font-medium mb-5 text-center">Create P O</h2>
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         <div className="flex justify-between">
           <div>
-            <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Supplier:</label>
-            <select
-              id="supplier_id"
-              {...formik.getFieldProps('supplier_id')}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="">Select a supplier</option>
-              {suppliers.map((item) => (
-                <option key={item.id} value={item.id}>{item.first_name}</option>
-              ))}
-            </select>
+            <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Company :</label>
+            <Select
+									showSearch
+									style={{ width: '100%' }}
+									onChange={e => {
+                    formik.setFieldValue('supplier_id',e)
+									}}
+									placeholder='Select Company Name'
+									optionFilterProp='children'
+									filterOption={(input, option) =>
+										option.props.children
+											.toLowerCase()
+											.indexOf(input?.toLowerCase()) >= 0
+									}
+								>
+									{suppliers?.map(store => (
+										<Select.Option key={store.id} value={store.id}>
+											{store.company_name}
+										</Select.Option>
+									))}
+								</Select>
             {formik.touched.supplier_id && formik.errors.supplier_id && (
               <p className="text-red-500 text-xs italic">{formik.errors.supplier_id}</p>
             )}
@@ -200,11 +211,11 @@ const AddPurchaseQuotation = () => {
                       <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.tax_amount || 0}</td>
                       <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax || 0}</td>
                       <td className="px-6 whitespace-nowrap text-sm text-gray-500">
-                      {item?.comment?.length > 25 ? item?.comment.slice(0, 25) + '...' : item?.comment }
+                      {item?.comment?.length > 25 ? item?.comment?.slice(0, 25) + '...' : item?.comment }
                       </td>
                       <td className="px-6 whitespace-nowrap flex items-center gap-4 justify-center text-right text-sm font-medium">
                         <div className="flex items-center">
-                          <button    type="button" onClick={() => handleEditItem(index, item.id)} className="text-primary-600 hover:text-red-900">
+                          <button    type="button" onClick={() => handleEditItem(index, item.product_id)} className="text-primary-600 hover:text-red-900">
                             <CiEdit className="mt-5 w-6 h-5" /> &nbsp; &nbsp;
                           </button>
                         </div>
@@ -280,11 +291,14 @@ const AddPurchaseQuotation = () => {
             placeholder="Add any relevant notes here..."
           />
         </div>
-
-        <div className="flex justify-center my-4">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-medium leading-none py-2 px-4 rounded">
-            Create Purchase Order
-          </button>
+        <div className="flex justify-center my-4" >
+                  <button
+        disabled={loadingMessage}
+          type="submit"
+          className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loadingMessage ? "animate-pulse" : ''}`}
+        >
+         {loadingMessage ? 'Creating Order..': 'Create Purchase Order' }
+        </button>
         </div>
       </form>
 
@@ -293,6 +307,7 @@ const AddPurchaseQuotation = () => {
         visible={showModal}
         onClose={() => setShowModal(false)}
         title="Products Form"
+        id="add-products-bill"
         content={<AddItemsQuoteForm items={items} setItems={setItems} onClose={() => setShowModal(false)} />}
       />
       <Modal

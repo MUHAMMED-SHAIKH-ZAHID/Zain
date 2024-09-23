@@ -20,7 +20,6 @@ const Categories = () => {
     useEffect(() => {
       dispatch(fetchCategories());
     }, [dispatch]);
-    console.log(categories,"its the cnaolasoe of catagoryt")
 
     const filteredCategories = (categories|| []).filter(cat =>
         cat?.name?.toLowerCase().includes(search.toLowerCase())
@@ -28,7 +27,7 @@ const Categories = () => {
 
     const indexOfLastCategory = currentPage * categoriesPerPage;
     const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
-    const currentCategories = filteredCategories.slice(indexOfFirstCategory, indexOfLastCategory);
+    const currentCategories = filteredCategories?.slice(indexOfFirstCategory, indexOfLastCategory);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -80,19 +79,19 @@ const Categories = () => {
     return (
       <div className="container mx-auto  sm:px-8 pt-6 pb-2">
         <div className="">
-          <h2 className="text-xl font-medium mb-3 leading-tight">Categories</h2>
+          <h2 className="text-xl font-medium mb-3 leading-tight">Brand</h2>
           <div className="flex justify-between items-center mb-4">
             <div className="flex">
               <input
                 type="text"
-                placeholder="Search categories..."
+                placeholder="Search Brand..."
                 onChange={(e) => setSearch(e.target.value)}
                 className="border border-gray-300 rounded py-2 px-4 leading-tight focus:outline-none focus:border-blue-500"
               />
               <BiSearch className="text-gray-500 ml-2 my-auto"/>
             </div>
-            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              Add New Category
+            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+              Add New Brand
             </button>
           </div>
           <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
@@ -115,9 +114,9 @@ const Categories = () => {
                       <button onClick={() => handleEdit(cat)} className="text-indigo-600 hover:text-indigo-900 px-4">
                         <BiEdit />
                       </button>
-                      <button onClick={() => openDeleteModal(cat)} className="text-red-600 hover:text-red-900 px-4">
+                      {/* <button onClick={() => openDeleteModal(cat)} className="text-red-600 hover:text-red-900 px-4">
                         <BiTrash />
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))}
@@ -135,7 +134,7 @@ const Categories = () => {
         <Modal
           visible={modalVisible}
           onClose={handleClose}
-          title={currentCategory ? 'Edit Category' : 'Add Category'}
+          title={currentCategory ? 'Edit Brand' : 'Add Brand'}
           content={<CategoryForm initialData={currentCategory} onSubmit={handleSubmit} onCancel={handleClose} />}
         />
         <Modal
@@ -143,7 +142,7 @@ const Categories = () => {
           onClose={handleClose}
           title="Confirm Delete"
           content={<div>
-            <p>Are you sure you want to delete this category?</p>
+            <p>Are you sure you want to delete this Brand?</p>
             <div className="flex justify-end space-x-4">
               <button onClick={handleClose} className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded">
                 Cancel

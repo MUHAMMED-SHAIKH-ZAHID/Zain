@@ -33,6 +33,14 @@ import StockSlice from "../features/StockSlice";
 import ExpenceTypeSlice from "../features/DataManageSlices/ExpenceTypeSlice";
 import ExpenseSlice from "../features/ExpenseSlice";
 import PaymentSlice from "../features/PaymentSlice";
+import DebitNoteSlice from "../features/DebitNoteSlice";
+import CreditNoteSlice from "../features/CreditNoteSlice";
+import CustomerExecutiveSlice from "../features/salesExecutive/CustomerExecutiveSlice";
+import ExecutiveSalesQuotationSlice from "../features/salesExecutive/ExecutiveSalesQuotationSlice";
+import ExecutiveSalesSlice from "../features/salesExecutive/ExecutiveSalesSlice";
+import ExecutiveStockSlice from "../features/salesExecutive/ExecutiveStockSlice";
+import ExecutivePaymentSlice from "../features/salesExecutive/ExecutivePaymentSlice";
+import ExecutiveDashboardSlice from "../features/salesExecutive/ExecutiveDashboardSlice";
 
 
 const rootReducer = combineReducers({
@@ -57,6 +65,15 @@ const rootReducer = combineReducers({
     expenseTypes:ExpenceTypeSlice,
     expense:ExpenseSlice,
     payments:PaymentSlice,
+    debitNotes:DebitNoteSlice,
+    creditNotes:CreditNoteSlice,
+    customerexecutive:CustomerExecutiveSlice,
+    executiveSalesOrder:ExecutiveSalesQuotationSlice,
+    executivesales:ExecutiveSalesSlice,
+    executivestock:ExecutiveStockSlice,
+    executivepayments:ExecutivePaymentSlice,
+    executivedashboard:ExecutiveDashboardSlice,
+    
 });
 
 const persistConfig = {

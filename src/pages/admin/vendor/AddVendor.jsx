@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { createSupplier } from '../../../redux/features/SupplierSlice';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import Vendors from './Vendors';
 
 const validationSchema = Yup.object().shape({
   suffix: Yup.string().required('Suffix is required'),
@@ -16,20 +17,34 @@ const validationSchema = Yup.object().shape({
   address: Yup.string().required('Address is required'),
   company_name: Yup.string().required('Company name is required'),
   gst_number: Yup.string()
-  .matches(/^[0-9a-zA-Z]{15}$/, 'GST number must be exactly 15 alphanumeric characters')
+  // .matches(/^[0-9a-zA-Z]{15}$/, 'GST number must be exactly 15 alphanumeric characters')
   .required('GST number is required'),
 pan_number: Yup.string()
-  .matches(/^[0-9a-zA-Z]{10}$/, 'PAN number must be exactly 10 alphanumeric characters')
-  .required('PAN number is required'),
-  bank_details: Yup.string(),
+  .matches(/^[0-9a-zA-Z]{10}$/, 'PAN number must be exactly 10 alphanumeric characters'),
+  bank_details: Yup.string().required('Bank Name is required'),
   payment_terms: Yup.string(),
   tds: Yup.string(),
+  ifsc: Yup.string()
+  // .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'Invalid IFSC code')
+  .required('IFSC code is required'),
+pin: Yup.string()
+  .matches(/^[1-9][0-9]{5}$/, 'Invalid PIN code')
+  .required('PIN code is required'),
+bank_branch: Yup.string()
+  .min(3, 'Bank branch name must be at least 3 characters'),
+  // .required('Bank branch name is required'),
+account_number: Yup.string()
+  .matches(/^[0-9]{9,18}$/, 'Invalid account number')
+  .required('Account number is required')
 });
 
 const AddVendor = ({ handleClose }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.supplier);
   const [message, setMessage] = useState();
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [loadingMessage,setLoadingMessage] = useState(false)
+
 
   const formik = useFormik({
     initialValues: {
@@ -45,15 +60,16 @@ const AddVendor = ({ handleClose }) => {
       bank_details: '',
       payment_terms: '',
       tds: '',
+      ifsc:'',
+      pin:'',
+      bank_branch:'',
+      account_number:'',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
    const promise =   dispatch(createSupplier(values))
       promise.then((res) => {
-        console.log(res, "checking the res");
         if (res.payload.errors){
-          console.log("SSSSSSSSSSOOOOOOOONAA",res.payload.errors.email)
           if (res.payload.errors.email){
           toast.error(res.payload.errors.email[0])}
           else    if (res.payload.errors.gst_number){
@@ -63,19 +79,18 @@ const AddVendor = ({ handleClose }) => {
           toast.error(res.payload.errors.pan_number[0])}
         }
         if(res.payload.success){
+          setLoadingMessage(true)
                  toast.success(res.payload.success);
+                 handleClose()
 
-          setTimeout(() => {
-  handleClose()
-          }, 1000);
         }
       });
     },
   });
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={formik.handleSubmit} className="l">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label htmlFor="suffix" className="block text-sm font-medium text-gray-700">Suffix</label>
           <select
@@ -156,6 +171,19 @@ const AddVendor = ({ handleClose }) => {
           )}
         </div>
         <div>
+          <label htmlFor="pin" className="block text-sm font-medium text-gray-700">Pin Code</label>
+          <input
+            type="number"
+            id="pin"
+            className="mt-1 block no-number-spin w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Pincode"
+            {...formik.getFieldProps('pin')}
+          />
+          {formik.touched.pin && formik.errors.pin && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.pin}</p>
+          )}
+        </div>
+        <div>
           <label htmlFor="company_name" className="block text-sm font-medium text-gray-700">Company Name</label>
           <input
             type="text"
@@ -191,17 +219,65 @@ const AddVendor = ({ handleClose }) => {
             placeholder="PAN number"
             {...formik.getFieldProps('pan_number')}
           />
+          {formik.touched.pan_number && formik.errors.pan_number && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.pan_number}</p>
+          )}
         </div>
  
         <div>
-          <label htmlFor="bank_details" className="block text-sm font-medium text-gray-700">Bank Details</label>
+          <label htmlFor="bank_details" className="block text-sm font-medium text-gray-700">Bank Name</label>
           <input
             type="text"
             id="bank_details"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Bank details"
+            placeholder="Bank Name"
             {...formik.getFieldProps('bank_details')}
           />
+        {formik.touched.bank_details && formik.errors.bank_details && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.bank_details}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="bank_branch" className="block text-sm font-medium text-gray-700">Branch</label>
+          <input
+            type="text"
+            id="bank_branch"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Branch Name"
+            {...formik.getFieldProps('bank_branch')}
+          />
+            {formik.touched.bank_branch && formik.errors.bank_branch && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.bank_branch}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="ifsc" className="block text-sm font-medium text-gray-700">Ifsc Code</label>
+          <input
+            type="text"
+            id="ifsc"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder=" IFSC  Code"
+            {...formik.getFieldProps('ifsc')}
+            onInput={(e) => {
+              e.target.value = e.target.value.toUpperCase();
+            }}
+          />
+            {formik.touched.ifsc && formik.errors.ifsc && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.ifsc}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="account_number" className="block text-sm font-medium text-gray-700">Account Number</label>
+          <input
+            type="text"
+            id="account_number"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder=" Account Number"
+            {...formik.getFieldProps('account_number')}
+          />
+            {formik.touched.account_number && formik.errors.account_number && (
+            <p className="mt-2 text-sm text-red-600">{formik.errors.account_number}</p>
+          )}
         </div>
         <div>
           <label htmlFor="payment_terms" className="block text-sm font-medium text-gray-700">Payment Terms</label>
@@ -230,9 +306,9 @@ const AddVendor = ({ handleClose }) => {
           <button type="button" onClick={handleClose} className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 ">
             Close
           </button>
-          <button type="submit" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white space-x-2 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 ">
-            Add Vendor
-          </button>
+                  <button disabled={loadingMessage} type="submit"  className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loadingMessage ? "animate-pulse" : ''}`} >
+         {loadingMessage ? 'Adding Vendor...': 'Add Vendor' }
+        </button>
         </div>
     </form>
   );

@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 export const AccountForm = ({ initialData = {}, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({ account_name: '', opening_balance: '' });
   const [error, setError] = useState('');
-  console.log(initialData,"tje data that is passed")
   useEffect(() => {
     if (initialData) {
       setFormData({ account_name: initialData?.account_name || '', opening_balance: initialData?.opening_balance || '' });
@@ -22,7 +21,7 @@ export const AccountForm = ({ initialData = {}, onSubmit, onCancel }) => {
     // Validation schema
     const accountSchema = Yup.object().shape({
       account_name: Yup.string().required('Account account_name is required'),
-      opening_balance: Yup.number().required('Opening balance is required').positive('Opening Balance must be positive').integer('opening_balance must be an integer')
+      opening_balance: Yup.number().required('Opening balance is required').positive('Opening Balance must be positive').integer('opening_balance must be an integer').min(0)
     });
 
     try {

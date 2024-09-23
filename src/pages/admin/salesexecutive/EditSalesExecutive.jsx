@@ -10,12 +10,10 @@ import { toast } from 'react-toastify';
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
   email: Yup.string().email("Invalid email address").required('Email is required'),
-  mobile: Yup.string().matches(/^[0-9]{10}$/, 'Mobile must be exactly 10 digits').required('Mobile number is required'),
-  mobile_2: Yup.string().matches(/^[0-9]{10}$/, 'Mobile must be exactly 10 digits').nullable(),
+  contact: Yup.string().matches(/^[0-9]{10}$/, 'contact must be exactly 10 digits').required('contact number is required'),
   address: Yup.string().required('Address is required'),
-  address_2: Yup.string(),
-  password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
-  confirm_password: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Confirm password is required'),
+  // password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters'),
+  // confirm_password: Yup.string().oneOf([Yup.ref('password')], 'Passwords must match').required('Confirm password is required'),
 });
 
 const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
@@ -24,18 +22,18 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
     initialValues: {
       name: data.name || '',
       email: data.email || '',
-      mobile: data.mobile || '',
-      mobile_2: data.mobile_2 || '',
+      contact: data.contact || '',
       address: data.address || '',
-      address_2: data.address_2 || '',
-      password: data.password || '',
-      confirm_password: data.confirm_password || '',
+      // password: data.password || '',
+      // confirm_password: data.confirm_password || '',
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log(values, "Checking values");
       dispatch(updateSalesExecutive({ id: data.id, salesExecutiveData: values })).then((res)=>{
-        toast.success(res.payload.suceess)
+        if(res.payload.success){
+
+          toast.success(res.payload.success)
+        }
       })
 ;
       handleClose();
@@ -46,7 +44,7 @@ const EditSalesExecutive = ({ show, handleClose, data = {} }) => {
   const modalContent = (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {['name', 'email', 'mobile', 'mobile_2', 'address', 'address_2', 'password', 'confirm_password'].map(field => (
+        {['name', 'email', 'contact',  'address'].map(field => (
           <div key={field}>
             <label className="block text-sm font-medium text-gray-700 capitalize">{field.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase())}:</label>
             <input

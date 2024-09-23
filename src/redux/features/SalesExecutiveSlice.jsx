@@ -8,7 +8,6 @@ export const fetchAllSalesExecutives = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(SalesExecutivesAPI);
-      console.log(response.data,"the datat om in the sales executive page ")
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -82,7 +81,7 @@ const initialState = {
   loading: false,
   error: null,
   currentSalesExecutive: null,
-
+  customers:null,
 };
 
 // Slice definition
@@ -105,12 +104,12 @@ const salesExecutiveSlice = createSlice({
       })
       .addCase(fetchSalesExecutiveById.fulfilled, (state, action) => {
         state.currentSalesExecutive = action.payload.salesExecutive;
+        state.customers = action.payload.customers
       })
       .addCase(createSalesExecutive.fulfilled, (state, action) => {
         state.salesExecutives.unshift(action.payload.salesExecutive);
       })
       .addCase(updateSalesExecutive.fulfilled, (state, action) => {
-        console.log(action.payload,"update data",state.salesExecutives[0])
         const index = state.salesExecutives.findIndex(se => se.id === action.payload.salesExecutive.id);
         if (index !== -1) {
           state.salesExecutives[index] = action.payload.salesExecutive;

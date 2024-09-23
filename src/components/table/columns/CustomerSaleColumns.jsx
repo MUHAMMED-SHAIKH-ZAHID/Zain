@@ -9,13 +9,14 @@ const   CustomerSaleColumns = (viewActionClick,editActionClick  ,deleteActionCli
       accessor:'id'
     },
     {
-      Header: "Sales Number",
-      accessor: 'sales_number',
+      Header: "Invoice Date",
+      accessor: 'invoice_date',
     },
     {
-      Header: "GST Number",
-      accessor: 'gst_number',
+      Header: "Invoice Number",
+      accessor: 'invoice_number',
     },
+ 
   
     {
       Header: "Total",
@@ -36,9 +37,14 @@ const   CustomerSaleColumns = (viewActionClick,editActionClick  ,deleteActionCli
   accessor: "actions",
   Cell: ({ row }) => (
     <div className='flex justify-center space-x-1 items-center'>
-      <button onClick={()  =>viewActionClick(row.original)} className='flex items-center bg-gray-600 hover:bg-black text-white py-1 px-3 rounded shadow'>
-           View
+  <div className="relative group">
+        <button onClick={() => viewActionClick(row.original)} className=''>
+          <MdVisibility className="text-xl text-green-800 " />
         </button>
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2  w-max px-2 py-[2px] text-[.6rem] text-white bg-gray-600 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          View
+        </div>
+      </div>
       {/* <button
         onClick={() => editActionClick(row.original)}
         className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 text-xs rounded shadow'

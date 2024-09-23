@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 const Modal = ({ visible, onClose, id, content, title }) => {
-  const [showStyle, setShowStyle] = useState({ opacity: 0, transition: 'opacity 0.3s ease' });
+  const [showStyle, setShowStyle] = useState({ opacity: 0, transition: 'opacity 0.7s ease' });
 
   useEffect(() => {
     if (visible) {

@@ -1,61 +1,126 @@
-import { FaMapLocationDot } from "react-icons/fa6";
-import { IoLocation } from "react-icons/io5";
-import { FaMobileAlt } from "react-icons/fa";
-import { useSelector } from "react-redux";
-import { MdEmail } from "react-icons/md";
-import CustomerSale from "./CustomerSale";
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { MdEmail } from 'react-icons/md';
+import { FaMobileAlt } from 'react-icons/fa';
+import { FaMapLocationDot } from 'react-icons/fa6';
+import { RiBillLine } from 'react-icons/ri';
+import { GiMoneyStack } from 'react-icons/gi';
+import profile from '../../../assets/Profile/profile.jpeg';
+import Cards from '../dashboard/Cards';
+import CustomerSale from './CustomerSale';
 
 const ViewCustomer = () => {
-    const { currentCustomer} = useSelector((state) =>state?.customers);
-    console.log(currentCustomer,"current suppleir debug in the ViewCustomer page",)
-  return (
-    <>
-    <div
-    className="border-2 ">
-    <div className="rounded-t-lg h-32 overflow-hidden ">
-        <img className="object-cover object-top w-full " src='https://images.unsplash.com/photo-1549880338-65ddcdfd017b?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ' alt='Mountain' />
-    </div>
-    <div className="grid  grid-cols-4">
-    <div className="mx-5 w-32 h-32 relative -mt-16 border-4 border-white rounded-full overflow-hidden">
-        <img className="object-cover object-center h-32" src='https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ' alt='Woman looking front'/>
+    const { currentCustomer,loading } = useSelector((state) => state?.customers);
+    const [showMore, setShowMore] = useState(false);
 
-    </div>
-    <div className="grid gap-2 mt-3">       
-     <p className="text-gray-500 flex gap-2 items-center   "><MdEmail className="text-red-400"/>{currentCustomer?.email}</p>
-     <p className="text-gray-500 flex gap-2 items-center   "><FaMobileAlt className="text-blue-500" />{currentCustomer?.contact_1}</p>
-</div>
-<div className="grid gap-2 mt-3">       
-<p className="text-gray-500 flex gap-2 items-center   "><FaMapLocationDot  />{currentCustomer?.address_1}</p>
-<p className="text-gray-500 flex gap-2 items-center   "><IoLocation />{currentCustomer?.map_url}</p>
+    const toggleShowMore = () => {
+        setShowMore(!showMore);
+    };
 
-</div>
-{/* <div className="grid gap-2 mt-3">       
-<p className="text-gray-500 flex gap-2 items-center   "><span className="inline-flex items-center justify-center px-2 py-1 bg-green-500 text-white text-sm font-semibold rounded-full shadow">
-  PAN
-</span>
-{currentCustomer?.pan_number}</p>
-<p className="text-gray-500 flex gap-2 items-center   "><span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-500 rounded">
-  GST
-</span>
-{currentCustomer?.gst_number}</p>
+    if (loading) {
+        return (
+          <div className="flex flex-col justify-center items-center h-full">
+            <div className="text-md font-medium mb-4">Loading Customer profile...</div>
+            <div className="border-8 border-gray-200 border-t-blue-500 rounded-full w-16 h-16 animate-spin"></div>
+          </div>
+        );
+      }
 
-</div> */}
-
-    </div>
-    <div className="text-start ml-4  mt-2 pb-4">
-        <h2 className="font-semibold">{currentCustomer?.name}</h2>
-        <p className="text-gray-500">{currentCustomer?.company_name}</p>
-    </div>
-    
-        {/* <div className="p-4 border-t mx-8 mt-2">
-            <button className="w-1/2 block mx-auto rounded-full bg-gray-900 hover:shadow-lg font-semibold text-white px-6 py-2">Follow</button>
-        </div> */}
-</div>
-<div className="">
-    <CustomerSale />
-</div>
-</>
-  );
+    return (
+        <>
+            <div className="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col md:flex-row">
+                <div className="md:w-1/3 bg-gray-200 p-4 flex flex-col items-center">
+                    <img
+                        className="border-8 border-white rounded-full transition-transform duration-300 transform hover:scale-105"
+                        src={profile}
+                        alt="Profile face"
+                        width="80"
+                    />
+                    <h1 className="text-gray-800 mt-1">{currentCustomer?.company_name}</h1>
+                    <p className="text-gray-600 text-lg font-medium">{currentCustomer?.name}</p>
+                    <div className="grid grid-cols-1 gap-2 text-gray-500 mt-1">
+                        <div className="flex items-center">
+                            <span className="w-32 font-medium text-gray-600">Customer Code:</span>
+                            <span className="ml-3">{currentCustomer?.code}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-32 font-medium text-gray-600">GST Number:</span>
+                            <span className="ml-3">{currentCustomer?.gst}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-32 font-medium text-gray-600">Channel:</span>
+                            <span className="ml-3">{currentCustomer?.channel?.channel}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="md:w-2/3">
+                    <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Cards
+                            heading="Total Sales"
+                            amount={`${currentCustomer?.totalSalesCount}`}
+                            Icon={RiBillLine}
+                            bgImage="#E0F7FA"
+                            textColor="#006064"
+                        />
+                        <Cards
+                            heading="Total Sales Amount"
+                            amount={`₹${currentCustomer?.totalSalesAmount}`}
+                            Icon={GiMoneyStack}
+                            bgImage="#F3E5F5"
+                            textColor="#4A148C"
+                        />
+                        <Cards
+                            heading="Balance Amount"
+                            amount={`₹${currentCustomer?.totalBalanceAmount}`}
+                            Icon={GiMoneyStack}
+                            bgImage="#FFF3E0"
+                            textColor="#BF360C"
+                        />
+                    </div>
+                    <div className="px-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center text-gray-600">
+                                <MdEmail className="text-red-500" />
+                                <span className="ml-3">{currentCustomer?.email}</span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                                <FaMobileAlt className="text-blue-500" />
+                                <span className="ml-3">{currentCustomer?.phone}</span>
+                            </div>
+                        </div>
+                        {/* <div className="flex pt-4 text-gray-600">
+                            <FaMapLocationDot className="text-green-500" />
+                            <span className="ml-3">{currentCustomer?.address}</span>
+                        </div> */}
+                        <div  className="pt-4 text-gray-600 h-20 flex items-center gap-2">
+                        <FaMapLocationDot className="text-green-500" />
+                            <div className="max-h-32 w-full overflow-y-auto h-14 no-scrollbar  border border-gray-200 rounded-md p-2">
+                                {currentCustomer?.shipping_addresses
+                                    ?.slice(0, showMore ? currentCustomer.shipping_addresses.length : 1)
+                                    .map((address, index) => (
+                                        <p key={index} className="ml-4 mb-2">{address.address}</p>
+                                    ))}
+                            </div>
+                            {currentCustomer?.shipping_addresses?.length > 1 && (
+                                <button
+                                    className="text-blue-500 text-[.6rem] underline mt-2"
+                                    onClick={toggleShowMore}
+                                >
+                                    {showMore ? 'Show Less' : 'Show More'}
+                                </button>
+                            )}
+                        </div>
+                        {/* <div className="pt-4 text-gray-600">
+                            <a href={currentCustomer?.map_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                                View Location on Map
+                            </a>
+                        </div> */}
+                    </div>
+                </div>
+            </div>
+            <CustomerSale />
+        </>
+    );
 };
 
 export default ViewCustomer;

@@ -14,7 +14,6 @@ const ProtectedRoute = ({ requiredRole }) => {
       try {
         const decoded = await jwtDecode(token); // Use async/await for potential network requests
         const isAuthorizedRole = decoded.role === requiredRole;
-
         if (isAuthorizedRole) {
           setIsAuthorized(true);
         } else {

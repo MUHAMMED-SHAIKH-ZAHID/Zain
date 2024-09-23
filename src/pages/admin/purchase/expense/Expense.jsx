@@ -6,13 +6,18 @@ import DataTable from "../../../../components/table/DataTable";
 import { suplierColumns } from "../../../../components/table/columns/SupplierColumns";
 import { expenseColumn } from "../../../../components/table/columns/ExpenseColumn";
 import EditExpense from "./EditExpense";
+import ViewExpense from "./ViewExpense";
 
 const Expense = () => {
     const dispatch = useDispatch();
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
 const [editData, setEditData] = useState(null);
 const handleCloseEditModal = () => {
     setShowEditModal(false);
+  };
+const handleCloseViewModal = () => {
+    setShowViewModal(false);
   };
 
     useEffect(() => {
@@ -30,12 +35,14 @@ const handleCloseEditModal = () => {
       const { expenses, loading, error } = useSelector((state) => state?.expense);
       
       const editClickHandler = (rowData) => {
-        console.log("Button clicked for row:", rowData);
         setEditData(rowData);
-        setShowEditModal(true); // Open the modal when edit is clicked
+        setShowEditModal(true); 
       };
-      const columns = expenseColumn(editClickHandler);
-console.log(expenses,"teh expenses page")
+      const viewClickHandler = (rowData) => {
+        setEditData(rowData);
+        setShowViewModal(true); 
+      };
+      const columns = expenseColumn(viewClickHandler,editClickHandler);
 
   return (
     <div>
@@ -49,6 +56,13 @@ console.log(expenses,"teh expenses page")
                 <EditExpense
                     show={showEditModal}
                     handleClose={handleCloseEditModal}
+                    data={editData}
+                />
+            )}
+              {showViewModal && (
+                <ViewExpense
+                    show={showViewModal}
+                    handleClose={handleCloseViewModal}
                     data={editData}
                 />
             )}

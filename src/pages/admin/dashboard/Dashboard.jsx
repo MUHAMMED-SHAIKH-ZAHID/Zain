@@ -56,7 +56,7 @@ const Dashboard = () => {
           
           <Cards
             heading="Today income"
-            amount={data?.todayIncome}
+            amount={parseInt(data?.todayIncome).toFixed(2)}
             subheading=""
             Icon={PiArrowDownLeft} // Pass the icon component reference
             bgImage='#DDFFD8' // Provide the background image URL
@@ -64,7 +64,7 @@ const Dashboard = () => {
           />
           <Cards
             heading="Today Expence"
-            amount={data?.todayExpense}
+            amount={parseInt(data?.todayExpense).toFixed(2)}
             subheading=""
             Icon={BsGraphDownArrow} // Pass the icon component reference
             bgImage='#EFE1E1' // Provide the background image URL
@@ -74,25 +74,25 @@ const Dashboard = () => {
         <div className=" w-full flex flex-col gap-8">
           <Cards
             heading="This Month Income"
-            amount={data?.thisMonthIncome}
+            amount={parseInt(data?.thisMonthIncome).toFixed(2)}
             subheading=""
             Icon={PiArrowDownLeft} // Pass the icon component reference
             bgImage='#DDFFD8' // Provide the background image URL
             textColor='#3A6211'
           />
           <Cards
-            heading="This Month Revenue"
-            amount={data?.thisMonthExpense}
+            heading="This Month Expense"
+            amount={parseInt(data?.thisMonthExpense).toFixed(2)}
             subheading=""
             Icon={LiaCoinsSolid} // Pass the icon component reference
-            bgImage="#D8E1FF" // Provide the background image URL
-            textColor='#1564AD'
+            bgImage="#EFE1E1" // Provide the background image URL
+            textColor='#BE2F2F'
           />
         </div>
         <div className="flex w-full flex-col gap-8">
           <Cards
             heading="Today Revenue"
-            amount={data?.todayRevenue}
+            amount={parseInt(data?.todayRevenue).toFixed(2)}
             subheading=""
             Icon={HiArrowsRightLeft} // Pass the icon component reference
             bgImage='#D8E1FF' // Provide the background image URL
@@ -100,7 +100,7 @@ const Dashboard = () => {
           />
           <Cards
             heading="This Months Revenue"
-            amount={data?.thisMonthRevenue}
+            amount={parseInt(data?.thisMonthRevenue).toFixed(2)}
             subheading=""
             Icon={HiArrowsRightLeft} // Pass the icon component reference
             bgImage='#D8E1FF' // Provide the background image URL

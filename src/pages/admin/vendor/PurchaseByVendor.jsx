@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
-import DataTable from "../../../components/table/DataTable";
 import { deleteSupplier, fetchAllSuppliers, fetchSupplierById } from "../../../redux/features/SupplierSlice";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SupplierPurchases } from "../../../components/table/columns/SupplierPurchases";
 import RetutnForm from "./ReturnForm";
-import DataTableExports from "../../../components/table/DataTableExports";
+import { viewPurchaseData } from "../../../redux/features/PurchaseSlice";
+import DataTable from "../../../components/table/DataTable";
 
 
 
 const PurchaseByVendor = () => {
   const { currentsupplier } = useSelector((state) => state?.supplier);
-
+  const navigate = useNavigate()
 
 const [showEditModal, setShowEditModal] = useState(false);
 const [editData, setEditData] = useState(null);
@@ -23,7 +23,6 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
     const editClickHandler = (rowData) => {
-    console.log("Button clicked for row:", rowData);
     setEditData(rowData);
     setShowEditModal(true); // Open the modal when edit is clicked
     };
@@ -39,21 +38,17 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
     setShowDeleteModal(true);
     };
 
-    const handleDelete = (id) => {
-    console.log("Deleting item with id:", id);
-    dispatch(deleteSupplier(id))
-    };
+
 
     const handleCloseDeleteModal = () => {
     setShowDeleteModal(false);
     
     };
-const viewClickHandler = (id) => {
-  console.log(id,"checkign view data before trnasfre")
-  setViewData(id)
-  setShowReturnModal(true)
-}
-  const columns = SupplierPurchases();
+    const viewClickHandler = (id) => {
+      dispatch(viewPurchaseData(id))
+      navigate('/purchase/view')
+    }
+  const columns = SupplierPurchases(viewClickHandler);
 
   const dispatch = useDispatch();
   
@@ -68,21 +63,15 @@ const viewClickHandler = (id) => {
   
 
   const { currentpurchase, loading, error } = useSelector((state) => state?.supplier);
-
-                            //     useEffect(() => {
-                            //     // Dispatch the action to fetch dashboard data when the component mounts
-                            //     dispatch(fetchAllcurrentpurchase());
-                            //   }, [dispatch]);
-                            console.log(currentpurchase,"debugginge ehesheheheeheheh")
   return (
     <div>
      {!loading &&
      
-      <DataTableExports
+      <DataTable
         data={currentpurchase}
         columns={columns}
-        filterColumn="payment_due_date"
         title={'Vendor'}
+        Export={true}
       />
      }
  

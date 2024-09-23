@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const heading = useSelector((state) => state.heading.value);
+  const {currentuser} = useSelector((state) => state.auth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate()
@@ -27,7 +28,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-white drop-shadow-md">
+    <nav className="bg-white drop-shadow-md ">
       <div className="max-w-7xl mx-auto px-4 sm:px-2">
         <div className="flex justify-between h-16">
           <div className="flex-shrink-0 flex items-center">
@@ -41,7 +42,7 @@ const Navbar = () => {
                 onClick={toggleDropdown}
               >
                 <FaUserCircle className="h-8 w-8 rounded-full text-gray-800" />
-                <span className="mx-4 ml-2  font-medium text-gray-800">Admin</span>
+                <span className="mx-4 ml-2  font-medium text-gray-800">{currentuser ? currentuser : 'Admin'}</span>
                 <svg
                   className={`mr-4 h-4 w-4 text-gray-800 transition-transform duration-150 ${
                     isDropdownOpen ? 'rotate-180' : ''
@@ -59,7 +60,7 @@ const Navbar = () => {
               <div
                 className={`${
                   isDropdownOpen ? 'block' : 'hidden'
-                } absolute right-4 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none transition duration-150 ease-in-out`}
+                } absolute right-0 mt-2 w-32  rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none transition duration-150 ease-in-out z-[999]`}
               >
                 <div className="py-1">
                   <a
@@ -70,7 +71,7 @@ const Navbar = () => {
                   </a>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
+                    className="block px-4 py-2 text-sm leading-5  text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                   >
                     Settings
                   </a>

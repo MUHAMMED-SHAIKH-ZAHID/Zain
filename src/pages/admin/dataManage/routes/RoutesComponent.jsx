@@ -17,7 +17,6 @@ const RoutesComponent = () => {
     const [currentRoute, setCurrentRoute] = useState(null);
     const [routeToDelete, setRouteToDelete] = useState(null);
     const [search, setSearch] = useState('');
-    console.log(routes,"touteo poage route")
     useEffect(() => {
       dispatch(fetchRoutes());
     }, [dispatch]);
@@ -36,7 +35,7 @@ const RoutesComponent = () => {
 
     const indexOfLastRoute = currentPage * routesPerPage;
     const indexOfFirstRoute = indexOfLastRoute - routesPerPage;
-    const currentRoutes = filteredRoutes.slice(indexOfFirstRoute, indexOfLastRoute);
+    const currentRoutes = filteredRoutes?.slice(indexOfFirstRoute, indexOfLastRoute);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -99,7 +98,7 @@ const RoutesComponent = () => {
               />
               <BiSearch className="text-gray-500 ml-2 my-auto"/>
             </div>
-            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button onClick={handleCreate} className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
               Add New Route
             </button>
           </div>
@@ -123,9 +122,9 @@ const RoutesComponent = () => {
                       <button onClick={() => handleEdit(route)} className="text-indigo-600 hover:text-indigo-900 px-4">
                         <BiEdit />
                       </button>
-                      <button onClick={() => openDeleteModal(route)} className="text-red-600 hover:text-red-900 px-4">
+                      {/* <button onClick={() => openDeleteModal(route)} className="text-red-600 hover:text-red-900 px-4">
                         <BiTrash />
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))}

@@ -1,7 +1,7 @@
 import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
 import { VscDebugRestart } from 'react-icons/vsc';
 
-const   SupplierPurchases = (  ) => [
+const   SupplierPurchases = ( viewActionClick ) => [
  
     {
       Header:"Id",
@@ -30,35 +30,24 @@ const   SupplierPurchases = (  ) => [
       Header:"Payment due date",
       accessor: 'payment_due_date',
     },
-// {
-//   Header: () => (
-//     <div className='text-center'>Actions</div> // Text is centered for consistency
-//   ),
-//   accessor: "actions",
-//   Cell: ({ row }) => (
-//     <div className='flex justify-center space-x-1 items-center'>
-//       <button onClick={()  =>viewActionClick(row.original)} className='flex items-center bg-gray-300 hover:bg-gray-400 text-black py-1 px-3 rounded shadow'>
-//          <div className=" flex items-center text-center gap-2">  <VscDebugRestart  className="text-lg ml-2 " /> Return </div>
-//         </button>
-//       {/* <button
-//         onClick={() => editActionClick(row.original)}
-//         className='flex items-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 text-xs rounded shadow'
-//       >
-//         <MdEdit className="" /> 
-//       </button>
-//       <button
-//         onClick={(e) => {
-//           e.preventDefault(); 
-//           e.stopPropagation();
-//           deleteActionClick(row.original);
-//         }}
-//         className='flex items-center bg-red-500 hover:bg-red-600 text-white py-2 px-3 text-xs rounded shadow'
-//       >
-//         <MdDelete className="" /> 
-//       </button> */}
-//     </div>
-//   ),
-// }
+{
+  Header: () => (
+    <div className='text-center'>Actions</div> 
+  ),
+  accessor: "actions",
+  Cell: ({ row }) => (
+    <div className='flex justify-center space-x-1 items-center'>
+          <div className="relative group">
+          <button onClick={() => viewActionClick(row.original)} className=''>
+            <MdVisibility className="text-xl text-green-800 " />
+          </button>
+          <div className="absolute top-6 left-1/2 transform -translate-x-1/2 w-max px-2 py-[2px] text-[.6rem] text-white bg-gray-600 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            View
+          </div>
+        </div>
+    </div>
+  ),
+}
 
       
     

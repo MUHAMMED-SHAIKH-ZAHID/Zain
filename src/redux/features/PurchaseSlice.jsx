@@ -8,7 +8,6 @@ export const fetchAllPurchases = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(PurchasesAPI);
-      console.log("slice in")
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -34,9 +33,7 @@ export const createPurchase = createAsyncThunk(
   'purchases/create',
   async (purchaseData, thunkAPI) => {
     try {
-      console.log(purchaseData, "the purchase data to send to backend");
       const response = await axios.post(PurchasesAPI, purchaseData);
-      console.log(response, "response in the thunk");
       return response.data;
     } catch (error) {
       console.error("Error response", error.response); // Log the error response
@@ -50,9 +47,7 @@ export const updatePurchase = createAsyncThunk(
   'purchases/update',
   async ({ id, purchaseData }, thunkAPI) => {
     try {
-      console.log("checking id when updating purchsade",id)
       const response = await axios.put(`${PurchasesAPI}/${id}`, purchaseData);
-      console.log("update resppontse in the purchase",response.data)
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -99,6 +94,7 @@ const initialState = {
   editpurchasecolumn:null,
   editpurchaseindex:null,
   viewpurchasedata:null,
+  printpurchasedata:null,
   paymentModes:null,
   purchaseOrders:null,
 };
@@ -111,14 +107,16 @@ const purchaseSlice = createSlice({
     editPurchaseId:(state,action) => {
      state.editpurchase = action.payload
     },
+    viewPurchaseData:(state,action) => {
+     state.viewpurchasedata = action.payload
+    },
+    printPurchaseData:(state,action) => {
+     state.printpurchasedata = action.payload
+    },
     editPurchaseColumn:(state,action) => {
      state.editpurchasecolumn = action.payload.data
      state.editpurchaseindex = action.payload.index
     },
-    viewPurchaseData:(state,action) => {
-      console.log(action.payload,"viewpurchase Data")
-     state.viewpurchasedata = action.payload
-    }
     
   },
   extraReducers: (builder) => {
@@ -127,7 +125,6 @@ const purchaseSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllPurchases.fulfilled, (state, action) => {
-        console.log(action.payload,"the purchases and the suppliers")
         state.purchases = action.payload.purchases;
         state.suppliers = action.payload.suppliers;
         state.products = action.payload.products;
@@ -143,13 +140,12 @@ const purchaseSlice = createSlice({
         state.currentPurchase = action.payload;
       })
       .addCase(createPurchase.fulfilled, (state, action) => {
-        state.purchases.push(action.payload.purchase);
+        state.purchases.unshift(action.payload.purchase);
       })
       .addCase(purchasePayment.fulfilled, (state, action) => {
-        state.purchases.push(action.payload);
+        state.purchases.unshift(action.payload);
       })
       .addCase(updatePurchase.fulfilled, (state, action) => {
-        console.log(action.payload,"in the buildre case of update purchase 0",state.purchases)
         const index = state.purchases?.findIndex(p => p.id === action.payload.purchase.id);
         if (index !== -1) {
           state.purchases[index] = action.payload.purchase;
@@ -162,5 +158,5 @@ const purchaseSlice = createSlice({
   }
 });
 
-export const {viewPurchaseData, editPurchaseId ,editPurchaseColumn} = purchaseSlice.actions;
+export const {viewPurchaseData, editPurchaseId ,editPurchaseColumn , printPurchaseData } = purchaseSlice.actions;
 export default purchaseSlice.reducer;

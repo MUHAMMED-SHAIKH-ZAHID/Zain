@@ -120,8 +120,6 @@ const PurchaseQuoteConvert = () => {
         
         validationSchema: purchaseValidationSchema,
         onSubmit: (values) => {
-            console.log("testing");
-            console.log('Final Submission:', values);
             dispatch(createPurchase(values))
             handlePrint(); // Trigger print after submission
 

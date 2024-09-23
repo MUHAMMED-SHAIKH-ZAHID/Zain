@@ -8,6 +8,7 @@ const ProductForm = ({ initialData = {}, onSubmit, onCancel, categories, brands 
         category_id: '',
         brand_id: ''
     });
+    
 
     useEffect(() => {
         if (initialData) {

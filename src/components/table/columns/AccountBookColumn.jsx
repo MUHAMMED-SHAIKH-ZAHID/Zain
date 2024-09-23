@@ -9,26 +9,19 @@ const   AccountBookColumns = (viewActionClick,editActionClick  ,deleteActionClic
       accessor:'id'
     },
     {
-      Header: "Product Name ",
-      accessor: 'product_name',
+      Header: "Date",
+      accessor: 'payment_date',
     },
     {
-      Header: "Price",
-      accessor: 'price',
+      Header: "Reeferense Type ",
+      accessor: 'reference_type',
     },
   
     {
-      Header: "Quantity",
-      accessor: 'quantity',
+      Header: "Amount",
+      accessor: 'paid_amount',
     },
-    {
-      Header:"Physical Stock",
-      accessor: 'physical_stock',
-    },
-    {
-      Header:"Transit Stock",
-      accessor: 'transit_stock',
-    },
+ 
     // {
     //   Header: "Location",
     //   accessor: 'location_name',

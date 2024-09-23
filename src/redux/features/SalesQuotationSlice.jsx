@@ -17,7 +17,7 @@ export const fetchAllSalesQuotations = createAsyncThunk(
 
 // Fetch single sales quotation by ID
 export const fetchSalesQuotationById = createAsyncThunk(
-  'sales/fetchById',
+  'sales/fetchByIdquote',
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${SalesQuotationAPI}/${id}`);
@@ -30,7 +30,7 @@ export const fetchSalesQuotationById = createAsyncThunk(
 
 // Create a new sales quotation
 export const createSalesQuotation = createAsyncThunk(
-  'sales/create',
+  'invoice/create',
   async (salesData, thunkAPI) => {
     try {
       const response = await axios.post(SalesQuotationAPI, salesData);
@@ -43,7 +43,7 @@ export const createSalesQuotation = createAsyncThunk(
 
 // Update a sales quotation
 export const updateSalesQuotation = createAsyncThunk(
-  'sales/update',
+  'invoice/update',
   async ({ id, salesData }, thunkAPI) => {
     try {
       const response = await axios.put(`${SalesQuotationAPI}/${id}`, salesData);
@@ -114,12 +114,12 @@ const salesQuotationSlice = createSlice({
         state.currentSales = action.payload;
       })
       .addCase(createSalesQuotation.fulfilled, (state, action) => {
-        state.sales.push(action.payload);
+        state.sales.unshift(action.payload.saleQuotation);
       })
       .addCase(updateSalesQuotation.fulfilled, (state, action) => {
-        const index = state.sales.findIndex(s => s.id === action.payload.id);
+        const index = state.sales.findIndex(s => s.id === action.payload.saleQuotation.id);
         if (index !== -1) {
-          state.sales[index] = action.payload;
+          state.sales[index] = action.payload.saleQuotation;
         }
       })
       .addCase(deleteSalesQuotation.fulfilled, (state, action) => {

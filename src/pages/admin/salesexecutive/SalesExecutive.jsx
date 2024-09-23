@@ -20,7 +20,6 @@ const SalesExecutive = () => {
   }, [dispatch]);
 
   const { salesExecutives, loading, error } = useSelector(state => state?.salesExecutives);
-  console.log(salesExecutives,"sHAIKH ZAHID")
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -35,10 +34,10 @@ const SalesExecutive = () => {
     setShowEditModal(false);
   };
 
-  const deleteClickHandler = (rowData) => {
-    setDeleteItemId(rowData.id);
-    setShowDeleteModal(true);
-  };
+  // const deleteClickHandler = (rowData) => {
+  //   setDeleteItemId(rowData.id);
+  //   setShowDeleteModal(true);
+  // };
 
   const handleDelete = (id) => {
     dispatch(deleteSalesExecutive(id));
@@ -49,7 +48,6 @@ const SalesExecutive = () => {
   };
 
   const viewClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
     // dispatch(viewSalesData())
 
     dispatch(fetchSalesExecutiveById(id.id))
@@ -57,7 +55,7 @@ const SalesExecutive = () => {
     navigate('/salesexecutive/view')
   }
 
-  const columns = SalesExecutiveColumns(viewClickHandler,editClickHandler, deleteClickHandler);
+  const columns = SalesExecutiveColumns(viewClickHandler,editClickHandler);
 
   return (
     <div>
@@ -70,7 +68,7 @@ const SalesExecutive = () => {
       <DataTable
         data={salesExecutives} // Ensure data is an array
         columns={columns}
-        filterColumn="name"
+        // filterColumn="name"
         title="Sales Executive"
       />
       {showEditModal && (

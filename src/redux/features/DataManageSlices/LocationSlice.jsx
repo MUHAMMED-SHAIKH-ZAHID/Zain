@@ -68,7 +68,6 @@ const locationSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchLocations.fulfilled, (state, action) => {
-        console.log("checking the datat type from the backend what the type will they give",action.payload.locations ,"and the type is",typeof(action.payload.locations))
         state.locations = action.payload.locations.map(item =>  item);
         state.loading = false;
       })
@@ -77,7 +76,6 @@ const locationSlice = createSlice({
         state.loading = false;
       })
       .addCase(createLocation.fulfilled, (state, action) => {
-        console.log(action.payload.location,"checking whats beign pushed")
 
         if (Array.isArray(state.locations)) {
             state.locations.unshift(action.payload.location);

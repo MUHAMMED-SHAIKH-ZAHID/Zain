@@ -2,7 +2,6 @@ import React from 'react';
 import Modal from '../../../../components/commoncomponents/Modal';
 
 const DeleteConfirmationModal = ({ visible, onClose, onDelete, item }) => {
-    console.log(item,"deleet modal")
   return (
     <Modal
       visible={visible}

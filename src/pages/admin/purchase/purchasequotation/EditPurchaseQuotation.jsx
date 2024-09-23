@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useDispatch, useSelector } from 'react-redux';
-import AddItemsForm from '../purchase/createpurchase/AddItemsForm';
 import { updatePurchasequotation } from '../../../../redux/features/PurchaseQuotationSlice';
 import Modal from '../../../../components/commoncomponents/Modal';
 import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
@@ -14,10 +13,10 @@ import { useNavigate } from 'react-router-dom';
 import { MdDelete } from 'react-icons/md';
 import { CiEdit } from 'react-icons/ci';
 import { editPurchaseColumn } from '../../../../redux/features/PurchaseSlice';
-import EditItemsForm from '../purchase/EditItemsForm';
 import EditItemsQuoteForm from './EditItemsQuoteForm';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { format } from 'date-fns';
+import { Select } from 'antd';
 
 const itemSchema = Yup.object().shape({
   mrp: Yup.number()
@@ -36,7 +35,7 @@ const itemSchema = Yup.object().shape({
 const purchaseValidationSchema = Yup.object({
   purchase_order_date: Yup.date().required('Purchase date is required'),
   purchase_order_number: Yup.string(),
-  supplier_id: Yup.string().required('Supplier is required'),
+  supplier_id: Yup.string().required('Venfor is required'),
   notes: Yup.string(),
   purchase_order_items: Yup.array().of(itemSchema).min(1, 'Please Add Atleast 1 Item to Create order'),
   grand_total: Yup.number().required('Grand total is required'),
@@ -49,16 +48,16 @@ const EditPurchaseQuotation = () => {
   const navigate = useNavigate();
   const { suppliers, products } = useSelector((state) => state?.purchases);
   const { editpurchase, loading, error } = useSelector((state) => state?.purchaseQuotation);
-
+  
   const [showModal, setShowModal] = useState(false);
   const [items, setItems] = useState(editpurchase?.purchase_order_items);
   const [grandTotal, setGrandTotal] = useState(0);
+  const [loadingMessage,setLoadingMessage] = useState(false)
 
   const calculateGrandTotal = () => {
-    const total = items.reduce((acc, item) => acc + parseFloat(item.total || 0), 0);
+    const total = items.reduce((acc, item) => acc + parseFloat(item.total_inc_tax || 0), 0);
     setGrandTotal(total);
     formik.setFieldValue("grand_total", total);
-    console.log(items,"debuging items in the calculate function")
     formik.setFieldValue("purchase_order_items", items);
   };
 
@@ -81,27 +80,24 @@ const EditPurchaseQuotation = () => {
 
   const formik = useFormik({
     initialValues: {
-      purchase_order_date: editpurchase?.purchase_order_date ? format(new Date(editpurchase.purchase_order_date), 'yyyy-MM-dd') : '',
+      purchase_order_date: editpurchase?.purchase_order_date?format(new Date(editpurchase.purchase_order_date), 'yyyy-MM-dd') : '',
       supplier_id: editpurchase?.supplier_id || '',
       purchase_order_items: editpurchase?.purchase_order_items || [],
       notes: editpurchase?.notes || '',
       grand_total: editpurchase?.grand_total || '',
-      expected_delivery_date: editpurchase?.expected_delivery_date ? format(new Date(editpurchase.expected_delivery_date), 'yyyy-MM-dd') : '',
+      expected_delivery_date: editpurchase?.expected_delivery_date?format(new Date(editpurchase.expected_delivery_date), 'yyyy-MM-dd') : '',
       payment_terms: editpurchase?.payment_terms || '',
     },
     validationSchema: purchaseValidationSchema,
     onSubmit: (values) => {
-      console.log('Final Submission:', values);
       const promise = dispatch(updatePurchasequotation({ id: editpurchase.id, purchaseData: values }));
+      setLoadingMessage(true)
       promise.then((res) => {
-        console.log(res, "checking the res");
         if (res.payload.error) {
           toast.error(res.payload.error);
         } else {
           toast.success(res.payload.success);
-          setTimeout(() => {
             navigate('/purchase/order');
-          }, 1000);
         }
       }).catch((error) => {
         toast.error('An error occurred while updating the purchase order.');
@@ -118,24 +114,34 @@ const EditPurchaseQuotation = () => {
     setShowEditModal(true);
   };
 
-console.log("Checking errors",formik.errors)
   return (
-    <div className="px-6 p-4 bg-white">
+    <div className=" p-4 bg-white">
       <h2 className="text-xl font-medium mb-5 text-center">Edit P O</h2>
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         <div className="flex justify-between">
           <div>
-            <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Supplier:</label>
-            <select
-              id="supplier_id"
-              {...formik.getFieldProps('supplier_id')}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="">Select a supplier</option>
-              {suppliers.map(item => (
-                <option key={item.id} value={item.id}>{item.first_name}</option>
-              ))}
-            </select>
+            <label htmlFor="supplier_id" className="block text-sm font-medium text-gray-700">Company:</label>
+            <Select
+									showSearch
+									style={{ width: '100%' }}
+									onChange={e => {
+                    formik.setFieldValue('supplier_id',e)
+									}}
+                  defaultValue={editpurchase?.supplier_id}
+									placeholder='Select a Vendor'
+									optionFilterProp='children'
+									filterOption={(input, option) =>
+										option.props.children
+											.toLowerCase()
+											.indexOf(input?.toLowerCase()) >= 0
+									}
+								>
+									{suppliers?.map(store => (
+										<Select.Option key={store.id} value={store.id}>
+											{store.company_name}
+										</Select.Option>
+									))}
+								</Select>
             {formik.touched.supplier_id && formik.errors.supplier_id && (
               <p className="text-red-500 text-xs italic">{formik.errors.supplier_id}</p>
             )}
@@ -167,38 +173,38 @@ console.log("Checking errors",formik.errors)
             <table className="min-w-full divide-y divide-gray-200 border">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HSN</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HSN</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                  <th scope="col" className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               {items?.length > 0 && (
                 <tbody className="bg-white divide-y divide-gray-200">
                   {items?.map((item, index) => (
                     <tr key={index}>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">
+                      <td className=" whitespace-nowrap text-sm text-gray-500">
                         {products?.find((pro) => pro.id == item?.product_id)?.product_name || item?.product_id}
                       </td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.hsn}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.tax || 0}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.quantity}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.price}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.total}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.discount || 0}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.tax_amount || 0}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax || 0}</td>
-                      <td className="px-6 whitespace-nowrap text-sm text-gray-500">
-                        {item?.comment?.length > 25 ? item?.comment.slice(0, 25) + '...' : item?.comment}
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.hsn}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.tax || 0}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.quantity}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.price}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.total}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.discount || 0}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.tax_amount || 0}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax || 0}</td>
+                      <td className=" whitespace-nowrap text-sm text-gray-500">
+                        {item?.comment?.length > 25 ? item?.comment?.slice(0, 25) + '...' : item?.comment}
                       </td>
-                      <td className="px-6 whitespace-nowrap flex items-center gap-4 justify-center text-right text-sm font-medium">
+                      <td className=" whitespace-nowrap flex items-center gap-4 justify-center text-right text-sm font-medium">
                         <div className="flex items-center">
                           <button    type="button" onClick={() => handleEditItem(index, item.id)} className="text-primary-600 hover:text-red-900">
                             <CiEdit className="mt-5 w-6 h-5" /> &nbsp; &nbsp;
@@ -276,10 +282,10 @@ console.log("Checking errors",formik.errors)
           />
         </div>
 
-        <div className="flex justify-center my-4">
-          <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white leading-none font-medium py-2 px-4 rounded">
-            Update Purchase Ordersss
-          </button>
+        <div className="flex justify-center my-4" >
+                  <button disabled={loadingMessage} type="submit"  className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loadingMessage ? "animate-pulse" : ''}`} >
+         {loadingMessage ? 'Updating Order...': 'Update Purchase Order' }
+        </button>
         </div>
       </form>
 

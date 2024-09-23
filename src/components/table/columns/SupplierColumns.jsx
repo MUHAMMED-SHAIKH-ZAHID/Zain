@@ -6,12 +6,12 @@ const truncateToLastWords = (text, wordLimit) => {
 
   if (words.length === 1) {
     // No spaces found, treat characters as words
-    const truncatedText = text.slice(-wordLimit);
+    const truncatedText = text?.slice(-wordLimit);
     return truncatedText.length < text.length ? '...' + truncatedText : truncatedText;
   }
 
   if (words.length > wordLimit) {
-    return '...' + words.slice(-wordLimit).join(' ');
+    return '...' + words?.slice(-wordLimit).join(' ');
   }
   return words.join(' ');
 };
@@ -25,11 +25,10 @@ const suplierColumns = (viewActionClick, editActionClick) => [
     Header: "Company Name",
     accessor: 'company_name',
   },
-  {
-    Header: "Vendor Name",
-    accessor: row => `${row.suffix} ${row.first_name} ${row.last_name}`,
-    id: 'name',
-  },
+  // {
+  //   Header: "Vendor Name",
+  //   accessor: row => `${row.suffix} ${row.first_name} `,
+  // },
   {
     Header: "Email / Phone",
     accessor: "email",
@@ -41,9 +40,9 @@ const suplierColumns = (viewActionClick, editActionClick) => [
     )
   },
   {
-    Header: "Address",
-    accessor: row => truncateToLastWords(row.address, 1), // Show last 6 words/characters
-    id: 'address',
+    Header: "Pin Code",
+    accessor: 'pin',
+    
   },
   {
     Header: "Amount",
@@ -54,7 +53,7 @@ const suplierColumns = (viewActionClick, editActionClick) => [
     accessor: 'paid_amount',
   },
   {
-    Header: "Balance",
+    Header: "Balances",
     accessor: 'balance_amount',
   },
   {

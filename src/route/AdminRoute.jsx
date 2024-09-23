@@ -36,6 +36,19 @@ import Vendors from "../pages/admin/vendor/Vendors.jsx"
 import Products from "../pages/admin/dataManage/products/ProductComponent.jsx"
 import Expense from "../pages/admin/purchase/expense/Expense.jsx"
 import Payment from "../pages/admin/payment/Payment.jsx"
+import Debitnote from "../pages/admin/purchase/debitnotes/DebitNote.jsx"
+import CreditNote from "../pages/admin/sales/creditnotes/CreditNote.jsx"
+import AddDebitNote from "../pages/admin/purchase/debitnotes/AddDebitNote.jsx"
+import AddCreditNote from "../pages/admin/sales/creditnotes/AddCreditNote.jsx"
+import UpdateStock from "../pages/admin/stock/UpdateStock.jsx"
+import ViewDebitNote from "../pages/admin/purchase/debitnotes/ViewDebitNote.jsx"
+import ViewCreditNotes from "../pages/admin/sales/creditnotes/ViewCreditNotes.jsx"
+import CostomerLedger from '../pages/admin/account/customer-ledger/CostomerLedger.jsx'
+import SalesLedger from '../pages/admin/account/sales-ledger/SalesLedger.jsx'
+import PurchaseLedger from '../pages/admin/account/purchase-ledger/PurchaseLedger.jsx'
+import VendorLedger from "../pages/admin/account/vendor-ledger/VendorLedger.jsx"
+import InputTaxLedger from "../pages/admin/account/inputtax-ledger/InputTaxLedger.jsx"
+import OutputTaxLedger from "../pages/admin/account/output-ledger/OutputTaxLedger.jsx"
 
 
 const RedirectIfAuthenticated = ({ children }) => {
@@ -83,24 +96,37 @@ const AdminRoute = () => {
     <Route path="/salesexecutive/view" element={<ViewSalesExecutive /> }/>
     <Route path="/customer" element={<Customer /> }/>
     <Route path="/customer/view" element={<ViewCustomer /> }/>
-    <Route path="/sales" element={<Sales /> }/>
-    <Route path="/sales/create" element={<AddSale /> }/>
-    <Route path="/sales/view" element={<ViewSales /> }/>
-    <Route path="/sales/edit" element={<EditSales /> }/>
-    <Route path="/sales/update" element={<AddSale /> }/>
-    <Route path="/sales/quotation" element={<SalesQuotation /> }/>
-    <Route path="/sales/quotation/create" element={<AddSalesQuotation /> }/>
-    <Route path="/sales/quotation/edit" element={<EditSalesQuotation /> }/>
-    <Route path="/sales/quotation/view" element={<ViewSalesQuotation /> }/>
-    <Route path="/sales/quotation/convert" element={<SalesQuoteConvert /> }/>
+    <Route path="/invoice" element={<Sales /> }/>
+    <Route path="/invoice/create" element={<AddSale /> }/>
+    <Route path="/invoice/view" element={<ViewSales /> }/>
+    <Route path="/invoice/edit" element={<EditSales /> }/>
+    <Route path="/invoice/update" element={<AddSale /> }/>
+    <Route path="/sales/order" element={<SalesQuotation /> }/>
+    <Route path="/invoice/order/create" element={<AddSalesQuotation /> }/>
+    <Route path="/invoice/order/edit" element={<EditSalesQuotation /> }/>
+    <Route path="/invoice/order/view" element={<ViewSalesQuotation /> }/>
+    <Route path="/invoice/order/convert" element={<SalesQuoteConvert /> }/>
     <Route path="/datamanage" element={<DataManage /> }/>
     <Route path="/reports" element={<Reports /> }/>
     <Route path="/account" element={<AccountComponent /> }/>
     <Route path="/account/view" element={<AccountBook /> }/>
     <Route path="/stock" element={<Stock /> }/>
+    <Route path="/stock/update" element={<UpdateStock /> }/>
     <Route path="/products" element={<Products /> }/>
     <Route path="/expense" element={<Expense /> }/>
     <Route path="/payment" element={<Payment /> }/>
+    <Route path="/debitnote" element={<Debitnote /> }/>
+    <Route path="/debitnote/add" element={<AddDebitNote /> }/>
+    <Route path="/debitnote/view" element={<ViewDebitNote /> }/>
+    <Route path="/creditnote" element={<CreditNote /> }/>
+    <Route path="/creditnote/add" element={<AddCreditNote /> }/>
+    <Route path="/creditnote/view" element={<ViewCreditNotes /> }/>
+    <Route path='/customerledger' element={<CostomerLedger />} />
+    <Route path='/salesledger' element={<SalesLedger />} />
+    <Route path='/supplierledger' element={<VendorLedger />} />
+		<Route path='/purchaseledger' element={<PurchaseLedger />} />
+		<Route path='/inputtaxledger' element={<InputTaxLedger />} />
+		<Route path='/outputtaxledger' element={<OutputTaxLedger />} />
     </Route >
     </Route>
     </Routes>

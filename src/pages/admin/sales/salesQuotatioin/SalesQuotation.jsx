@@ -7,8 +7,8 @@ import DeleteSalesQuotation from "./DeleteSalesQuotation";
 import { deleteSalesQuotation, editSalesQuotation, fetchAllSalesQuotations, viewSalesQuotation } from "../../../../redux/features/SalesQuotationSlice";
 import { SalesQuotationColumns } from "../../../../components/table/columns/SalesQuotationColumns";
 import { useReactToPrint } from "react-to-print";
-import SalesQuotePrint from "./SalesQuotePrint";
 import { viewSalesData } from "../../../../redux/features/SalesSlice";
+import PrintInvoiceOrder from "./PrintInvoiceOrder";
 
 const SalesQuotation = () => {
   const dispatch = useDispatch();
@@ -18,22 +18,16 @@ const SalesQuotation = () => {
   }, [dispatch]);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
   
   const { sales, loading, error } = useSelector((state) => state?.salesQuotation);
- console.log(sales,"invoices page debughhhhhhhhh")
   useEffect(() => {
-    dispatch(setHeading("Invoice Order"));
+    dispatch(setHeading("Sales Order"));
     return () => {
       dispatch(clearHeading());
     };
   }, [dispatch]);
   
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
-
-  const deleteClickHandler = (rowData) => {
-    setDeleteItemId(rowData.id);
-    setShowDeleteModal(true);
-    console.log("Deleting item with id:", rowData);
-  };
 
   const handleDelete = (id) => {
     dispatch(deleteSalesQuotation(id)); // Assuming deletesales is your redux thunk/action creator
@@ -45,16 +39,13 @@ const SalesQuotation = () => {
   };
 
   const editClickHandler = (id) => {
-    console.log(id,"id to edite")
     dispatch(editSalesQuotation(id))
-    navigate('/sales/quotation/edit')
+    navigate('/invoice/order/edit')
   }
 
   const viewClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
     dispatch(viewSalesQuotation(id))
-
-    navigate('/sales/quotation/view')
+    navigate('/invoice/order/view')
   }
   const [showPrint,setShowPrint] = useState(true)
   const componentRef = useRef(null);
@@ -74,12 +65,11 @@ const SalesQuotation = () => {
     onAfterPrint: () =>  setShowPrint(true),
   });
   const printClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    dispatch(viewSalesData(id))
+    dispatch(viewSalesQuotation(id))
     handlePrintfun()
   }
 
-  const columns = SalesQuotationColumns(viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
+  const columns = SalesQuotationColumns(viewClickHandler,editClickHandler,printClickHandler);
 
   // if (loading) return <div>Loading...</div>;
   // if (error) return <div>Error: {error}</div>;
@@ -90,8 +80,8 @@ const SalesQuotation = () => {
         <DataTable
           data={sales}
           columns={columns}
-          filterColumn="supplier_name"
-          title={'Sales Quote'}
+          filterColumn="customer_name"
+          title={'Invoice Order'}
         />
    
       {showDeleteModal && (
@@ -103,8 +93,10 @@ const SalesQuotation = () => {
         />
       )}
         {!showPrint &&
+         <div className="absolute left-[100rem]">
       <div ref={componentRef} className="">
-        <SalesQuotePrint />
+        <PrintInvoiceOrder />
+      </div>
       </div>
       }
     </div>

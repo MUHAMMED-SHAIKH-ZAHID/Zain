@@ -21,7 +21,6 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
     const editClickHandler = (rowData) => {
-    console.log("Button clicked for row:", rowData);
     setEditData(rowData);
     setShowEditModal(true); // Open the modal when edit is clicked
     };
@@ -36,29 +35,19 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
     setDeleteItemId(rowData.id); // Assuming `id` is the unique identifier
     setShowDeleteModal(true);
     };
-
-    const handleDelete = (id) => {
-    console.log("Deleting item with id:", id);
-    };
-
-    const handleCloseDeleteModal = () => {
-    setShowDeleteModal(false);
-    
-    };
     const viewClickHandler = (id) => {
-        console.log(id,"checkign view data before trnasfre")
         // dispatch(viewSalesData())
     
         dispatch(fetchSaleById(id.id))
     
-        navigate('/sales/view')
+        navigate('/invoice/view')
       }
   const columns = CustomerSaleColumns(viewClickHandler,editClickHandler,deleteClickHandler);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setHeading("Supplier Profile"));
+    dispatch(setHeading("Customer Profile"));
 
     // Optionally reset the heading when the component unmounts
     return () => {
@@ -68,10 +57,7 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { currentSale, loading, error } = useSelector((state) => state?.customers);
 
-                            //     useEffect(() => {
-                            //     // Dispatch the action to fetch dashboard data when the component mounts
-                            //     dispatch(fetchAllcurrentSale());
-                            //   }, [dispatch]);
+                     
   return (
     <div>
    

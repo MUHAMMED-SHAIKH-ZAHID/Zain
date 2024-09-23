@@ -31,7 +31,7 @@ const Brands = () => {
 
     const indexOfLastBrand = currentPage * brandsPerPage;
     const indexOfFirstBrand = indexOfLastBrand - brandsPerPage;
-    const currentBrands = filteredBrands.slice(indexOfFirstBrand, indexOfLastBrand);
+    const currentBrands = filteredBrands?.slice(indexOfFirstBrand, indexOfLastBrand);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -63,7 +63,6 @@ const Brands = () => {
     const handleSubmit = (data) => {
         if (currentBrand) {
             dispatch(updateBrand({ id: currentBrand.id, ...data })).then((res)=>{
-                console.log(res,"tee res in the dispatch")
                 toast.success(res.payload.suceess)
               })
         } else {
@@ -86,19 +85,19 @@ const Brands = () => {
     return (
         <div className="container mx-auto  sm:px-8 pt-6 pb-2">
         <div className="">
-                <h2 className="text-xl mb-2 font-medium leading-tight">Brands</h2>
+                <h2 className="text-xl mb-2 font-medium leading-tight">Category</h2>
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex">
                         <input
                             type="text"
-                            placeholder="Search brands..."
+                            placeholder="Search Category..."
                             onChange={(e) => setSearch(e.target.value)}
                             className="border border-gray-300 rounded py-2 px-4 leading-tight focus:outline-none focus:border-blue-500"
                         />
                         <BiSearch className="text-gray-500 ml-2 my-auto"/>
                     </div>
-                    <button onClick={handleAdd} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        Add Brand
+                    <button onClick={handleAdd} className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+                        Add Category
                     </button>
                 </div>
                 <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
@@ -106,10 +105,10 @@ const Brands = () => {
                         <thead>
                         <tr>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Brand  Name
+                            Category  Name
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Category  Name
+                              Brand Name
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100"></th>
                         </tr>
@@ -130,9 +129,9 @@ const Brands = () => {
                                     <button onClick={() => handleEdit(brand)} className="text-indigo-600 hover:text-indigo-900 px-4">
                                         <BiEdit />
                                     </button>
-                                    <button onClick={() => openDeleteModal(brand)} className="text-red-600 hover:text-red-900 px-4">
+                                    {/* <button onClick={() => openDeleteModal(brand)} className="text-red-600 hover:text-red-900 px-4">
                                         <BiTrash />
-                                    </button>
+                                    </button> */}
                                 </td>
                             </tr>
                         ))}
@@ -150,7 +149,7 @@ const Brands = () => {
             <Modal
                 visible={showModal}
                 onClose={handleClose}
-                title={currentBrand ? 'Edit Brand' : 'Add Brand'}
+                title={currentBrand ? 'Edit Category' : 'Add Category'}
                 content={<BrandForm initialData={currentBrand} onSubmit={handleSubmit} onCancel={handleClose} />}
             />
             <Modal
@@ -159,7 +158,7 @@ const Brands = () => {
                 title="Confirm Delete"
                 content={
                     <div>
-                        <p>Are you sure you want to delete this brand?</p>
+                        <p>Are you sure you want to delete this Category?</p>
                         <div className="flex justify-end space-x-2">
                             <button onClick={handleClose} className="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded">
                                 Cancel

@@ -8,7 +8,6 @@ export const fetchAllCustomers = createAsyncThunk(
   'customers/fetchAll',
   async () => {
     const response = await axios.get(`${CustomerAPI}`);
-    console.log("fetchallcustomer from the customer slice",response.data)
     return response.data;
   }
 );
@@ -22,11 +21,14 @@ export const fetchCustomer = createAsyncThunk(
 );
 
 export const createCustomer = createAsyncThunk(
-  'customers/createCustomer',
-  async (customerData) => {
-    console.log(customerData,"values to crewate cuistop,er")
-    const response = await axios.post(`${CustomerAPI}`, customerData);
-    return response.data;
+  'customers/createadmin',
+  async (customerData, thunkAPI) => {
+    try {
+      const response = await axios.post(CustomerAPI, customerData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
   }
 );
 
@@ -81,26 +83,27 @@ const customerSlice = createSlice({
       })
       .addCase(fetchAllCustomers.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload,"payload ghjklllllllllllllllllllllllll")
         state.customers = action.payload.customers;
         state.channels = action.payload.channels
-        // state.routes = action.payload.routes;
-        // state.salesExecutives = action.payload.salesExecutives;
+        state.routes = action.payload.routes;
+        state.salesExecutives = action.payload.salesExecutives;
       })
       .addCase(fetchAllCustomers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(fetchCustomer.pending, (state, action) => {
+       state.loading = true
+      })
       .addCase(fetchCustomer.fulfilled, (state, action) => {
-        console.log("tis the fetch custome4r singlve suc customer in the slice",action.payload)
         state.currentCustomer = action.payload.customer;
-        state.currentSale = action.payload.sales
+        state.currentSale = action.payload.sale
+        state.loading=false
       })
       .addCase(createCustomer.fulfilled, (state, action) => {
         state.customers.unshift(action.payload.customer);
       })
       .addCase(updateCustomer.fulfilled, (state, action) => {
-        console.log(action.payload,"tis the fullfilled state ")
         const index = state.customers.findIndex(c => c.id === action.payload.customer.id);
         if (index !== -1) {
           state.customers[index] = action.payload.customer;

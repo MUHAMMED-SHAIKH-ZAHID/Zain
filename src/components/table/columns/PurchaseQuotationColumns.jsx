@@ -2,7 +2,7 @@ import { IoPrint } from 'react-icons/io5';
 import { MdVisibility, MdEdit, MdDelete } from 'react-icons/md';
 import { TbStatusChange } from 'react-icons/tb';
 
-function formatDate(timestamp) {
+ export function formatDate(timestamp) {
   const date = new Date(timestamp);
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -14,23 +14,13 @@ const PurchaseQuotationColumns = ( viewActionClick, editActionClick, printAction
   
   { Header: "Id", accessor: 'id' },
   { Header: "Order Number", accessor: 'purchase_order_number' },
-  { Header: "Name", accessor: 'supplier_name' },
+  { Header: "Name", accessor: 'company_name' },
   {
     Header: ' Amount',
     accessor:'grand_total'
   },
-  { Header: "Date", accessor: row => `${formatDate(row.created_at)}`},
-  // {
-  //   Header: 'Order Status',
-  //   accessor:'order_status',
-  //   Cell: ({ value }) => {
-  //     return (
-  //       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClasses(value)}`}>
-  //         {value}
-  //       </span>
-  //     );
-  //   }
-  // },
+  { Header: "Date", accessor: 'purchase_order_date'},
+
   {
     Header: () => (
         <div className='text-end mr-5'>Actions</div> // Text is centered for consistency
@@ -67,16 +57,6 @@ const PurchaseQuotationColumns = ( viewActionClick, editActionClick, printAction
   }
 ];
 
-// Helper function to determine badge classes based on status
-const getStatusBadgeClasses = (status) => {
-  switch (status) {
-    case 'approve':
-      return 'bg-green-500 text-white '; // Green background for "approve" status with glowing effect
-    case 'pending':
-      return 'bg-yellow-500 text-white '; // Yellow background for "pending" status with glowing effect
-    default:
-      return 'bg-gray-500 text-white'; // Default gray background for other statuses
-  }
-};
+
 
 export { PurchaseQuotationColumns };

@@ -46,7 +46,6 @@ const AccountComponent = () => {
     } else {
       dispatch(createAccount(data))
       .then((res)=>{
-        console.log(res.payload.suceess,"checking res update sales Executive",res)
         toast.success(res.payload.success)
       });
     }

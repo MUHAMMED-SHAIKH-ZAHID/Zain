@@ -28,7 +28,7 @@ const ExpenseTypes = () => { // Rename the component function
 
     const indexOfLastExpenseType = currentPage * expenseTypesPerPage;
     const indexOfFirstExpenseType = indexOfLastExpenseType - expenseTypesPerPage;
-    const currentExpenseTypes = filteredExpenseTypes.slice(indexOfFirstExpenseType, indexOfLastExpenseType);
+    const currentExpenseTypes = filteredExpenseTypes?.slice(indexOfFirstExpenseType, indexOfLastExpenseType);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -60,7 +60,6 @@ const ExpenseTypes = () => { // Rename the component function
     const handleSubmit = (data) => {
         if (currentExpenseType) {
             dispatch(updateExpenseType({ id: currentExpenseType.id, ...data })).then((res)=>{
-                console.log(res,"tee res in the dispatch")
                 toast.success(res.payload.suceess)
               })
         } else {
@@ -80,7 +79,6 @@ const ExpenseTypes = () => { // Rename the component function
         return <div>Loading expense types...</div>;
     }
 
-    console.log(expenseTypes,"debugginh the expense typesc")
 
     return (
         <div className="container mx-auto  sm:px-8 pt-6 pb-2">
@@ -96,7 +94,7 @@ const ExpenseTypes = () => { // Rename the component function
                         />
                         <BiSearch className="text-gray-500 ml-2 my-auto"/>
                     </div>
-                    <button onClick={handleAdd} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <button onClick={handleAdd} className="bg-blue-500 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
                         Add Expense Type
                     </button>
                 </div>
@@ -126,9 +124,9 @@ const ExpenseTypes = () => { // Rename the component function
                                         <button onClick={() => handleEdit(expenseType)} className="text-indigo-600 hover:text-indigo-900 px-4">
                                             <BiEdit />
                                         </button>
-                                        <button onClick={() => openDeleteModal(expenseType)} className="text-red-600 hover:text-red-900 px-4">
+                                        {/* <button onClick={() => openDeleteModal(expenseType)} className="text-red-600 hover:text-red-900 px-4">
                                             <BiTrash />
-                                        </button>
+                                        </button> */}
                                     </td>
                                 </tr>
                             ))}

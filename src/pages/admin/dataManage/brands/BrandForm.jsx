@@ -23,7 +23,22 @@ export const BrandForm = ({ initialData = {}, onSubmit, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="">
       <div className="mb-6">
-        <label htmlFor="name" className="block text-gray-800 text-sm font-semibold mb-2">Brand Name:</label>
+        <label htmlFor="category_id" className="block text-gray-800 text-sm font-medium mb-2">Brand:</label>
+        <select 
+          name="category_id" 
+          value={formData.category_id} 
+          onChange={handleChange} 
+          className="form-select w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" 
+          id="category_id"
+        >
+          <option value="">Select a Brand</option>
+          {!loading && categories && categories.map(category => (
+            <option key={category.id} value={category.id}>{category.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="mb-6">
+        <label htmlFor="name" className="block text-gray-800 text-sm font-medium mb-2">Category Name:</label>
         <input 
           type="text" 
           name="name" 
@@ -32,21 +47,6 @@ export const BrandForm = ({ initialData = {}, onSubmit, onCancel }) => {
           className="form-input w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" 
           id="name"
         />
-      </div>
-      <div className="mb-6">
-        <label htmlFor="category_id" className="block text-gray-800 text-sm font-semibold mb-2">Category:</label>
-        <select 
-          name="category_id" 
-          value={formData.category_id} 
-          onChange={handleChange} 
-          className="form-select w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" 
-          id="category_id"
-        >
-          <option value="">Select a Category</option>
-          {!loading && categories && categories.map(category => (
-            <option key={category.id} value={category.id}>{category.name}</option>
-          ))}
-        </select>
       </div>
       <div className="flex items-center justify-end gap-2">
         <button 

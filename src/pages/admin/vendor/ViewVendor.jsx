@@ -1,5 +1,5 @@
 import { IoLocation } from "react-icons/io5";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdLocationPin } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { FaMobileAlt } from "react-icons/fa";
 import { FaMapLocationDot } from "react-icons/fa6";
@@ -12,21 +12,33 @@ import { GiMoneyStack } from 'react-icons/gi'; // Icon for Total Amount
 
 
 const ViewVendor = () => {
-    const { currentsupplier, currentpurchase } = useSelector((state) => state?.supplier);
-    console.log(currentsupplier,"Debugging curren supplier")
+    const { currentsupplier, currentpurchase,loading } = useSelector((state) => state?.supplier);
+    if (loading) {
+      return (
+        <div className="flex flex-col justify-center items-center h-full">
+          <div className="text-md font-medium mb-4">Loading vendor profile...</div>
+          <div className="border-8 border-gray-200 border-t-blue-500 rounded-full w-16 h-16 animate-spin"></div>
+        </div>
+      );
+    }
     return (
         <>
 <div className="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col md:flex-row">
   <div className="md:w-1/3 bg-gray-200 p-4 flex flex-col items-center">
-    <img
+    {/* <img
       className="border-8 border-white rounded-full transition-all duration-300 transform hover:scale-105"
       src={profile}
       alt="Profile face"
-      width="150"
-    />
-    <p className="text-gray-600 text-lg font-medium ">{currentsupplier?.company_name}</p>
+      width="80"
+    /> */}
     <h1 className="  text-gray-800 mt-2"></h1>
-    <div className="grid grid-cols-1 gap-2 text-gray-500">
+    <div className="grid grid-cols-1 gap-2 place-items-center h-full text-gray-500">
+    <div className="">
+      <div className="flex justify-center">
+
+          <p className="text-gray-600 text-lg font-medium ">{currentsupplier?.company_name}</p>
+      </div>
+
   <div className="flex items-center">
     <span className="w-32 font-medium text-gray-600">Vendor Name:</span>
     <span className="ml-3">{`${currentsupplier?.suffix} ${currentsupplier?.first_name} ${currentsupplier?.last_name}`}</span>
@@ -35,9 +47,10 @@ const ViewVendor = () => {
     <span className="w-32 font-medium text-gray-600">GST Number:</span>
     <span className="ml-3">{currentsupplier?.gst_number}</span>
   </div>
-  <div className="flex items-center">
+  {/* <div className="flex items-center">
     <span className="w-32 font-medium text-gray-600">PAN Number:</span>
     <span className="ml-3">{currentsupplier?.pan_number}</span>
+  </div> */}
   </div>
 </div>
 
@@ -67,7 +80,7 @@ const ViewVendor = () => {
       />
     </div>
     <div className="px-8 ">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 ">
         <div className="flex items-center text-gray-600">
           <MdEmail className="text-red-500" />
           <span className="ml-3">{currentsupplier?.email}</span>
@@ -78,11 +91,15 @@ const ViewVendor = () => {
         </div>
         
       
-      </div>
-        <div className="flex  pt-4 text-gray-600">
-          <FaMapLocationDot className="text-green-500" />
+        <div className="flex  pt-2 md:pb-2 text-gray-600">
+          <FaMapLocationDot className="text-zinc-500" />
           <span className="ml-3">{currentsupplier?.address}</span>
         </div>
+        <div className="flex  pt-2 text-gray-600">
+          <MdLocationPin className="text-zinc-500" />
+          <span className="ml-3">{currentsupplier?.pin}</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

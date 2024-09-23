@@ -10,6 +10,7 @@ import Modal from '../../../../components/commoncomponents/Modal';
 import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
+import logo from '../../../../../public/images/logo.png'
 
 const itemSchema = Yup.object().shape({
   comment: Yup.string(),
@@ -35,18 +36,12 @@ const ViewPurchase = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
     const { suppliers,viewpurchase,products, loading, error } = useSelector((state) => state?.purchaseQuotation);
-     console.log(suppliers,"suppliers list");
     const [showModal, setShowModal] = useState(false);
     const [items, setItems] = useState(viewpurchase?.purchase_order_items || []);
     const [total, setTotal] = useState(0);
     const [grandTotal, setGrandTotal] = useState(0);
     const [taxAmount,setTaxAmount] = useState(0)
     const [showPrint,setShowPrint] = useState(true)
-
-
-  
-
-    console.log(viewpurchase,"checking viewpurchaseid",viewpurchase?.id)
     
     const componentRef = useRef();
 
@@ -77,7 +72,6 @@ const ViewPurchase = () => {
   
     
     
-    
     const formik = useFormik({
         initialValues: {
             purchase_order_date: viewpurchase?.purchase_order_date,
@@ -91,8 +85,6 @@ const ViewPurchase = () => {
         },
         validationSchema: purchaseValidationSchema,
         onSubmit: (values) => {
-            console.log("testing");
-            console.log('Final Submission:', values);
             dispatch(convertPurchase(values))
             // navigate('/purchase/order/convert')
             // dispatch(updatePurchasequotation({ id: viewpurchase.id, purchaseData: values }))
@@ -101,10 +93,9 @@ const ViewPurchase = () => {
         enableReinitialize: true,  // This is crucial for reinitializing the form when viewpurchase changes
 
     });
-    console.log(items,"it is to chaeck the items is available or not")
 
     const calculateGrandTotal = () => {
-      const total = items?.reduce((acc, item) => acc + parseFloat(item.total || 0), 0);
+      const total = items?.reduce((acc, item) => acc + parseFloat(item.total_inc_tax || 0), 0);
       setGrandTotal(total);
       formik.setFieldValue("grand_total",grandTotal)
       formik.setFieldValue("purchase_order_items",items)
@@ -123,121 +114,202 @@ const ViewPurchase = () => {
   
     const handleDeleteItem = (index) => {
       const newItems = [...items];
-      newItems.splice(index, 1);
+      newItems?.splice(index, 1);
       setItems(newItems);
     };
       
 
-
+ console.log(items)
 
   return (
     <div ref={componentRef} className="  px-6 p-5 border bg-white  drop-shadow-sm">
-                      <div className="text-xl font-semibold justify-center flex mb-3"> Purchase Order</div>
+      <div className="grid grid-cols-3 items-end">
+        <div className="">
+      <img src={logo} alt="" className='h-16 leading-none' />
 
-        <div className="grid grid-cols-2 w-full p-4">
-            <div className="">
-           <div className="">
-            <div className="text-lg font-semibold  "> Order From:</div>
-            <div className="text-md font-semibold">{viewpurchase?.supplier_name}</div>
-            <div className="">{viewpurchase?.supplier_email}</div>
-            <div className="">{viewpurchase?.supplier_address}</div>
-            <div className="">{viewpurchase?.supplier?.gst_number}834945 48499 </div>
-            </div>
-            <div className="text-lg font-semibold  pt-4">Order  To:</div>
-
-      <div className="text-md font-semibold"> Zain Sale Corp</div>
-      <div className="">address address address</div>
-      <div className="">pincode state</div>
-      <div className="">zain@gmail.com</div>
-      <div className="">+91 9999999999</div>
-
-            </div>
-            <div className="">
-                
-             <div className="grid justify-items-end">
-                <div className="grid grid-cols-2">
-
-             <div className='gap-5'>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Date</div>
-            <div htmlFor="purchase_order_date" className="block text-sm font-medium text-gray-700">Quotation Number</div>
         </div>
-             <div className=' gap-5'>
-           <div className="">&nbsp; : &nbsp;{viewpurchase?.purchase_order_date}</div>
-           <div className="">&nbsp; : &nbsp;{viewpurchase?.purchase_order_number}</div>
+        <div className="grid justify-items-center">
+                      <div className="text-xl font-medium justify-center flex items-end leading-none pb-3"> Purchase Order</div>
+          <div className="">{viewpurchase?.purchase_order_number}</div>
         </div>
-                </div>
-             </div>
-            </div>
+      </div>
+                      <div className="grid grid-cols-[2fr,2fr,1fr] border text-[.9rem] border-b-0">
+      <div className="">
+        <div className="grid gap-1 p-2">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize"> Name</div>
+          <div className="capitalize justify-start">Gnidertron Private </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Address</div>
+          <div className="justify-start flex">No. 57/1003-C ,Near Abu Haji Hall</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Pin</div>
+          <div className="justify-start flex">673003</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">GST No:</div>
+          <div className="justify-start flex">32aalcg2360h1zt</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Phone Number</div>
+          <div className="justify-start flex">916238492518</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">email :</div>
+          <div className="justify-start flex">office@gnidetron.com</div>
+          </div>
         </div>
-      <form onSubmit={formik.handleSubmit} className="space-y-4 ">
+    
+
+      
+      </div>
+      <div className="">
+      <div className="grid gap-1 p-1 border-l">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Vendor </div>
+          <div className="capitalize justify-start">{viewpurchase?.company_name} </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Address</div>
+          <div className="justify-start flex">{viewpurchase?.supplier_address}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Pin code</div>
+          <div className="justify-start flex">{viewpurchase?.pin}</div>
+          </div>
+         
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">GST</div>
+          <div className="justify-start flex">{viewpurchase?.gst_number}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Contact Person</div>
+          <div className="justify-start flex">{viewpurchase?.supplier_name}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Contact No.</div>
+          <div className="justify-start flex">{viewpurchase?.suppier_name}</div>
+          </div>
+        </div>
+   
+    
+      </div>
+      {/* <div className="grid gap-1 p-1 border-l">
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Buyer </div>
+          <div className="capitalize justify-start">{viewpurchase?.company_name} </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Phone No</div>
+          <div className="justify-start flex">{viewpurchase?.supplier_address}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">email</div>
+          <div className="justify-start flex">{viewpurchase?.pin}</div>
+          </div>
+         
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">PO Data</div>
+          <div className="justify-start flex">{viewpurchase?.gst_number}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Contact Person</div>
+          <div className="justify-start flex">{viewpurchase?.supplier_name}</div>
+          </div>
+          <div className="grid grid-cols-2 justify-between">
+          <div className="capitalize">Contact No.</div>
+          <div className="justify-start flex">{viewpurchase?.suppier_name}</div>
+          </div>
+        </div> */}
+    </div>
+    <div className="border w-full p-1">
+        <div className="grid grid-cols-[2fr,3fr] justify-between">
+          <div className="flex">
+          <div className="capitalize">Discount Allowed :</div>
+          <div className="justify-start flex">{viewpurchase?.discount}</div>
+          </div>
+          <div className="flex">
+          <div className="capitalize">Notes :</div>
+          <div className="justify-start flex">{viewpurchase?.discount}</div>
+          </div>
+          
+          </div>
+        </div>
+    <div className="border w-full p-1">
+        <div className="grid grid-cols-[2fr,2fr,3fr,1fr,1fr] font-semibold text-sm py-1 justify-between">
+          <div className=""></div>
+          <div className="flex">
+          <div className="capitalize">Count :</div>
+          <div className="justify-start flex">&nbsp; {items?.length}</div>
+          </div>
+          <div className="flex">
+          <div className="capitalize">Total :</div>
+          <div className="justify-start flex">&nbsp; {viewpurchase?.grand_total}</div>
+          </div>
+          <div className="">{items.reduce((acc, item) => parseInt(acc) + parseInt(item.tax_amount), 0)}</div>
+          <div className="justify-end flex">&nbsp; {viewpurchase?.grand_total}</div>
+          </div>
+        </div>
+        
+      <form onSubmit={formik.handleSubmit} className=" ">
       <div className="flex justify-between">
       
 
     </div>
+          <div className="">
+          <div className="">
 
-  
-
-
-{/* 
-        <button type="button" onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Add Products
-        </button>
-      */}
-     
-
-     
-
-          {/* Items Table */}
-          <div className="mt-10">
-          <div className="mt-4">
-<div className="mb-2 flex justify-end">
-   <button type="button" onClick={() => setShowModal(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-medium leading-none py-2 px-4 rounded">
-          Add Products
-        </button>
-</div>
-            <table className="min-w-full divide-y divide-gray-200 border">
+            <table className="min-w-full divide-y divide-gray-200 border mt-5">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HSN</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax (%)</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">physical</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exbound</th> */}
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tax Amount</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Incl Tax</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Brand </th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Mrp</th>
+                  {/* <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">HSN</th> */}
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Taxable AMT</th>
+                  {/* <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Discount</th> */}
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Gst (%)</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">GST AMT</th>
+                  <th scope="col" className="px-6 py-2 text-left text-[.7em] font-medium text-gray-500 uppercase tracking-wider">Total </th>
                 </tr>
               </thead>
               {items?.length > 0 && (
 
               <tbody className="bg-white divide-y divide-gray-200">
                 {items?.map((item, index) => (
+
                   <tr key={index}>
-<td className="px-6  whitespace-nowrap text-sm text-gray-500">
+<td className="px-6 py-3  whitespace-nowrap text-xs text-gray-500">{products.find(i=>i.id == item.id)?.brand_name}</td>
+<td className="px-6 py-3  whitespace-nowrap text-xs text-gray-500">{products.find(i=>i.id == item.id)?.category_name}</td>
+<td className="px-6  whitespace-nowrap text-xs text-gray-500">
   {
     products?.find(pro => pro.id == item?.product_id)?.product_name || item?.product_id
   }
 </td>
 
-                    <td className="px-6 py-6  whitespace-nowrap text-sm text-gray-500">{item?.hsn}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.tax || 0}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.quantity}</td>
-                    {/* <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.inbound || 0} </td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.outbound || 0}</td> */}
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.price}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.total}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.discount  || 0}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.tax_amount || 0}</td>
-                    <td className="px-6  whitespace-nowrap text-sm text-gray-500">{item?.total_inc_tax ||0}</td>
+                    <td className="px-6 py-3  whitespace-nowrap text-xs text-gray-500">{products.find(i=>i.id == item.id)?.mrp}</td>
+                    {/* <td className="px-6 py-3  whitespace-nowrap text-xs text-gray-500">{item?.hsn}</td> */}
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.price}</td>
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.quantity}</td>
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.total}</td>
+                    {/* <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.discount  || 0}</td> */}
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.tax || 0}</td>
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.tax_amount || 0}</td>
+                    <td className="px-6  whitespace-nowrap text-xs text-gray-500">{item?.total_inc_tax ||0}</td>
                 
                   </tr>
                 ))}
               </tbody>
           )}
             </table>
+
+
+            
           <div className="flex justify-center items-center py-2">
 {formik.touched.purchase_items && formik.errors.purchase_items && (
     <p className="text-red-500 text-sm ">{formik.errors.purchase_items}</p>)}
@@ -246,73 +318,38 @@ const ViewPurchase = () => {
           </div>
         </div>
             <div className="grid gap-4 justify-end mt-5">
-        {/* Grand Total Display */}
-        <div className='flex justify-between items-center gap-10 mx-2'>
-          <div>
-            <label htmlFor="grandTotal" className="block text-sm font-medium text-gray-700">Grand Total:</label>
-          </div>
-          <div>
-            <input
-              id="grandTotal"
-              type="text"
-              value={grandTotal.toFixed(2)}
-              disabled
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
+ 
       </div>
       
       <div className='flex justify-between'>
-        <div>
+        <div className='flex justify-between gap-2'>
           <label htmlFor="expected_delivery_date" className="block text-sm font-medium text-gray-700">Expected Delivery Date:</label>
-          <DatePicker
-          disabled
-            id="expected_delivery_date"
-            selected={formik.values.expected_delivery_date}
-            onChange={(date) => formik.setFieldValue('expected_delivery_date', date)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-          {formik.touched.expected_delivery_date && formik.errors.expected_delivery_date && (
-            <p className="text-red-500 text-xs italic">{formik.errors.expected_delivery_date}</p>
-          )}
+          <div className="">
+          </div>
+         {formik.values.expected_delivery_date}
         </div>
-        <div>
+        <div className='flex justify-between items-center gap-10 '>
+          <div className="">
+
           <label htmlFor="payment_terms" className="block text-sm font-medium text-gray-700">Payment Terms:</label>
-          <input
-            id="payment_terms"
-            type="text"
-            disabled
-            {...formik.getFieldProps('payment_terms')}
-            placeholder="Payment terms"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-          {formik.touched.payment_terms && formik.errors.payment_terms && (
-            <p className="text-red-500 text-xs italic">{formik.errors.payment_terms}</p>
-          )}
+          </div>
+          <div className="">{formik.values.payment_terms}</div>
         </div>
       </div>
+      {formik.values.notes &&
       
       <div className='my-6'>
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes:</label>
-        <textarea
-        disabled
-          id="notes"
-          {...formik.getFieldProps('notes')}
-          className="mt-1 block w-full px-3 py-2 border border-white-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          placeholder="Add any relevant notes here..."
-        />
+        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 underline">Notes</label>
+      <div className="">{formik?.values?.notes}</div>
       </div>
+      }
         {showPrint && (
         <div className="flex justify-center pb-10 my-4">   
         <div className="flex justify-between gap-4">
           <div className="">
-          {/* <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Convert To Purchase
-        </button> */}
           </div>
           <div className="">
-          <button onClick={handlePrintfun} type="submit" className="bg-zinc-800 hover:bg-black text-white font-bold py-2 px-4 rounded">
+          <button onClick={handlePrintfun} type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
           Print Pdf
         </button>
           </div>

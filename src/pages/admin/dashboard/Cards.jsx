@@ -5,9 +5,9 @@ import { FaBalanceScaleLeft } from "react-icons/fa";
 const Cards = ({ heading, amount, subheading, Icon, bgImage ,textColor}) => {
   return (
     <div className={`  p-4 rounded-xl shadow-sm flex items-center justify-between text-black `} style={{ backgroundColor: bgImage , color :textColor,    border: `.5px solid ${textColor}`  }}>
-     <div className='flex flex-col gap-4'>
+     <div className='flex flex-col gap-2'>
      <p className=' font-thin'>{heading} </p>
-     <p className='font-bold text-2xl flex'> {amount}</p>
+     <p className='font-bold md:text-2xl text-sm flex'> {amount}</p>
      <p className='text-sm'>{subheading}</p>
      </div>
      {/* <div className='b-[#ecb06191] p-4 rounded-full border-4 border-purple-400'> */}

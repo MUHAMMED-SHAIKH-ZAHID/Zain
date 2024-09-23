@@ -76,11 +76,9 @@ const categorySlice = createSlice({
         state.loading = false;
       })
       .addCase(createCategory.fulfilled, (state, action) => {
-        console.log(state.categories,"its the state and payload is ",action.payload)
         state.categories.categories.unshift(action.payload.category);
       })
       .addCase(updateCategory.fulfilled, (state, action) => {
-        console.log(action.payload,state.categories.categories,"thhe tow")
         const index = state.categories.categories.findIndex(c => c.id === action.payload.category.id);
         if (index !== -1) {
           state.categories.categories[index] = action.payload.category;

@@ -8,7 +8,6 @@ export const fetchAllPurchasequotations = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(PurchaseQuotationsAPI);
-      console.log("purchase location ghjklkjhgfghjk",response.data)
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -48,7 +47,6 @@ export const updatePurchasequotation = createAsyncThunk(
   'purchaseQuote/update',
   async ({ id, purchaseData }, thunkAPI) => {
     try {
-      console.log("checking id when updating purchsade shaikh",id)
       const response = await axios.put(`${PurchaseQuotationAPI}/${id}`, purchaseData);
       return response.data;
     } catch (error) {
@@ -104,7 +102,6 @@ const purchaseQuotationSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllPurchasequotations.fulfilled, (state, action) => {
-        console.log(action.payload,"the purchases and the suppliers in purrchaseQuotation")
         state.purchase = action.payload.purchaseQuotations;
         state.suppliers = action.payload.suppliers;
         state.products = action.payload.products;
@@ -118,7 +115,6 @@ const purchaseQuotationSlice = createSlice({
         state.currentPurchase = action.payload;
       })
       .addCase(createPurchasequotation.fulfilled, (state, action) => {
-        console.log(action.payload,"checking the purchase create")
         state.purchase.unshift(action.payload.purchaseQuotation);
       })
       .addCase(createPurchasequotation.rejected, (state, action) => {

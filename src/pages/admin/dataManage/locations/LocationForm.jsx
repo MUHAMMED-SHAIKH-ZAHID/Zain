@@ -28,7 +28,7 @@ export const LocationForm = ({ initialData = {}, onSubmit, onCancel }) => {
     return (
         <form onSubmit={handleSubmit} className="">
             <div className="mb-4">
-                <label htmlFor="location" className="block text-gray-700 text-sm font-bold mb-2">Location:</label>
+                <label htmlFor="location" className="block text-gray-700 text-sm font-medium mb-2">Location:</label>
                 <input 
                     type="text"
                     name="location"
@@ -40,7 +40,7 @@ export const LocationForm = ({ initialData = {}, onSubmit, onCancel }) => {
             </div>
          
             <div className="mb-4">
-                <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+                <label htmlFor="description" className="block text-gray-700 text-sm font-medium mb-2">Description:</label>
                 <textarea 
                     name="description"
                     value={formData.description}

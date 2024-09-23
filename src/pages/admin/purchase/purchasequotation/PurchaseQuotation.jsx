@@ -17,7 +17,6 @@ const PurchaseQuotation = () => {
   }, [dispatch]);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
   
   const { purchase, loading, error } = useSelector((state) => state?.purchaseQuotation);
- console.log(purchase,"purchase page debughhhhhhhhh")
   useEffect(() => {
     dispatch(setHeading("Purchase Order"));
     return () => {
@@ -31,7 +30,6 @@ const PurchaseQuotation = () => {
   const deleteClickHandler = (rowData) => {
     setDeleteItemId(rowData.id);
     setShowDeleteModal(true);
-    console.log("Deleting item with id:", rowData);
   };
 
   const handleDelete = (id) => {
@@ -44,22 +42,16 @@ const PurchaseQuotation = () => {
   };
 
   const editClickHandler = (id) => {
-    console.log(id,"id to edite")
     dispatch(PurchaseQuotationEdit(id))
     navigate('/purchase/order/edit')
   }
 
   const viewClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
     dispatch(PurchaseQuotationView(id))
     navigate('/purchase/order/view')
   }
   
-  // const convertActionClick = (id) => {
-  //   console.log(id,"checkign view data before trnasfre")
-  //   dispatch(convertPurchase(id))
-  //   navigate('/purchase/order/convert')
-  // }
+
 
   const [showPrint,setShowPrint] = useState(true)
   const componentRef = useRef(null);
@@ -79,7 +71,6 @@ const PurchaseQuotation = () => {
     onAfterPrint: () =>  setShowPrint(true),
   });
   const printClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
     dispatch(PurchaseQuotationView(id))
     handlePrintfun()
   }

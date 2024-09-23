@@ -17,7 +17,7 @@ export const fetchAllSales = createAsyncThunk(
 
 // Fetch single sale by ID
 export const fetchSaleById = createAsyncThunk(
-  'sales/fetchById',
+  'sales/fetchByIdsale',
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${SalesAPI}/${id}`);
@@ -46,7 +46,6 @@ export const updateSale = createAsyncThunk(
   'sales/update',
   async ({ id, saleData }, thunkAPI) => {
     try {
-      console.log(saleData,"data to backend")
       const response = await axios.put(`${SalesAPI}/${id}`, saleData);
       return response.data;
     } catch (error) {
@@ -88,13 +87,16 @@ const initialState = {
   loading: false,
   error: null,
   currentSale: null,
-  customer:[],
+   customers:[],
   products:[],
   editsales:null,
   editsalescolumn:null,
   editsalesindex:null,
   viewsalesdata:null,
   paymentModes:null,
+  channels:null,
+  saleorder:[],
+  stocks:[],
 };
 
 // Slice definition
@@ -110,7 +112,6 @@ const salesSlice = createSlice({
         state.editsalesindex = action.payload.index
        },
        viewSalesData:(state,action) => {
-        console.log(action.payload,"viewpurchase Data")
        state.viewsalesdata = null
       }
   },
@@ -120,20 +121,25 @@ const salesSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllSales.fulfilled, (state, action) => {
-        console.log(action.payload,"shaikh zahid is dsebuhiyn yhe sale slicet fetch")
-        state.sales = action.payload.sales;
-        state.customer = action.payload.customers;
-        state.products = action.payload.products;
-        state.paymentModes = action.payload.paymentModes
         state.loading = false;
+        state.sales = action.payload.sales;
+        state. customers = action.payload.customers;
+        state.products = action.payload.products;
+        state.paymentModes = action.payload.accounts
+        state.channels = action.payload.channels
+        state.saleorder = action.payload.saleorder
+        state.stocks= action.payload.stocks
       })
       .addCase(fetchAllSales.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(fetchSaleById.pending, (state, action) => {
+        state.loading= true;
+      })
       .addCase(fetchSaleById.fulfilled, (state, action) => {
-        console.log(action.payload,"the sinle sales")
         state.viewsalesdata = action.payload.sale;
+        state.loading= false;
       })
       .addCase(createSale.fulfilled, (state, action) => {
         state.sales.push(action.payload);

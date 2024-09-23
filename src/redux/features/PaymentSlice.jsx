@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../api/axios';
-import { PaymentsAPI } from '../../api/url';
+import { PaymentApproveApi, PaymentsAPI } from '../../api/url';
 
 // Async Thunks
 export const fetchAllPayments = createAsyncThunk(
@@ -8,7 +8,6 @@ export const fetchAllPayments = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(PaymentsAPI);
-      console.log("Fetched all payments:", response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -21,7 +20,6 @@ export const fetchPaymentById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const response = await axios.get(`${PaymentsAPI}/${id}`);
-      console.log("Fetched payment by ID:", response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -30,11 +28,10 @@ export const fetchPaymentById = createAsyncThunk(
 );
 
 export const createPayment = createAsyncThunk(
-  'payments/create',
+  'payments/createadmin',
   async (paymentData, thunkAPI) => {
     try {
       const response = await axios.post(PaymentsAPI, paymentData);
-      console.log("Created payment:", response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -47,7 +44,17 @@ export const updatePayment = createAsyncThunk(
   async ({ id, paymentData }, thunkAPI) => {
     try {
       const response = await axios.put(`${PaymentsAPI}/${id}`, paymentData);
-      console.log("Updated payment:", response.data);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  }
+);
+export const PaymentApprove = createAsyncThunk(
+  'payments/Update',
+  async ({ id }, thunkAPI) => {
+    try {
+      const response = await axios.get(`${PaymentApproveApi}/${id}`);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -60,7 +67,6 @@ export const deletePayment = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       await axios.delete(`${PaymentsAPI}/${id}`);
-      console.log("Deleted payment:", id);
       return id;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
@@ -74,8 +80,9 @@ const initialState = {
   loading: false,
   error: null,
   currentPayment: null,
-  account:null,
-  purchases:null
+  accounts:null,
+  customers:null,
+  vendors:null,
 };
 
 // Payment Slice
@@ -91,8 +98,9 @@ const paymentSlice = createSlice({
       .addCase(fetchAllPayments.fulfilled, (state, action) => {
         state.loading = false;
         state.payments = action.payload.payments;
-        state.purchases = action.payload.purchases;
-        state.account = action.payload.accounts
+        state.accounts = action.payload.accounts;
+        state.customers = action.payload.customers;
+        state.vendors = action.payload.vendors;
       })
       .addCase(fetchAllPayments.rejected, (state, action) => {
         state.loading = false;
@@ -110,7 +118,14 @@ const paymentSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(createPayment.fulfilled, (state, action) => {
-        state.payments.unshift(action.payload);
+        state.payments.unshift(action.payload.payment);
+      })
+     
+      .addCase(PaymentApprove.fulfilled, (state, action) => {
+        const index = state.payments.findIndex(payment => payment.id === action.payload.payment.id);
+        if (index !== -1) {
+          state.payments[index] = action.payload.payment;
+        }
       })
       .addCase(updatePayment.fulfilled, (state, action) => {
         const index = state.payments.findIndex(payment => payment.id === action.payload.id);

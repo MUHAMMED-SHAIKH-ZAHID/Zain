@@ -100,7 +100,7 @@ const accountSlice = createSlice({
             state.loading = true;
           })
           .addCase(fetchAccountById.fulfilled, (state, action) => {
-            state.currentAccount = action.payload.accounts;
+            state.currentAccount = action.payload.account;
             state.loading = false;
           })
           .addCase(fetchAccountById.rejected, (state, action) => {

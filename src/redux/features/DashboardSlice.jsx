@@ -19,7 +19,8 @@ export const fetchDashboardData = createAsyncThunk(
 const initialState = {
   data: null,
   loading: false,
-  error: null
+  error: null,
+  chartData:null,
 };
 
 // Slice for handling dashboard related actions
@@ -43,6 +44,7 @@ const dashboardSlice = createSlice({
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload;
+        state.chartData = action.payload.chartData
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.loading = false;

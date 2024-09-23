@@ -19,7 +19,6 @@ const RetutnForm = ({ show, handleClose, data = {} }) => {
   const dispatch = useDispatch()
 
   const selectedid = data?.id
-   console.log(data,"the data to the form",selectedid)
 
   const formik = useFormik({
     initialValues: {
@@ -31,7 +30,6 @@ const RetutnForm = ({ show, handleClose, data = {} }) => {
     },
     validationSchema,
     onSubmit: values => {
-      console.log(selectedid,'Form values:', values)
       dispatch(createSupplierReport({supplierData:values,Id:selectedid}))
       // handleClose();
       // dispatch an action to store data

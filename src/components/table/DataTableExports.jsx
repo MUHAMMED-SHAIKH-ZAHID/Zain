@@ -10,14 +10,14 @@ import { useSelector } from 'react-redux';
 
 
 
-const DataTableExports = ({ data, columns, filterColumn, title }) => {
+const DataTableExports = ({ data, columns, filterColumn,title }) => {
   const [filterValue, setFilterValue] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
   const [isOpen, setIsOpen] = useState(false);
   const [showPrint, setShowPrint] = useState(true)
   const { currentsupplier } = useSelector((state) => state?.supplier);
-
+ 
 
   const dropdownRef = useRef(null);
 
@@ -74,6 +74,7 @@ const DataTableExports = ({ data, columns, filterColumn, title }) => {
   );
 
   useEffect(() => {
+
     setPageSize(itemsPerPage);
   }, [setPageSize, itemsPerPage]);
 
@@ -108,7 +109,6 @@ const DataTableExports = ({ data, columns, filterColumn, title }) => {
 
     return value;
   };
-  console.log(title," the Details Details")
   const generatePDF = () => {
     const doc = new jsPDF();
   
@@ -152,7 +152,7 @@ const DataTableExports = ({ data, columns, filterColumn, title }) => {
       };
       
       // Define document metadata
-      const heading = 'Zain Sales Corporation Vendor Report';
+      const heading = 'Gnidertron Private Limited Vendor Report';
       
       // Set background color
       doc.setFillColor(0,0,0); // Light grey background
@@ -217,6 +217,7 @@ const tableStartY = 40;
             </div>
           </div>
         </div>
+        {!data.length > 0 && <>
         <div className="">
         {showPrint && (
         <div className="relative" ref={dropdownRef}>
@@ -269,6 +270,8 @@ const tableStartY = 40;
       )}
         <ModalManage title={title} />
         </div>
+        
+        </>}
       </div>
       <div className="overflow-x-auto no-scrollbar">
         <table {...getTableProps()} className="min-w-full divide-y divide-gray-200">

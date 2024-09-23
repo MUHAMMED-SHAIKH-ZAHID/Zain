@@ -5,6 +5,9 @@ import { BiEdit, BiTrash, BiSearch } from 'react-icons/bi';
 import EditProduct from './EditProduct';
 import Modal from '../../../../components/commoncomponents/Modal';
 import CreateProduct from './CreateProduct';
+import DataTable from '../../../../components/table/DataTable';
+import { productColumns } from '../../../../components/table/columns/ProductColumns';
+import { clearHeading, setHeading } from '../../../../redux/features/HeadingSlice';
 
 const Products = () => {
     const dispatch = useDispatch();
@@ -16,10 +19,14 @@ const Products = () => {
     const [currentProduct, setCurrentProduct] = useState(null);
     const [productToDelete, setProductToDelete] = useState(null);
     const [search, setSearch] = useState('');
-   console.log(products,"the products")
+
     useEffect(() => {
+        dispatch(setHeading("Products"));
         dispatch(fetchProducts());
-    }, [dispatch]);
+        return () => {
+          dispatch(clearHeading());
+        };
+      }, [dispatch]);
 
     const filteredProducts = (products || []).filter(product =>
         product?.product_name.toLowerCase().includes(search.toLowerCase())
@@ -27,7 +34,7 @@ const Products = () => {
 
     const indexOfLastProduct = currentPage * productsPerPage;
     const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+    const currentProducts = filteredProducts?.slice(indexOfFirstProduct, indexOfLastProduct);
 
     const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -46,7 +53,6 @@ const Products = () => {
         setShowEditModal(false);
       };
     const handleEdit = (product) => {
-        console.log(product,"debugging handle edit")
         setCurrentProduct(product);
         setEditData(product);
         setShowEditModal(true); // Open the modal when edit is clicked
@@ -71,130 +77,18 @@ const Products = () => {
         setModalVisible(false);
         setDeleteModalVisible(false);
     };
-
+    const columns = productColumns(handleEdit);
     if (loading) return <div>Loading...</div>;
 
     return (
-        <div className="container border-2 mt-4 rounded-md mx-auto bg-zinc-100  sm:px-6 pt-6 pb-2">
-        <div className="">
-            <h2 className="text-xl mb-2 font-medium leading-tight">Products</h2>
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex">
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="border border-gray-300 rounded py-2 px-4 leading-tight focus:outline-none focus:border-blue-500"
-                        />
-                        <BiSearch className="text-gray-500 ml-2 my-auto" />
-                    </div>
-                    <button onClick={openModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold leading-none py-2 px-4 rounded">
-                        Add New Product
-                    </button>
-                </div>
-                <table className="min-w-full leading-normal">
-    <thead>
-        <tr>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Code
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                 name
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Brand
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Category
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                EAN Code
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                 Gst            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                HSN 
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                MRP
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
-                 Price 1
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
-                 Price 2
-            </th>
-            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-[.6rem] font-semibold text-gray-600 uppercase tracking-wider">
-                 Price 3
-            </th>
-         
-            <th className="px-5 py-3 border-b-2 border-gray-200 text-end bg-gray-100  text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Action
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        {currentProducts?.map(product => (
-            <tr key={product?.id}>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.product_code}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.product_name}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.brand_name}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.category_name}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.ean_code}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.hsn_code}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.tax_rate}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                {product?.mrp =='' ? "0" : product?.mrp}
-
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                {product?.s_rate_1 == null ? "0" : product?.s_rate_1}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                {product?.s_rate_2 ==null ? "0" : product?.s_rate_2}
-                </td>
-                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    {product?.s_rate_3 == null ? "0" : product?.s_rate_3}
-                </td>
-               
-                <td className="bg-white border-b">
-                    <div className="px-5 py-6  h-full border-gray-200 bg-white text-sm flex justify-end items-center">
-
-                    <button onClick={() => handleEdit(product)} className="text-indigo-600 hover:text-indigo-900 px-4">
-                        <BiEdit />
-                    </button>
-                    {/* <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900 px-4">
-                        <BiTrash />
-                    </button> */}
-                    </div>
-                </td>
-            </tr>
-        ))}
-    </tbody>
-</table>
-
-                <div className="flex justify-end mt-4">
-                    {pageNumbers.map(number => (
-                        <button key={number} onClick={() => paginate(number)} className="text-xs bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-2 mx-1 rounded">
-                            {number}
-                        </button>
-                    ))}
-                </div>
-            </div>
+        <div className=" ">
+             <DataTable
+        data={products}
+        columns={columns}
+        filterColumn="brand_name"
+        title={'Product'}
+      />
+      
             
             <Modal
                 visible={deleteModalVisible}

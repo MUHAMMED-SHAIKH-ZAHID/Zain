@@ -27,7 +27,6 @@ export const addProduct = createAsyncThunk('products/add', async (product) => {
 });
 
 export const updateProduct = createAsyncThunk('products/update', async ({id,...values}) => {
-  console.log(values,"Sahi ashai sai",)
   const response = await axios.put(`${ProductAPI}/${id}`, values);
   return response.data;
 });
@@ -50,7 +49,6 @@ const productSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        console.log(action.payload,"the data inte h product")
         state.products = action.payload.products;
         state.taxes = action.payload.taxes
         state.categories = action.payload.categories

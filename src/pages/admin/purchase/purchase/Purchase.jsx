@@ -4,9 +4,8 @@ import { clearHeading, setHeading } from "../../../../redux/features/HeadingSlic
 import DataTable from "../../../../components/table/DataTable";
 import { PurchaseColumns } from "../../../../components/table/columns/PurchaseColumns";
 import DeletePurchase from "./DeletePurchase";
-import { deletePurchase, editPurchaseId, fetchAllPurchases, viewPurchaseData } from "../../../../redux/features/PurchaseSlice";
+import { deletePurchase, editPurchaseId, fetchAllPurchases, printPurchaseData, viewPurchaseData } from "../../../../redux/features/PurchaseSlice";
 import { useNavigate } from "react-router-dom";
-import PaymentModal from "./PaymentModal";
 import RetutnForm from "./ReturnForm";
 import { useReactToPrint } from "react-to-print";
 import PrintPurchase from "./PrintPurchase";
@@ -18,7 +17,6 @@ const Purchase = () => {
     dispatch(fetchAllPurchases());
   }, [dispatch]);
   const { purchases, loading, error } = useSelector((state) => state?.purchases);
- console.log(purchases,"purchase page debug")
   
   useEffect(() => {
     dispatch(setHeading("Purchase Bill"));
@@ -44,7 +42,6 @@ const handleCloseReturnModal = () => {
   const deleteClickHandler = (rowData) => {
     setDeleteItemId(rowData.id);
     setShowDeleteModal(true);
-    console.log("Deleting item with id:", rowData);
   };
 
   const handleDelete = (id) => {
@@ -57,27 +54,14 @@ const handleCloseReturnModal = () => {
   };
 
   const editClickHandler = (id) => {
-    console.log(id,"id to edite")
     dispatch(editPurchaseId(id))
     navigate('/purchase/edit')
   }
   const viewClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
     dispatch(viewPurchaseData(id))
     navigate('/purchase/view')
   }
 
-  // const paymentActionClick   = (id) => {
-  //   console.log(id,"checkign view data before trnasfre")
-  //   setPaymentData(id)
-  //   setShowPaymentModal(true)
-   
-  // }
-  // const returnClickHandler = (id) => {
-  //   console.log(id,"checkign view data before trnasfre")
-  //   setViewData(id)
-  //   setShowReturnModal(true)
-  // }
   const [showPrint,setShowPrint] = useState(true)
   const componentRef = useRef(null);
   const handlePrintfun = () => {
@@ -96,13 +80,12 @@ const handleCloseReturnModal = () => {
     onAfterPrint: () =>  setShowPrint(true),
   });
   const printClickHandler = (id) => {
-    console.log(id,"checkign view data before trnasfre")
-    dispatch(viewPurchaseData(id))
+    dispatch(printPurchaseData(id))
     handlePrintfun()
   }
 
 
-  const columns = PurchaseColumns(viewClickHandler,editClickHandler,printClickHandler,deleteClickHandler);
+  const columns = PurchaseColumns(viewClickHandler,printClickHandler,deleteClickHandler);
 
   // if (loading) return <div>Loading...</div>;
   // if (error) return <div>Error: {error}</div>;
@@ -125,20 +108,7 @@ const handleCloseReturnModal = () => {
           itemId={deleteItemId}
         />
       )}
-                {showPaymentModal && (
-                <PaymentModal
-                    show={showPaymentModal}
-                    handleClose={handleClosePaymentModal}
-                    data={paymentData}
-                />
-            )}
-                    {showReturnModal && (
-                <RetutnForm
-                    show={showReturnModal}
-                    handleClose={handleCloseReturnModal}
-                    data={viewData}
-                />
-            )}
+        
                       {!showPrint &&
           <div className="absolute left-[100rem]">
 

@@ -2,14 +2,18 @@ import { IoPrint } from 'react-icons/io5';
 import { MdVisibility, MdEdit, MdDelete, MdOutlinePayment } from 'react-icons/md';
 import { VscDebugRestart } from 'react-icons/vsc';
 
-const PurchaseColumns = (  viewActionClick, editActionClick, printActionClick, deleteActionClick) => [
+const PurchaseColumns = (  viewActionClick, printActionClick, deleteActionClick) => [
   
   { Header: "Id", accessor: 'id' },
   { Header: "Date", accessor: 'purchase_date' },
-  { Header: "Vendor Name", accessor: 'supplier_name' },
+  { Header: "Company Name", accessor: 'company_name' },
   {
-    Header: 'Bill#',
+    Header: 'Bill Number',
     accessor: 'bill_number'
+  },
+  {
+    Header: 'Invoice Number',
+    accessor: 'invoice_number'
   },
   {
     Header: 'Amount',
@@ -20,7 +24,7 @@ const PurchaseColumns = (  viewActionClick, editActionClick, printActionClick, d
     accessor: 'paid_amount'
   },
   {
-    Header: 'Balance',
+    Header: 'Balances',
     accessor: 'payment_balance'
   },
   {
@@ -55,14 +59,14 @@ const PurchaseColumns = (  viewActionClick, editActionClick, printActionClick, d
           View
         </div>
       </div>
-      <div className="relative group">
+      {/* <div className="relative group">
         <button onClick={() => editActionClick(row.original)} className=''>
           <MdEdit className="text-blue-500  text-xl" />
         </button>
         <div className="absolute top-6 left-1/2 transform -translate-x-1/2  w-max px-2 py-[2px] text-[.6rem] text-white bg-gray-600 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           Edit
         </div>
-      </div>
+      </div> */}
       <div className="relative group ">
         <button onClick={() => printActionClick(row.original)} className=''>
           <IoPrint className="text-xl" />

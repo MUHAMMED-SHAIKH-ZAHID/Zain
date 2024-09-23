@@ -69,9 +69,7 @@ const brandSlice = createSlice({
         state.brands.unshift(action.payload.brand);
       })
       .addCase(updateBrand.fulfilled, (state, action) => {
-        console.log(action.payload.brand,"checking in the slice to pupadte",state.brands)
         const index = state.brands.findIndex(b => b.id === action.payload.brand.id);
-        console.log(action.payload,"checking in the slice to Brand upadte",state.brands)
         if (index !== -1) {
           state.brands[index] = action.payload.brand;
         }

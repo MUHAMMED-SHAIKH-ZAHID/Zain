@@ -68,12 +68,7 @@ const SalesQuoteConvert = () => {
     const [grandTotal, setGrandTotal] = useState(0);
     const [taxAmount,setTaxAmount] = useState(0)
 
-    console.log(convertSales,customers,"shaikh zahid shaiakh zahidk shaikh zahid")
-  
-    
-    
-    
-    
+
     const formik = useFormik({
         initialValues: {
             quotation_date: convertSales?.quotation_date,
@@ -93,18 +88,8 @@ const SalesQuoteConvert = () => {
         },
         validationSchema: purchaseValidationSchema,
         onSubmit: (values) => {
-            // if (Object.keys(formik.errors).length === 0) {
-            //     // No errors, proceed with form submission
-            //     console.log('Form Data hhhhhhhhhhhhhhhhhhhhhhhhhhh', values);
-            //   } else {
-            //     // There are errors, handle them appropriately
-            //     console.log('Form Errors unlimi9ted unlimitedc unlimited unlimited unlimited', formik.errors);
-            //     // setSubmitting(false);
-            //   } 
-            console.log("testing");
-            console.log('Final Submission:', values);
             dispatch(createSale(values))
-            navigate('/sales/quotation')
+            navigate('/invoice/order')
 
         },
         enableReinitialize: true,  // This is crucial for reinitializing the form when convertSales changes
@@ -172,18 +157,7 @@ const SalesQuoteConvert = () => {
             )}
         </div>
 
-        {/* <div>
-            <label htmlFor="purchase_number" className="block text-sm font-medium text-gray-700">Quotation ID:</label>
-            <input
-                id="purchase_number"
-                type="text"
-                value={convertSales?.purchase_order_number}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-            {formik.touched.purchase_number && formik.errors.purchase_number && (
-                <p className="text-red-500 text-xs italic">{formik.errors.purchase_number}</p>
-            )}
-        </div> */}
+  
         
     </div>
 

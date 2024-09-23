@@ -35,7 +35,6 @@ const itemSchema = Yup.object().shape({
 
 const AddItemsForm = ({ items, setItems, onClose }) => {
   const {  products,loading, error } = useSelector((state) => state?.purchases);
-  console.log(products,"Consoling products inte h  form")
 
 
   const formik = useFormik({

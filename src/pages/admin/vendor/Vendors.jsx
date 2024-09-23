@@ -20,7 +20,6 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
 const editClickHandler = (rowData) => {
-  console.log("Button clicked for row:", rowData);
   setEditData(rowData);
   setShowEditModal(true); // Open the modal when edit is clicked
 };
@@ -34,7 +33,6 @@ const deleteClickHandler = (rowData) => {
 };
 
 const handleDelete = (id) => {
-  console.log("Deleting item with id:", id);
   dispatch(deleteSupplier(id))
 };
 
@@ -43,7 +41,6 @@ const handleCloseDeleteModal = () => {
   
 };
 const viewClickHandler = (id) => {
-  console.log(id.id,"checkign view data before trnasfre")
   dispatch(fetchSupplierById(id.id))
   navigate('/vendor/view')
 }
@@ -66,14 +63,16 @@ const viewClickHandler = (id) => {
     // Dispatch the action to fetch dashboard data when the component mounts
     dispatch(fetchAllSuppliers());
   }, [dispatch]);
+
+
   return (
     <div>
    
       <DataTable
         data={suppliers}
         columns={columns}
-        filterColumn="balance"
         title={'vendor'}
+        Export='true'
       />
  
                   {showEditModal && (

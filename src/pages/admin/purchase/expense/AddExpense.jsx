@@ -1,116 +1,275 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { createExpense } from '../../../../redux/features/ExpenseSlice';
+import { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import { format } from 'date-fns';
+import { toast } from 'react-toastify';
+
+
 
 const validationSchema = Yup.object().shape({
+  expense_date: Yup.string().required("Date is Required"),
   expense_type_id: Yup.string().required('Expense Type is required'),
   amount: Yup.string().required('Amount is required'),
   payment_method: Yup.string().required('Payment Method is required'),
   note: Yup.string(),
+  expense_type_name: Yup.string(),
+  reference_type: Yup.string().required('Expense By is required'),
+  reference_id: Yup.string()
+  .when('reference_type', (reference_type, schema) =>
+  reference_type === 'supplier' || reference_type === 'customer' ? schema.required('Expense By is required') : schema.notRequired()
+),
+  account_id: Yup.string()
+  .when('payment_method', (payment_method, schema) =>
+    payment_method === 'bank' ? schema.required('Mode of transaction is required') : schema.notRequired()
+  ),
+reference_no: Yup.number()
+  .when('payment_method', (payment_method, schema) =>
+    ['cheque', 'rtgs', 'neft'].includes(payment_method)
+      ? schema.required('Reference Number is required').min(0)
+      : schema.notRequired()
+  ),
+reference_date: Yup.string()
+  .when('payment_method', (payment_method, schema) =>
+    ['cheque', 'rtgs', 'neft'].includes(payment_method)
+      ? schema.required('Please select Reference Date')
+      : schema.notRequired()
+  ),
 });
 
 const AddExpense = ({ handleClose }) => {
+  const [loadingMessage,setLoadingMessage] = useState(false)
+
   const dispatch = useDispatch();
-  const {ExpenseTypes, loading, error } = useSelector((state) => state.expense);
-  const [message, setMessage] = useState();
-  const [formData, setFormData] = useState({
-    expense_type_id: '',
-    amount: '',
-    payment_method: '',
-    note: '',
+  const { ExpenseTypes, suppliers, customers,accounts } = useSelector((state) => state.expense);
+
+  const formik = useFormik({
+    initialValues: {
+      expense_date:Date.now(),
+      reference_date:Date.now(),
+      expense_type_id: '',
+      amount: '',
+      payment_method: '',
+      note: '',
+      reference_type: '',
+      reference_id: '',
+      reference_no:'',
+      expense_type_name:'',
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        let errors ={}
+        if((formik.values.reference_type) === "customer" && formik.values.reference_id == ''  ){
+          errors.reference_id = "Please chose Company"
+        }
+        if((formik.values.reference_type) === "supplier" && formik.values.reference_id == ''  ){
+          errors.reference_id = "Please chose Supplier"
+        }
+        if (Object.keys(errors).length > 0) {
+          formik.setErrors(errors);
+          return;
+        }
+        const formattedValues = {
+          ...values,
+          expense_date: format(new Date(values.expense_date), 'yyyy-MM-dd'),
+          reference_date: format(new Date(values.reference_date), 'yyyy-MM-dd'),
+        };
+        setLoadingMessage(true)
+        const promise = dispatch(createExpense(formattedValues));
+        promise.then((res) => {
+          if(res.payload.success){
+            toast.success(res.payload.success);
+              setSubmitting(false);
+              handleClose();  
+          }
+          if (res.payload.error) {
+            toast.error(res.payload.error);
+          }
+      
+        });
+      } catch (error) {
+        console.error('Error creating expense:',error);
+      }
+    },
   });
-  console.log(ExpenseTypes,"the types")
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    validationSchema
-      .validate(formData, { abortEarly: false })
-      .then(() => {
-        dispatch(createExpense(formData)).then((res) => {
-          setMessage(res.payload.success);
-          toast.success(res.payload.success);
-        });
-        handleClose();
-      })
-      .catch((errors) => {
-        errors.inner.forEach((error) => {
-          toast.error(error.message);
-        });
-      });
-  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={formik.handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
+      <div className='w-full'>
+          <label htmlFor="expense_date" className="block text-sm font-medium text-gray-700">Date:</label>
+          <div className="border-2 rounded-md mt-1" >
+
+          <DatePicker
+              selected={formik.values.expense_date}
+              onChange={(date) => formik.setFieldValue('expense_date', date)}
+              className="mt-1 block w-full px-3 py-1 text-sm cursor-pointer border-gray-300 rounded-md shadow-sm outline-none"
+              />
+          </div>
+          {formik.touched.expense_date && formik.errors.expense_date && (
+              <p className="text-red-500 text-xs italic">{formik.errors.expense_date}</p>
+          )}
+      </div>
         <div>
-          <label htmlFor="expense_type_id" className="block text-sm font-medium text-gray-700">
-            Expense Type
-          </label>
+          <label htmlFor="reference_type" className="block text-sm font-medium text-gray-700">Expense By</label>
           <select
+            {...formik.getFieldProps('reference_type')}
+            id="reference_type"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            onChange={(e) => {
+              formik.setFieldValue('reference_type', e.target.value);
+              formik.setFieldValue('reference_id', '');
+            }}
+          >
+            <option value="">Select Expense By</option>
+            <option value="supplier">Supplier</option>
+            <option value="customer">Customer</option>
+            <option value="other">Other</option>
+          </select>
+          {formik.touched.reference_type && formik.errors.reference_type ? (
+            <span className="mt-1 text-sm text-red-500">{formik.errors.reference_type}</span>
+          ) : null}
+        </div>
+     { (formik.values.reference_type) != "other" ?
+     
+     <div>
+     <label htmlFor="reference_id" className="block text-sm font-medium text-gray-700">Choose Company</label>
+     <select
+       {...formik.getFieldProps('reference_id')}
+       id="reference_id"
+       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+     >
+       <option value="">Select Company</option>
+       {formik.values.reference_type === 'supplier' &&
+         suppliers?.map((item) => (
+           <option key={item.id} value={item.id}>{item.company_name}</option>
+         ))}
+       {formik.values.reference_type === 'customer' &&
+         customers?.map((item) => (
+           <option key={item.id} value={item.id}>{item?.company_name}</option>
+         ))}
+     </select>
+     {formik.touched.reference_id && formik.errors.reference_id ? (
+       <span className="mt-1 text-sm text-red-500">{formik.errors.reference_id}</span>
+     ) : null}
+   </div> :
+   null
+     }
+       
+
+        <div>
+          <label htmlFor="expense_type_id" className="block text-sm font-medium text-gray-700">Expense Type</label>
+          <select
+            {...formik.getFieldProps('expense_type_id')}
             id="expense_type_id"
-            name="expense_type_id"
-            value={formData.expense_type_id}
-            onChange={handleChange}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="">Select an Expense</option>
-          {ExpenseTypes?.map(i => (
-             <option  key={i?.id} value={i?.id}>{i?.expense_type}</option>
-           
-          ))}  
+            {ExpenseTypes?.map((i) => (
+              <option key={i?.id} value={i?.id}>{i?.expense_type}
+              </option>
+              ))}
           </select>
+          {formik.touched.expense_type_id && formik.errors.expense_type_id ? (
+            <span className="mt-1 text-sm text-red-500">{formik.errors.expense_type_id}</span>
+          ) : null}
         </div>
+
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-            Amount
-          </label>
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
           <input
             type="text"
+            {...formik.getFieldProps('amount')}
             id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Amount"
           />
+          {formik.touched.amount && formik.errors.amount ? (
+            <span className="mt-1 text-sm text-red-500">{formik.errors.amount}</span>
+          ) : null}
         </div>
+
         <div>
-          <label htmlFor="payment_method" className="block text-sm font-medium text-gray-700">
-            Payment Method
-          </label>
+          <label htmlFor="payment_method" className="block text-sm font-medium text-gray-700">Payment Method</label>
           <select
+            {...formik.getFieldProps('payment_method')}
             id="payment_method"
-            name="payment_method"
-            value={formData.payment_method}
-            onChange={handleChange}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-            <option value="">Select a Payment Method</option>
-            <option value="Online">Online</option>
-            <option value="Cash">Cash</option>
-            <option value="Card">Card</option>
+            <option value="">Select Transaction method</option>
+            <option value="bank">Bank</option>
+            <option value="cheque">Cheque</option>
+            <option value="rtgs">RTGS</option>
+            <option value="neft">NEFT</option>
+            <option value="cash">Cash</option>
           </select>
+          {formik.touched.payment_method && formik.errors.payment_method ? (
+            <span className="mt-1 text-sm text-red-500">{formik.errors.payment_method}</span>
+          ) : null}
         </div>
+
+        {formik.values.payment_method == "bank" &&          <div>
+        <label htmlFor="account_id" className="block text-sm font-medium text-gray-700">Account:</label>
+        <select
+id="account_id"
+{...formik.getFieldProps('account_id')}
+className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+>
+<option value="">Select Bank Account</option>
+{accounts.map((item) => (
+  <option value={item.id} key={item.id}>
+    {item.account_name}
+  </option>
+))}
+</select>
+
+        {formik.touched.account_id && formik.errors.account_id && (
+          <div className="text-sm text-red-600">{formik.errors.account_id}</div>
+        )}
+      </div> }
+  
+      {formik.values.payment_method === 'cheque' || formik.values.payment_method === 'rtgs' || formik.values.payment_method === 'neft' ? (
+      <>
+      <div className="">
+      <label htmlFor="reference_no" className="block text-sm font-medium text-gray-700">Reference Number</label>
+        <input
+          type="number"
+          {...formik.getFieldProps('reference_no')}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="Reference Number"
+        />
+        {formik.touched.reference_no && formik.errors.reference_no && (
+          <div className="text-sm text-red-600">{formik.errors.reference_no}</div>
+        )}
+
+      </div>
+      
+
+      
+        <div className="">
+        <label htmlFor="reference_date" className="block text-sm font-medium text-gray-700">Reference Date:</label>
+
+        <DatePicker
+          selected={formik.values.reference_date}
+          onChange={date => formik.setFieldValue('reference_date', date)}
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        />
+        {formik.touched.reference_date && formik.errors.reference_date && (
+          <div className="text-sm text-red-600">{formik.errors.reference_date}</div>
+        )}
+        </div>
+      </>
+    ) : null}
+
         <div>
-          <label htmlFor="note" className="block text-sm font-medium text-gray-700">
-            Note
-          </label>
+          <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note</label>
           <input
             type="text"
+            {...formik.getFieldProps('note')}
             id="note"
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Note"
           />
@@ -118,13 +277,17 @@ const AddExpense = ({ handleClose }) => {
       </div>
 
       <div className="flex justify-end space-x-2 mt-5">
-          <button type="button" onClick={handleClose} className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 ">
-            Close
-          </button>
-          <button type="submit" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white space-x-2 bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 ">
-            Add Expense
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2"
+        >
+          Close
+        </button>
+        <button disabled={loadingMessage} type="submit"  className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loadingMessage ? "animate-pulse" : ''}`} >
+         {loadingMessage ? 'Adding Expense...': 'Add Expense' }
+        </button>
+      </div>
     </form>
   );
 };

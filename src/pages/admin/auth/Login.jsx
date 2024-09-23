@@ -6,6 +6,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginAuth } from '../../../redux/features/AuthSlice';
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
+import { jwtDecode } from 'jwt-decode';
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -24,28 +26,33 @@ const initialValues = {
 
 
 export function Login() {
-  const { isAuthenticated} = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false);
+  const [loadingMessage,setLoadingMessage] = useState(false)
+
 
   const formik = useFormik({
     initialValues,
     validationSchema: loginSchema,
     onSubmit: (values) => {
+      setLoadingMessage(true)
       dispatch(loginAuth(values)).then((res) => {
-        console.log("after login",res.payload.token)
         if(res.payload.token){
-          navigate('/')
+          const decoded = jwtDecode(res.payload.token)
+          if(decoded.role == 'admin'){
+            navigate('/')
+          }else if(decoded.role == 'executive'){
+            navigate('/executive/dashboard/')
+          }
+        }else{
+          setLoadingMessage(false)
         }
       })      
        
     },
   });
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigate('/'); // Redirect to dashboard or another protected route
-  //   }
-  // }, [isAuthenticated, navigate]);
+
 
   return (
 
@@ -127,7 +134,7 @@ export function Login() {
   <div className="w-full bg-gray-100 lg:w-1/2 flex items-center justify-center">
     <div className="max-w-md w-full p-6">
      
-      <h1 className="text-3xl font-semibold mb-6 text-black text-center">Zain Sale Corp</h1>
+      <h1 className="text-3xl font-semibold mb-6 text-black text-center">Gnidertron Private Limited</h1>
       <h1 className="text-sm font-semibold mb-6 text-gray-500 text-center">Reduce complexity through standardization </h1>
       <div className="mt-4 flex flex-col lg:flex-row items-center justify-between">
      
@@ -160,26 +167,36 @@ export function Login() {
             )}
           </div>
       
-        <div>
+        <div className='relative'>
           <label  className="block text-sm font-medium text-gray-700">Password</label>
           <input
               id="password"
-              type="password"
+              type={`${!showPassword ? 'password' : 'text'}`}
               {...formik.getFieldProps('password')}
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
+              className={`shadow relative appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
                 formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
             />
+                    <div   onClick={()=> setShowPassword(!showPassword)}  className="absolute cursor-pointer right-2 top-9 transform -translate-y-1/2">
+                  { (
+
+
+showPassword ? <FaRegEyeSlash /> : <FaRegEye />
+)}
+</div>
             {formik.touched.password && formik.errors.password && (
               <p className="text-red-500 text-xs italic">{formik.errors.password}</p>
             )}        </div>
-        <div>
+        <div className='pt-2'>
+          {loadingMessage ?
+          <button type="submit" className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800  focus:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 animate-pulse transition-colors duration-300">Loading</button>
+          :
           <button type="submit" className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800  focus:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300">LogIn</button>
+          }
         </div>
       </form>
       <div className="mt-4 text-sm text-gray-600 text-center">
-        {/* <p>Already have an account? <a href="#" className="text-black hover:underline">Login here</a>
-        </p> */}
+       
       </div>
     </div>
   </div>

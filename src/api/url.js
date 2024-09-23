@@ -21,7 +21,8 @@ export const PurchaseQuotationsAPI = '/api/purchase/order'
 export const ExpensesAPI ='/api/expenses'
 
 //Payment Section
-export const PaymentsAPI ='/api/purchases/payments'
+export const PaymentsAPI ='/api/payments'
+export const PaymentApproveApi = '/api/payments/approve'
 
 // Sales Section
 export  const SalesAPI = '/api/invoices'
@@ -58,3 +59,49 @@ export const AccountAPI = '/api/accounts'
 // Stock Section
 
 export const StockAPI = '/api/stocks'
+
+//DebitNote
+export const DebitNoteAPI ='/api/purchases/debit-notes'
+
+//CreditNote
+export const CreditNoteAPI = '/api/sales/credit-notes'
+// sales ledger
+export const SalesLedgersAPI = '/api/sales-ledger'
+
+// purchase ledger
+export const PurchaseLedgersAPI = '/api/purchase-ledger'
+
+// purchase ledger
+export const CustomerLedgersAPI = '/api/customer-ledger'
+
+// vender ledger
+export const VendorLedgersAPI = '/api/vendor-ledger'
+
+// input tax ledger
+export const InputTaxLedgerAPI = '/api/input-tax'
+
+// output tax ledger
+export const OutputTaxLedgerAPI = '/api/output-tax'
+
+
+
+
+///Executive Part
+
+//Auth
+
+export const ExecutiveLoginAPI = '/api/login'
+
+
+//Executive Customer Section
+export const ExecutiveCustomerAPI ='/api/executives/customers'
+// Executive Sales SectionQuotation
+export  const ExecutiveSalesQuotationAPI = '/api/executives/sale/order'
+// Sales Section
+export  const ExecutiveSalesAPI = '/api/executives/invoices'
+// Stock Section
+export const ExecutiveStockAPI = '/api/executives/stocks'
+//Payment Section
+export const ExecutivePaymentsAPI ='/api/executives/payments'
+//Dashboard
+export const getExecutiveDashboardDataAPI ='/api/executives/dashboard'
