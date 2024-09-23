@@ -3,7 +3,6 @@ import { MdEmail } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import profile from '../../../assets/Profile/profile.jpeg'
 import DataTable from "../../../components/table/DataTable";
-import { CustomerColumns } from "../../../components/table/columns/CustomerColumns";
 import { fetchCustomer } from "../../../redux/features/CustomerSlice";
 import { useNavigate } from "react-router-dom";
 import { clearHeading, setHeading } from "../../../redux/features/HeadingSlice";
